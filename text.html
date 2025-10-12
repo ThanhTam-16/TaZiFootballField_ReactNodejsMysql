@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Scheme Tester - Football Field</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <div class="bg-white shadow-sm py-4 mb-8">
+        <div class="max-w-7xl mx-auto px-4">
+            <h1 class="text-2xl font-bold text-gray-800">🎨 Test Bảng Màu - FootballField</h1>
+            <p class="text-gray-600">Chọn bảng màu phù hợp cho trang đặt sân bóng</p>
+        </div>
+    </div>
+
+    <!-- Color Scheme 1: Xanh Lá Pastel -->
+    <section class="mb-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">1. Xanh Lá Pastel - Nhẹ Nhàng</h2>
+            <div class="min-h-[400px] bg-gradient-to-br from-green-200 via-green-100 to-emerald-200 rounded-2xl overflow-hidden relative">
+                <!-- Background Pattern -->
+                <div class="absolute inset-0 opacity-20">
+                    <div class="absolute top-20 left-20 w-32 h-32 bg-green-300 rounded-full blur-2xl animate-float"></div>
+                    <div class="absolute bottom-20 right-20 w-40 h-40 bg-emerald-300 rounded-full blur-2xl animate-float" style="animation-delay: 1s;"></div>
+                </div>
+                
+                <!-- Content -->
+                <div class="relative z-10 flex items-center justify-center h-full py-16 text-center">
+                    <div>
+                        <div class="inline-flex items-center space-x-2 bg-white/60 backdrop-blur-sm border border-green-200 rounded-full px-4 py-2 mb-6">
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <span class="text-sm font-medium text-green-800">Nền tảng đặt sân #1 Việt Nam</span>
+                        </div>
+                        
+                        <h1 class="text-3xl font-bold mb-4 text-green-800">
+                            Đặt sân bóng <span class="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">nhanh chóng</span><br>& dễ dàng
+                        </h1>
+                        
+                        <p class="text-green-700 mb-6 max-w-xl mx-auto">
+                            Tìm và đặt sân bóng yêu thích chỉ với vài thao tác đơn giản.
+                        </p>
+                        
+                        <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                            <button class="px-6 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-lg hover:bg-green-600 transition-all">
+                                <i class="fas fa-calendar-plus mr-2"></i>Đặt sân ngay
+                            </button>
+                            <button class="px-6 py-3 bg-white/80 text-green-700 font-semibold rounded-lg border border-green-300 hover:bg-white transition-all">
+                                <i class="fas fa-search mr-2"></i>Tìm kèo đá
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Color Scheme 2: Xanh Mint Soft -->
+    <section class="mb-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">2. Xanh Mint Soft - Dịu Mắt</h2>
+            <div class="min-h-[400px] bg-gradient-to-br from-teal-200 via-green-100 to-cyan-200 rounded-2xl overflow-hidden relative">
+                <div class="absolute inset-0 opacity-20">
+                    <div class="absolute top-20 left-20 w-32 h-32 bg-teal-300 rounded-full blur-2xl animate-float"></div>
+                    <div class="absolute bottom-20 right-20 w-40 h-40 bg-cyan-300 rounded-full blur-2xl animate-float" style="animation-delay: 1s;"></div>
+                </div>
+                
+                <div class="relative z-10 flex items-center justify-center h-full py-16 text-center">
+                    <div>
+                        <div class="inline-flex items-center space-x-2 bg-white/60 backdrop-blur-sm border border-teal-200 rounded-full px-4 py-2 mb-6">
+                            <div class="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div>
+                            <span class="text-sm font-medium text-teal-800">Nền tảng đặt sân #1 Việt Nam</span>
+                        </div>
+                        
+                        <h1 class="text-3xl font-bold mb-4 text-teal-800">
+                            Đặt sân bóng <span class="bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">nhanh chóng</span><br>& dễ dàng
+                        </h1>
+                        
+                        <p class="text-teal-700 mb-6 max-w-xl mx-auto">
+                            Tìm và đặt sân bóng yêu thích chỉ với vài thao tác đơn giản.
+                        </p>
+                        
+                        <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                            <button class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-lg shadow-lg hover:bg-teal-600 transition-all">
+                                <i class="fas fa-calendar-plus mr-2"></i>Đặt sân ngay
+                            </button>
+                            <button class="px-6 py-3 bg-white/80 text-teal-700 font-semibold rounded-lg border border-teal-300 hover:bg-white transition-all">
+                                <i class="fas fa-search mr-2"></i>Tìm kèo đá
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Color Scheme 3: Xanh Sage - Tinh Tế -->
+    <section class="mb-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">3. Xanh Sage - Tinh Tế & Chuyên Nghiệp</h2>
+            <div class="min-h-[400px] bg-gradient-to-br from-green-300 via-slate-200 to-green-300 rounded-2xl overflow-hidden relative">
+                <div class="absolute inset-0 opacity-20">
+                    <div class="absolute top-20 left-20 w-32 h-32 bg-green-400 rounded-full blur-2xl animate-float"></div>
+                    <div class="absolute bottom-20 right-20 w-40 h-40 bg-slate-300 rounded-full blur-2xl animate-float" style="animation-delay: 1s;"></div>
+                </div>
+                
+                <div class="relative z-10 flex items-center justify-center h-full py-16 text-center">
+                    <div>
+                        <div class="inline-flex items-center space-x-2 bg-white/70 backdrop-blur-sm border border-green-300 rounded-full px-4 py-2 mb-6">
+                            <div class="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
+                            <span class="text-sm font-medium text-green-800">Nền tảng đặt sân #1 Việt Nam</span>
+                        </div>
+                        
+                        <h1 class="text-3xl font-bold mb-4 text-gray-800">
+                            Đặt sân bóng <span class="bg-gradient-to-r from-green-700 to-green-600 bg-clip-text text-transparent">nhanh chóng</span><br>& dễ dàng
+                        </h1>
+                        
+                        <p class="text-gray-700 mb-6 max-w-xl mx-auto">
+                            Tìm và đặt sân bóng yêu thích chỉ với vài thao tác đơn giản.
+                        </p>
+                        
+                        <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                            <button class="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-lg hover:bg-green-700 transition-all">
+                                <i class="fas fa-calendar-plus mr-2"></i>Đặt sân ngay
+                            </button>
+                            <button class="px-6 py-3 bg-white/90 text-green-700 font-semibold rounded-lg border border-green-400 hover:bg-white transition-all">
+                                <i class="fas fa-search mr-2"></i>Tìm kèo đá
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Color Scheme 4: Xanh Lá + Cream -->
+    <section class="mb-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">4. Xanh Lá + Cream - Ấm Áp</h2>
+            <div class="min-h-[400px] bg-gradient-to-br from-green-200 via-yellow-50 to-green-300 rounded-2xl overflow-hidden relative">
+                <div class="absolute inset-0 opacity-20">
+                    <div class="absolute top-20 left-20 w-32 h-32 bg-green-300 rounded-full blur-2xl animate-float"></div>
+                    <div class="absolute bottom-20 right-20 w-40 h-40 bg-yellow-200 rounded-full blur-2xl animate-float" style="animation-delay: 1s;"></div>
+                </div>
+                
+                <div class="relative z-10 flex items-center justify-center h-full py-16 text-center">
+                    <div>
+                        <div class="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-green-200 rounded-full px-4 py-2 mb-6">
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <span class="text-sm font-medium text-green-800">Nền tảng đặt sân #1 Việt Nam</span>
+                        </div>
+                        
+                        <h1 class="text-3xl font-bold mb-4 text-green-800">
+                            Đặt sân bóng <span class="bg-gradient-to-r from-green-600 to-yellow-600 bg-clip-text text-transparent">nhanh chóng</span><br>& dễ dàng
+                        </h1>
+                        
+                        <p class="text-green-700 mb-6 max-w-xl mx-auto">
+                            Tìm và đặt sân bóng yêu thích chỉ với vài thao tác đơn giản.
+                        </p>
+                        
+                        <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                            <button class="px-6 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-lg hover:bg-green-600 transition-all">
+                                <i class="fas fa-calendar-plus mr-2"></i>Đặt sân ngay
+                            </button>
+                            <button class="px-6 py-3 bg-yellow-100 text-green-700 font-semibold rounded-lg border border-green-300 hover:bg-yellow-50 transition-all">
+                                <i class="fas fa-search mr-2"></i>Tìm kèo đá
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Color Scheme 5: Xanh Lime Soft -->
+    <section class="mb-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">5. Xanh Lime Soft - Tươi Mới</h2>
+            <div class="min-h-[400px] bg-gradient-to-br from-lime-200 via-green-100 to-lime-300 rounded-2xl overflow-hidden relative">
+                <div class="absolute inset-0 opacity-20">
+                    <div class="absolute top-20 left-20 w-32 h-32 bg-lime-300 rounded-full blur-2xl animate-float"></div>
+                    <div class="absolute bottom-20 right-20 w-40 h-40 bg-green-300 rounded-full blur-2xl animate-float" style="animation-delay: 1s;"></div>
+                </div>
+                
+                <div class="relative z-10 flex items-center justify-center h-full py-16 text-center">
+                    <div>
+                        <div class="inline-flex items-center space-x-2 bg-white/70 backdrop-blur-sm border border-lime-200 rounded-full px-4 py-2 mb-6">
+                            <div class="w-2 h-2 bg-lime-500 rounded-full animate-pulse"></div>
+                            <span class="text-sm font-medium text-lime-800">Nền tảng đặt sân #1 Việt Nam</span>
+                        </div>
+                        
+                        <h1 class="text-3xl font-bold mb-4 text-lime-800">
+                            Đặt sân bóng <span class="bg-gradient-to-r from-lime-600 to-green-600 bg-clip-text text-transparent">nhanh chóng</span><br>& dễ dàng
+                        </h1>
+                        
+                        <p class="text-lime-700 mb-6 max-w-xl mx-auto">
+                            Tìm và đặt sân bóng yêu thích chỉ với vài thao tác đơn giản.
+                        </p>
+                        
+                        <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                            <button class="px-6 py-3 bg-lime-500 text-white font-semibold rounded-lg shadow-lg hover:bg-lime-600 transition-all">
+                                <i class="fas fa-calendar-plus mr-2"></i>Đặt sân ngay
+                            </button>
+                            <button class="px-6 py-3 bg-white/80 text-lime-700 font-semibold rounded-lg border border-lime-300 hover:bg-white transition-all">
+                                <i class="fas fa-search mr-2"></i>Tìm kèo đá
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Color Scheme 6: Xanh Forest Nhẹ -->
+    <section class="mb-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">6. Xanh Forest Nhẹ - Tự Nhiên</h2>
+            <div class="min-h-[400px] bg-gradient-to-br from-emerald-200 via-green-200 to-teal-200 rounded-2xl overflow-hidden relative">
+                <div class="absolute inset-0 opacity-20">
+                    <div class="absolute top-20 left-20 w-32 h-32 bg-emerald-300 rounded-full blur-2xl animate-float"></div>
+                    <div class="absolute bottom-20 right-20 w-40 h-40 bg-teal-300 rounded-full blur-2xl animate-float" style="animation-delay: 1s;"></div>
+                </div>
+                
+                <div class="relative z-10 flex items-center justify-center h-full py-16 text-center">
+                    <div>
+                        <div class="inline-flex items-center space-x-2 bg-white/70 backdrop-blur-sm border border-emerald-200 rounded-full px-4 py-2 mb-6">
+                            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                            <span class="text-sm font-medium text-emerald-800">Nền tảng đặt sân #1 Việt Nam</span>
+                        </div>
+                        
+                        <h1 class="text-3xl font-bold mb-4 text-emerald-800">
+                            Đặt sân bóng <span class="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">nhanh chóng</span><br>& dễ dàng
+                        </h1>
+                        
+                        <p class="text-emerald-700 mb-6 max-w-xl mx-auto">
+                            Tìm và đặt sân bóng yêu thích chỉ với vài thao tác đơn giản.
+                        </p>
+                        
+                        <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                            <button class="px-6 py-3 bg-emerald-500 text-white font-semibold rounded-lg shadow-lg hover:bg-emerald-600 transition-all">
+                                <i class="fas fa-calendar-plus mr-2"></i>Đặt sân ngay
+                            </button>
+                            <button class="px-6 py-3 bg-white/80 text-emerald-700 font-semibold rounded-lg border border-emerald-300 hover:bg-white transition-all">
+                                <i class="fas fa-search mr-2"></i>Tìm kèo đá
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats cho tất cả các schemes -->
+    <section class="mb-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">📊 Stats Section Test</h2>
+            <div class="bg-white rounded-2xl p-8 shadow-lg">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                        <div class="text-2xl text-green-600 mb-2"><i class="fas fa-futbol"></i></div>
+                        <div class="text-2xl font-bold text-green-800">500+</div>
+                        <div class="text-green-600 text-sm">Sân bóng</div>
+                    </div>
+                    <div class="text-center p-4 bg-teal-50 rounded-lg border border-teal-200">
+                        <div class="text-2xl text-teal-600 mb-2"><i class="fas fa-calendar-check"></i></div>
+                        <div class="text-2xl font-bold text-teal-800">10K+</div>
+                        <div class="text-teal-600 text-sm">Lượt đặt</div>
+                    </div>
+                    <div class="text-center p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+                        <div class="text-2xl text-emerald-600 mb-2"><i class="fas fa-users"></i></div>
+                        <div class="text-2xl font-bold text-emerald-800">2K+</div>
+                        <div class="text-emerald-600 text-sm">Thành viên</div>
+                    </div>
+                    <div class="text-center p-4 bg-lime-50 rounded-lg border border-lime-200">
+                        <div class="text-2xl text-lime-600 mb-2"><i class="fas fa-star"></i></div>
+                        <div class="text-2xl font-bold text-lime-800">4.9</div>
+                        <div class="text-lime-600 text-sm">Đánh giá</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer với thông tin các schemes -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h3 class="text-lg font-semibold mb-4">🎨 Bảng Màu Khuyến Nghị</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <strong>Top 1: Xanh Lá Pastel</strong><br>
+                    Nhẹ nhàng, dễ chịu, phù hợp mọi lứa tuổi
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <strong>Top 2: Xanh Sage</strong><br>
+                    Chuyên nghiệp, tinh tế, tránh liên tưởng xấu
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <strong>Top 3: Xanh Forest Nhẹ</strong><br>
+                    Tự nhiên, liên quan trực tiếp đến sân cỏ
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

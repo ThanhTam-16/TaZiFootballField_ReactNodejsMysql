@@ -1,0 +1,125 @@
+football-field-management/
+├── backend/                           # Server-side logic (Node.js + Express)
+│   ├── config/
+│   │   └── db.js
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── adminAuthController.js
+│   │   ├── adminController.js
+│   │   ├── bookingController.js
+│   │   ├── fieldController.js
+│   │   ├── matchController.js
+│   │   ├── serviceController.js
+│   │   ├── maintenanceController.js
+│   │   ├── userController.js
+│   │   ├── teamJoinController.js
+│   │   └── contactController.js
+│   ├── models/
+│   │   ├── Admin.js
+│   │   ├── Field.js
+│   │   ├── Booking.js
+│   │   ├── Match.js
+│   │   ├── MatchParticipant.js
+│   │   ├── Service.js
+│   │   ├── Maintenance.js
+│   │   ├── User.js
+│   │   ├── TeamJoin.js
+│   │   └── Otp.js
+│   ├── middlewares/
+│   │   ├── adminAuth.js
+│   │   ├── authMiddleware.js
+│   │   ├── errorMiddleware.js
+│   │   └── validate.js
+│   ├── routes/
+│   │   ├── authRoutes.js
+│   │   ├── adminRoutes.js
+│   │   ├── fieldRoutes.js
+│   │   ├── bookingRoutes.js
+│   │   ├── matchRoutes.js
+│   │   ├── serviceRoutes.js
+│   │   ├── maintenanceRoutes.js
+│   │   ├── userRoutes.js
+│   │   ├── teamJoinRoutes.js
+│   │   └── contactRoutes.js
+│   ├── utils/
+│   │   ├── sendOtp.js
+│   │   └── logger.js
+│   ├── uploads/
+│   ├── index.js
+│   ├── package.json
+│   └── .env
+│
+├── frontend/                          # Client-side logic (React + Vite)
+│   ├── public/
+│   │   └── index.html
+│   ├── src/
+│   │   ├── admin/                     # Toàn bộ admin UI
+│   │   │   ├── assets/styles/
+│   │   │   │   ├── admin-booking.css
+│   │   │   │   ├── admin.css
+│   │   │   │   ├── common.css
+│   │   │   │   ├── dashboard-only.css
+│   │   │   │   └── field-management.css
+│   │   │   ├── components/
+│   │   │   │   ├── AdminLayout.jsx
+│   │   │   │   ├── AdminLogin.jsx
+│   │   │   │   ├── BookingFilters.jsx
+│   │   │   │   ├── BookingModal.jsx
+│   │   │   │   ├── BookingTable.jsx
+│   │   │   │   ├── ConfirmModal.jsx
+│   │   │   │   └── ProtectedAdminRoute.jsx
+│   │   │   ├── context/
+│   │   │   │   └── AdminContext.jsx
+│   │   │   ├── pages/
+│   │   │   │   ├── AdminBookingManagement.jsx
+│   │   │   │   ├── AdminDashboard.jsx
+│   │   │   │   └── AdminFieldManagement.jsx
+│   │   │   │   └── AdminCustomerManagement.jsx
+│   │   │   └── services/
+│   │   │       ├── adminService.jsx
+│   │   │       └── fieldService.jsx
+│   │   ├── assets/                    # Customer assets
+│   │   │   ├── images/
+│   │   │   └── styles/
+│   │   │       ├── styles.css
+│   │   │       └── common.css
+│   │   ├── components/                # Customer components
+│   │   │   ├── Header.jsx
+│   │   │   ├── Footer.jsx
+│   │   │   ├── LoginModal.jsx
+│   │   │   ├── BookingSearchForm.jsx
+│   │   │   ├── BookingModal.jsx
+│   │   │   ├── FieldCard.jsx
+│   │   │   ├── FieldStatus.jsx
+│   │   │   ├── MatchCard.jsx
+│   │   │   ├── CreateMatchModal.jsx
+│   │   │   ├── ContactModal.jsx
+│   │   │   ├── JoinTeamCard.jsx
+│   │   │   ├── JoinTeamModal.jsx
+│   │   │   ├── Features.jsx
+│   │   │   └── ScrollToTop.jsx
+│   │   ├── pages/                     # Customer pages
+│   │   │   ├── Home.jsx
+│   │   │   ├── Booking.jsx
+│   │   │   ├── FindMatch.jsx
+│   │   │   ├── JoinTeam.jsx
+│   │   │   ├── Contact.jsx
+│   │   │   └── UserProfile.jsx
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx
+│   │   ├── services/
+│   │   │   ├── authService.jsx
+│   │   │   ├── bookingService.jsx
+│   │   │   ├── matchService.jsx
+│   │   │   └── teamJoinService.jsx
+│   │   ├── App.jsx
+│   │   ├── index.jsx
+│   │   └── router.js
+│   ├── package.json
+│
+├── database/
+│   └── football_field_management.sql
+│
+├── .gitignore
+├── README.md
+└── .env

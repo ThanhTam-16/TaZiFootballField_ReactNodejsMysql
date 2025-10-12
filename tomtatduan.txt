@@ -1,0 +1,393 @@
+# 📋 CẤU TRÚC DỰ ÁN WEBSITE QUẢN LÝ SÂN BÓNG (SAU KHI TỐI ƯU)
+
+## 🎯 MỤC TIÊU DỰ ÁN
+Website đặt sân bóng và quản lý sân bóng với 2 phía:
+- **Khách hàng**: Đặt sân, tìm kèo, ghép đội
+- **Admin**: Quản lý sân, duyệt booking, thống kê doanh thu
+
+## 🛠 CÔNG NGHỆ
+- **Backend**: Node.js + Express + MySQL
+- **Frontend**: React + Vite + Tailwind CSS
+- **Auth**: OTP cho customer, Session-based cho admin
+- **Libraries**: axios, react-router-dom, nodemailer, fontawesome
+
+---
+
+## 📁 CẤU TRÚC THƯ MỤC TỐI ƯU
+
+```
+football-field-management/
+├── 📂 backend/                           # SERVER-SIDE APPLICATION
+│   ├── 📂 config/
+│   │   └── 📄 database.js                # MySQL connection setup
+│   │
+│   ├── 📂 controllers/                   # 🏗️ UNIFIED CONTROLLERS
+│   │   ├── 📄 authController.js          # Customer OTP + Admin session auth
+│   │   ├── 📄 adminAuthController.js     # Admin-specific auth logic
+│   │   ├── 📄 bookingController.js       # Customer booking + Admin booking management
+│   │   ├── 📄 fieldController.js         # Customer fields + Admin field CRUD
+│   │   ├── 📄 customerController.js      # Admin customer management
+│   │   ├── 📄 dashboardController.js     # Admin dashboard stats
+│   │   ├── 📄 matchController.js         # Customer matches + Admin match management
+│   │   ├── 📄 teamJoinController.js      # Customer team join + Admin management
+│   │   ├── 📄 serviceController.js       # Customer services + Admin service CRUD
+│   │   ├── 📄 maintenanceController.js   # Customer maintenance + Admin CRUD
+│   │   ├── 📄 inventoryController.js     # Admin-only inventory management
+│   │   ├── 📄 revenueController.js       # Admin-only revenue reports
+│   │   ├── 📄 userController.js          # Legacy user management
+│   │   └── 📄 contactController.js       # Contact form handling
+│   │
+│   ├── 📂 models/                        # 💾 DATABASE MODELS
+│   │   ├── 📄 Admin.js                   # Admin CRUD, sessions, permissions
+│   │   ├── 📄 User.js                    # Customer CRUD, phone/email auth
+│   │   ├── 📄 Field.js                   # Field operations, availability checking
+│   │   ├── 📄 Booking.js                 # Booking CRUD, pricing logic
+│   │   ├── 📄 BookingService.js          # Booking-Service relationship
+│   │   ├── 📄 PricingRule.js             # Dynamic pricing by time/field type
+│   │   ├── 📄 Match.js                   # Match CRUD, participant management
+│   │   ├── 📄 TeamJoin.js                # Team join posts CRUD
+│   │   ├── 📄 Service.js                 # Basic services (legacy)
+│   │   ├── 📄 Product.js                 # Inventory products with stock
+│   │   ├── 📄 StockTransaction.js        # Import/export transactions
+│   │   ├── 📄 Maintenance.js             # Maintenance scheduling
+│   │   └── 📄 Otp.js                     # OTP verification logic
+│   │
+│   ├── 📂 middleware/                    # 🛡️ MIDDLEWARE LAYER
+│   │   ├── 📄 adminAuth.js               # Admin authentication & permissions
+│   │   ├── 📄 authMiddleware.js          # Customer authentication
+│   │   ├── 📄 errorMiddleware.js         # Global error handling
+│   │   └── 📄 validate.js                # Input validation
+│   │
+│   ├── 📂 routes/                        # 🛣️ UNIFIED ROUTING LAYER
+│   │   ├── 📄 index.js                   # Main route entry point
+│   │   ├── 📄 adminRoutes.js             # 🔗 Admin route aggregator
+│   │   ├── 📄 authRoutes.js              # Customer + Admin auth routes
+│   │   ├── 📄 bookingRoutes.js           # Customer + Admin booking routes
+│   │   ├── 📄 fieldRoutes.js             # Customer + Admin field routes
+│   │   ├── 📄 customerRoutes.js          # Admin customer management routes
+│   │   ├── 📄 dashboardRoutes.js         # Admin dashboard routes
+│   │   ├── 📄 matchRoutes.js             # Customer + Admin match routes
+│   │   ├── 📄 teamJoinRoutes.js          # Customer + Admin team join routes
+│   │   ├── 📄 serviceRoutes.js           # Customer + Admin service routes
+│   │   ├── 📄 maintenanceRoutes.js       # Customer + Admin maintenance routes
+│   │   ├── 📄 inventoryRoutes.js         # Admin-only inventory routes
+│   │   ├── 📄 revenueRoutes.js           # Admin-only revenue routes
+│   │   ├── 📄 userRoutes.js              # Legacy user routes
+│   │   └── 📄 contactRoutes.js           # Contact form routes
+│   │
+│   ├── 📂 utils/                         # 🔧 UTILITY FUNCTIONS
+│   │   ├── 📄 sendOtp.js                 # OTP sending logic
+│   │   └── 📄 logger.js                  # Logging utilities
+│   │
+│   ├── 📂 uploads/                       # 📂 FILE STORAGE
+│   ├── 📄 index.js                       # 🚀 Main server entry point
+│   ├── 📄 package.json                   # Dependencies & scripts
+│   └── 📄 .env                          # Environment variables
+│
+├── 📂 frontend/                          # CLIENT-SIDE APPLICATION
+│   ├── 📂 public/
+│   │   └── 📄 index.html
+│   │
+│   ├── 📂 src/
+│   │   ├── 📂 admin/                     # 🔹 ADMIN INTERFACE
+│   │   │   ├── 📂 assets/styles/         # 🎨 ADMIN STYLING
+│   │   │   │   ├── 📄 admin.css          # General admin styles
+│   │   │   │   ├── 📄 common.css         # Shared admin components
+│   │   │   │   ├── 📄 dashboard.css      # Dashboard specific styles
+│   │   │   │   ├── 📄 admin-booking.css  # Booking management styles
+│   │   │   │   ├── 📄 field-management.css # Field management styles
+│   │   │   │   ├── 📄 customer-management.css # Customer management styles
+│   │   │   │   ├── 📄 inventory-management.css # Inventory management styles
+│   │   │   │   ├── 📄 maintenance-management.css # Maintenance styles
+│   │   │   │   └── 📄 team-management.css # Team management styles
+│   │   │   │
+│   │   │   ├── 📂 components/            # 🧩 ADMIN COMPONENTS
+│   │   │   │   ├── 📂 common/            # SHARED COMPONENTS
+│   │   │   │   │   ├── 📄 ConfirmModal.jsx # Confirmation dialogs
+│   │   │   │   │   ├── 📄 Pagination.jsx   # Pagination component
+│   │   │   │   │   ├── 📄 LoadingSpinner.jsx # Loading states
+│   │   │   │   │   └── 📄 Toast.jsx        # Toast notifications
+│   │   │   │   │
+│   │   │   │   ├── 📂 dashboard/         # DASHBOARD COMPONENTS
+│   │   │   │   │   ├── 📄 DashboardStats.jsx # Stats cards
+│   │   │   │   │   ├── 📄 RecentBookings.jsx # Recent bookings list
+│   │   │   │   │   └── 📄 QuickActions.jsx   # Quick action buttons
+│   │   │   │   │
+│   │   │   │   ├── 📂 booking/           # BOOKING COMPONENTS
+│   │   │   │   │   ├── 📄 BookingStats.jsx   # Booking statistics
+│   │   │   │   │   ├── 📄 BookingFilters.jsx # Search & filters
+│   │   │   │   │   ├── 📄 BookingTable.jsx   # Booking table
+│   │   │   │   │   ├── 📄 BookingModal.jsx   # Create/Edit modal
+│   │   │   │   │   └── 📄 BulkActions.jsx    # Bulk operations
+│   │   │   │   │
+│   │   │   │   ├── 📂 customer/          # CUSTOMER COMPONENTS
+│   │   │   │   │   ├── 📄 CustomerStats.jsx    # Customer stats cards
+│   │   │   │   │   ├── 📄 CustomerFilters.jsx  # Search & filters
+│   │   │   │   │   ├── 📄 CustomerTable.jsx    # Customer table
+│   │   │   │   │   ├── 📄 CustomerModal.jsx    # Create/Edit modal
+│   │   │   │   │   ├── 📄 CustomerDetailModal.jsx # View details
+│   │   │   │   │   └── 📄 BulkActions.jsx      # Bulk operations
+│   │   │   │   │
+│   │   │   │   ├── 📂 field/             # FIELD COMPONENTS
+│   │   │   │   │   ├── 📄 FieldDateNavigation.jsx # Date navigation
+│   │   │   │   │   ├── 📄 FieldViewControls.jsx   # View controls & filters
+│   │   │   │   │   ├── 📄 FieldTimeline.jsx       # Timeline view
+│   │   │   │   │   ├── 📄 FieldList.jsx           # List view
+│   │   │   │   │   ├── 📄 FieldLegend.jsx         # Legend component
+│   │   │   │   │   ├── 📄 BookingDetailModal.jsx  # Booking detail modal
+│   │   │   │   │   └── 📄 CreateBookingModal.jsx  # Create booking modal
+│   │   │   │   │
+│   │   │   │   ├── 📂 team/              # TEAM MANAGEMENT COMPONENTS
+│   │   │   │   │   ├── 📄 TeamStats.jsx         # Team statistics
+│   │   │   │   │   ├── 📄 MatchFilters.jsx      # Match filters
+│   │   │   │   │   ├── 📄 MatchTable.jsx        # Match management table
+│   │   │   │   │   ├── 📄 TeamJoinFilters.jsx   # Team join filters
+│   │   │   │   │   ├── 📄 TeamJoinTable.jsx     # Team join management table
+│   │   │   │   │   └── 📄 TeamActionModals.jsx  # Create/Edit modals
+│   │   │   │   │
+│   │   │   │   ├── 📄 AdminLayout.jsx    # Main admin layout + navigation
+│   │   │   │   ├── 📄 AdminLogin.jsx     # Admin login form
+│   │   │   │   └── 📄 ProtectedAdminRoute.jsx # Route protection
+│   │   │   │
+│   │   │   ├── 📂 context/               # 🪀 STATE MANAGEMENT
+│   │   │   │   └── 📄 AdminContext.jsx   # Admin state management
+│   │   │   │
+│   │   │   ├── 📂 hooks/                 # 🪀 CUSTOM HOOKS
+│   │   │   │   ├── 📄 useToast.js        # Toast notification hook
+│   │   │   │   ├── 📄 usePagination.js   # Pagination logic
+│   │   │   │   ├── 📄 useFilters.js      # Filter state management
+│   │   │   │   └── 📄 useConfirm.js      # Confirmation dialog hook
+│   │   │   │
+│   │   │   ├── 📂 pages/                 # 📄 ADMIN PAGES
+│   │   │   │   ├── 📄 AdminDashboard.jsx # Dashboard page
+│   │   │   │   ├── 📄 AdminBookingManagement.jsx # Booking management
+│   │   │   │   ├── 📄 AdminFieldManagement.jsx   # Field management
+│   │   │   │   ├── 📄 AdminCustomerManagement.jsx # Customer management
+│   │   │   │   ├── 📄 AdminInventoryManagement.jsx # Inventory management
+│   │   │   │   ├── 📄 AdminMaintenanceManagement.jsx # Maintenance management
+│   │   │   │   └── 📄 AdminTeamManagement.jsx # Team management page
+│   │   │   │
+│   │   │   └── 📂 services/              # 🌐 ADMIN API SERVICES
+│   │   │       ├── 📄 index.js           # Service exports
+│   │   │       ├── 📄 baseService.js     # Base service class
+│   │   │       ├── 📄 dashboardService.js # Dashboard APIs
+│   │   │       ├── 📄 bookingService.js  # Booking management APIs
+│   │   │       ├── 📄 customerService.js # Customer management APIs
+│   │   │       ├── 📄 fieldService.js    # Field management APIs
+│   │   │       ├── 📄 revenueService.js  # Revenue APIs
+│   │   │       ├── 📄 inventoryService.js # Inventory APIs
+│   │   │       ├── 📄 maintenanceService.js # Maintenance APIs
+│   │   │       ├── 📄 matchService.js    # Match management APIs
+│   │   │       ├── 📄 teamJoinService.js # Team join management APIs
+│   │   │       └── 📄 adminService.js    # Legacy admin APIs
+│   │   │
+│   │   ├── 📂 assets/                    # 💥 CUSTOMER ASSETS
+│   │   │   ├── 📂 images/
+│   │   │   └── 📂 styles/
+│   │   │       ├── 📄 styles.css         # Customer main styles
+│   │   │       └── 📄 common.css         # Shared customer styles
+│   │   │
+│   │   ├── 📂 components/                # 💥 CUSTOMER COMPONENTS
+│   │   │   ├── 📄 Header.jsx             # Navigation header
+│   │   │   ├── 📄 Footer.jsx             # Footer
+│   │   │   ├── 📄 LoginModal.jsx         # OTP login modal
+│   │   │   ├── 📄 BookingSearchForm.jsx  # Booking search form
+│   │   │   ├── 📄 BookingModal.jsx       # Booking confirmation
+│   │   │   ├── 📄 FieldCard.jsx          # Field display card
+│   │   │   ├── 📄 FieldStatus.jsx        # Real-time field status
+│   │   │   ├── 📄 MatchCard.jsx          # Match display card
+│   │   │   ├── 📄 CreateMatchModal.jsx   # Create match modal
+│   │   │   ├── 📄 ContactModal.jsx       # Contact info modal
+│   │   │   ├── 📄 JoinTeamCard.jsx       # Team join card
+│   │   │   ├── 📄 JoinTeamModal.jsx      # Join team modal
+│   │   │   ├── 📄 Features.jsx           # Homepage features
+│   │   │   └── 📄 ScrollToTop.jsx        # Auto scroll component
+│   │   │
+│   │   ├── 📂 pages/                     # 💥 CUSTOMER PAGES
+│   │   │   ├── 📄 Home.jsx               # Landing page với hero section
+│   │   │   ├── 📄 Booking.jsx            # Field booking page
+│   │   │   ├── 📄 FindMatch.jsx          # Find/create matches
+│   │   │   ├── 📄 JoinTeam.jsx           # Team joining page
+│   │   │   ├── 📄 Contact.jsx            # Contact page với maps
+│   │   │   └── 📄 UserProfile.jsx        # User profile management
+│   │   │
+│   │   ├── 📂 context/                   # 💥 CUSTOMER STATE
+│   │   │   └── 📄 AuthContext.jsx        # Customer auth context
+│   │   │
+│   │   ├── 📂 services/                  # 💥 CUSTOMER SERVICES
+│   │   │   ├── 📄 api.js                 # Base API configuration
+│   │   │   ├── 📄 authService.jsx        # Customer authentication
+│   │   │   ├── 📄 bookingService.jsx     # Customer booking APIs
+│   │   │   ├── 📄 matchService.jsx       # Match/kèo APIs
+│   │   │   └── 📄 teamJoinService.jsx    # Team join APIs
+│   │   │
+│   │   ├── 📄 App.jsx                    # Main app + routing
+│   │   ├── 📄 index.jsx                  # App entry point
+│   │   └── 📄 router.js                  # Route definitions
+│   │
+│   ├── 📄 package.json                   # Frontend dependencies
+│   ├── 📄 tailwind.config.js             # Tailwind CSS configuration
+│   └── 📄 postcss.config.js              # PostCSS configuration
+│
+├── 📂 database/                          # 💾 DATABASE
+│   └── 📄 football_field_management.sql  # Database schema với tất cả tables
+│
+├── 📄 .gitignore                         # Git ignore rules
+├── 📄 README.md                          # Project documentation
+└── 📄 .env                              # Environment variables
+```
+
+---
+
+## 🔄 THAY ĐỔI CHÍNH SAU KHI TỐI ƯU:
+
+### 🗂️ **Backend Consolidation:**
+- ❌ **Loại bỏ**: Thư mục `routes/admin/` riêng biệt
+- ❌ **Loại bỏ**: Thư mục `controllers/admin/` riêng biệt  
+- ❌ **Loại bỏ**: Bảng `match_participants` (logic ghép vào `matches`)
+- ✅ **Gộp chung**: Tất cả controllers xử lý cả customer và admin logic
+- ✅ **Gộp chung**: Tất cả routes phân biệt customer/admin bằng middleware
+- ✅ **Thêm mới**: Dynamic pricing system với `pricing_rules`
+- ✅ **Thêm mới**: Advanced inventory management với `products` & `stock_transactions`
+- ✅ **Cải tiến**: OTP system hỗ trợ cả phone và email
+
+### 🎯 **Route Structure:**
+```
+Customer API:
+├── /api/auth/*           # Customer authentication
+├── /api/fields/*         # Field browsing & availability
+├── /api/bookings/*       # Customer booking operations
+├── /api/matches/*        # Match finding & creation
+├── /api/team-joins/*     # Team joining operations
+└── /api/contact/*        # Contact form
+
+Admin API:
+├── /api/admin/dashboard/*    # Dashboard & statistics
+├── /api/admin/bookings/*     # Booking management
+├── /api/admin/fields/*       # Field management
+├── /api/admin/customers/*    # Customer management
+├── /api/admin/matches/*      # Match management
+├── /api/admin/team-joins/*   # Team join management
+├── /api/admin/inventory/*    # Inventory management
+├── /api/admin/maintenance/*  # Maintenance management
+└── /api/admin/revenue/*      # Revenue reports
+```
+
+### 🏗️ **Controller Pattern:**
+```javascript
+// bookingController.js - Unified example
+const bookingController = {
+  // Customer methods
+  createBooking: async (req, res) => { 
+    // Check pricing_rules for dynamic pricing
+    // Create booking with calculated amount
+  },
+  getUserBookings: async (req, res) => { /* Get user bookings */ },
+  
+  // Admin methods (với middleware auth)
+  getAllBookings: async (req, res) => { /* Admin booking management */ },
+  updateBookingStatus: async (req, res) => { /* Admin status update */ },
+  getBookingStats: async (req, res) => { /* Admin statistics */ },
+  
+  // Pricing methods
+  calculatePrice: async (req, res) => { /* Dynamic pricing calculation */ }
+};
+```
+
+### 🛡️ **Authentication Flow:**
+```javascript
+// authRoutes.js - Unified auth
+router.post('/send-otp', authController.sendOtp);           // Customer (phone/email)
+router.post('/verify-otp', authController.verifyOtp);       // Customer verification
+router.post('/admin/login', authController.adminLogin);     // Admin (email/password)
+router.get('/admin/verify', authController.verifySession);  // Admin session check
+```
+
+---
+
+## 🎉 **LỢI ÍCH CỦA CẤU TRÚC MỚI:**
+
+### ✅ **Đơn giản hóa:**
+- Ít thư mục con hơn (easier navigation)
+- Dễ tìm kiếm và maintain files
+- Giảm độ phức tạp import/export paths
+
+### ✅ **Hiệu quả:**
+- Code reuse giữa customer và admin
+- Shared validation logic
+- Centralized error handling
+- Dynamic pricing system
+
+### ✅ **Maintainability:**
+- Easier refactoring và updates
+- Single source of truth cho mỗi feature
+- Consistent coding patterns
+- Better database normalization
+
+### ✅ **Scalability:**
+- Dễ thêm feature mới
+- Clear separation of concerns
+- Flexible middleware system
+- Advanced inventory management
+- Role-based permission system
+
+### ✅ **Business Logic:**
+- Dynamic pricing based on time/field type
+- Advanced stock management
+- Comprehensive OTP system
+- Flexible maintenance scheduling
+
+---
+
+## 🔧 **API ENDPOINTS SUMMARY:**
+
+| Endpoint | Customer | Admin | Purpose |
+|----------|----------|-------|---------|
+| `/api/auth/*` | ✅ OTP (phone/email) | ✅ Session | Authentication |
+| `/api/fields/*` | ✅ Browse + Pricing | ❌ | Field listing with dynamic pricing |
+| `/api/admin/fields/*` | ❌ | ✅ CRUD | Field management |
+| `/api/bookings/*` | ✅ Create + Pricing | ❌ | Customer booking with auto-pricing |
+| `/api/admin/bookings/*` | ❌ | ✅ Manage | Booking management |
+| `/api/matches/*` | ✅ Join/Create | ❌ | Match operations |
+| `/api/admin/matches/*` | ❌ | ✅ Manage | Match management |
+| `/api/team-joins/*` | ✅ Create/Browse | ❌ | Team join posts |
+| `/api/admin/team-joins/*` | ❌ | ✅ Manage | Team join management |
+| `/api/admin/inventory/*` | ❌ | ✅ Full CRUD | Product & stock management |
+| `/api/admin/revenue/*` | ❌ | ✅ Reports | Revenue analytics |
+
+### 🆕 **New Features:**
+- **Dynamic Pricing**: Real-time price calculation based on time and field type
+- **Advanced Inventory**: Full product management with stock tracking
+- **Flexible OTP**: Support both phone and email verification  
+- **Role Permissions**: Granular admin permission system (super_admin/admin/manager)
+- **Enhanced Maintenance**: Better scheduling with emergency/holiday types
+
+👤 User Features:
+
+Authentication: OTP login qua phone/email
+Booking System: Tìm sân trống, đặt sân với logic giá phức tạp
+Match Finding: Tạo kèo, tìm kèo, tham gia đội
+Team Join: Đăng tin cần người, tìm đội thiếu người
+Profile Management: Cập nhật thông tin, xem thống kê
+Contact: Gửi email liên hệ với Google Maps
+
+🔧 Technical Features:
+
+Real-time Field Status: Timeline view với overlap checking
+Complex Pricing: Giá theo giờ và loại sân
+Advanced Search: Filter theo nhiều tiêu chí
+Responsive Design: Mobile-first, animations
+Form Validation: Client & server validation
+File Structure: MVC pattern, modular components
+
+🎉 TÍNH NĂNG ĐÃ HOÀN THIỆN VÀ CẦN CÓ TRONG DỰ ÁN:
+✅ Dual Tab Interface - Matches & Team Joins trong cùng 1 page
+✅ Advanced Filtering - Search, status, field type, date range
+✅ Statistics Dashboard - Real-time stats cho từng tab
+✅ Responsive Design - Desktop & mobile optimized
+✅ Pagination - Handle large datasets efficiently
+✅ Permission-based Access - Role-based security
+✅ Action Buttons - View, Edit, Delete (ready for modals)
+✅ Error Handling - Comprehensive error management
+✅ Loading States - User-friendly loading indicators
+
