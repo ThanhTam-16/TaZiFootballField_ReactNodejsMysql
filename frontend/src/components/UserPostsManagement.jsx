@@ -90,27 +90,37 @@ function UserPostsManagement() {
   };
 
   const handleCompleteTeamPost = async (postId) => {
-    if (!confirm('Đánh dấu tin ghép đội này đã hoàn thành?')) return;
+  if (!confirm('Đánh dấu tin ghép đội này đã hoàn thành?')) return;
+  
+  setActionLoading(prev => ({ ...prev, [`complete-team-${postId}`]: true }));
+  try {
+    // 👇 GỌI TRỰC TIẾP API GIỐNG MATCH
+    await API.put(`/team-joins/${postId}/status`, { 
+      status: 'closed',
+      phone_number: user.phone_number
+    });
     
-    setActionLoading(prev => ({ ...prev, [`complete-team-${postId}`]: true }));
-    try {
-      await updateTeamJoinPost(postId, { status: 'closed' });
-      await fetchUserPosts();
-      alert('Đã đánh dấu hoàn thành tin ghép đội');
-    } catch (error) {
-      console.error('Error completing team post:', error);
-      alert('Lỗi khi cập nhật trạng thái');
-    } finally {
-      setActionLoading(prev => ({ ...prev, [`complete-team-${postId}`]: false }));
-    }
-  };
+    alert('Đã đánh dấu hoàn thành tin ghép đội');
+    
+    // 👇 REFRESH DATA
+    await fetchUserPosts();
+    
+  } catch (error) {
+    console.error('Error completing team post:', error);
+    alert(error.response?.data?.error || 'Lỗi khi cập nhật trạng thái');
+  } finally {
+    setActionLoading(prev => ({ ...prev, [`complete-team-${postId}`]: false }));
+  }
+};
 
   const handleDeleteTeamPost = async (postId) => {
     if (!confirm('Hủy tin ghép đội này? Hành động không thể hoàn tác.')) return;
     
     setActionLoading(prev => ({ ...prev, [`delete-team-${postId}`]: true }));
     try {
-      await deleteTeamJoinPost(postId);
+      await API.delete(`/team-joins/${postId}`, {
+        data: { phone_number: user.phone_number }
+      });
       await fetchUserPosts();
       alert('Đã hủy tin ghép đội');
     } catch (error) {
@@ -165,7 +175,10 @@ function UserPostsManagement() {
           phone_number: user.phone_number
         });
       } else {
-        await updateTeamJoinPost(item.id, editForm);
+        await updateTeamJoinPost(item.id, {
+          ...editForm,
+          phone_number: user.phone_number
+        });
       }
       
       await fetchUserPosts();

@@ -92,7 +92,7 @@ const TeamJoin = {
       if (fields.length === 0) return;
 
       values.push(id);
-      const sql = `UPDATE team_join_posts SET ${fields.join(', ')}, updated_at = NOW() WHERE id = ?`;
+      const sql = `UPDATE team_join_posts SET ${fields.join(', ')} WHERE id = ?`;
       
       const [result] = await db.promise().query(sql, values);
       return result;
@@ -105,7 +105,7 @@ const TeamJoin = {
   softDeleteAsync: async (id) => {
     try {
       const [result] = await db.promise().query(
-        'UPDATE team_join_posts SET status = "closed", updated_at = NOW() WHERE id = ?',
+        'UPDATE team_join_posts SET status = "closed" WHERE id = ?',
         [id]
       );
       return result;
@@ -206,7 +206,7 @@ const TeamJoin = {
       if (fields.length === 0) return callback(null, { affectedRows: 0 });
 
       values.push(id);
-      const sql = `UPDATE team_join_posts SET ${fields.join(', ')}, updated_at = NOW() WHERE id = ?`;
+      const sql = `UPDATE team_join_posts SET ${fields.join(', ')} WHERE id = ?`;
       db.query(sql, values, callback);
       return;
     }
@@ -217,7 +217,7 @@ const TeamJoin = {
 
   softDelete: (id, callback) => {
     if (callback) {
-      const sql = 'UPDATE team_join_posts SET status = "closed", updated_at = NOW() WHERE id = ?';
+      const sql = 'UPDATE team_join_posts SET status = "closed" WHERE id = ?';
       db.query(sql, [id], callback);
       return;
     }
@@ -342,7 +342,7 @@ const TeamJoin = {
       if (fields.length === 0) return;
 
       values.push(id);
-      const sql = `UPDATE team_join_posts SET ${fields.join(', ')}, updated_at = NOW() WHERE id = ?`;
+      const sql = `UPDATE team_join_posts SET ${fields.join(', ')} WHERE id = ?`;
       
       await db.promise().query(sql, values);
     } catch (error) {
@@ -365,8 +365,8 @@ const TeamJoin = {
       if (!postIds || postIds.length === 0) return;
       
       const placeholders = postIds.map(() => '?').join(',');
-      const sql = `UPDATE team_join_posts SET status = ?, updated_at = NOW() WHERE id IN (${placeholders})`;
-      
+      const sql = `UPDATE team_join_posts SET status = ? WHERE id IN (${placeholders})`;
+
       await db.promise().query(sql, [status, ...postIds]);
     } catch (error) {
       console.error('Error in TeamJoin.bulkUpdateStatus:', error);
