@@ -139,18 +139,7 @@ const FieldViewControls = ({ currentView, filters, onViewChange, onFilterChange,
           </div>
         </div>
 
-        {/* Spacer */}
-        <div className="flex-1"></div>
-
-        {/* Refresh Button */}
-        <button
-          onClick={onRefresh}
-          disabled={loading}
-          className="flex items-center space-x-2 px-4 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors duration-200 text-sm disabled:opacity-50"
-        >
-          <i className={`fas fa-sync-alt ${loading ? 'animate-spin' : ''}`}></i>
-          <span>Làm mới dữ liệu</span>
-        </button>
+        
       </div>
 
       {/* Mobile/Tablet: Stacked Layout */}
@@ -207,9 +196,9 @@ const FieldViewControls = ({ currentView, filters, onViewChange, onFilterChange,
         </div>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           {/* Field Type Filter */}
-          <div>
+          <div className="min-w-0">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Loại sân
             </label>
@@ -232,7 +221,7 @@ const FieldViewControls = ({ currentView, filters, onViewChange, onFilterChange,
           </div>
 
           {/* Status Filter */}
-          <div>
+          <div className="min-w-0">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Trạng thái
             </label>
@@ -255,17 +244,6 @@ const FieldViewControls = ({ currentView, filters, onViewChange, onFilterChange,
           </div>
         </div>
 
-        {/* Refresh Button */}
-        <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-          <button
-            onClick={onRefresh}
-            disabled={loading}
-            className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors duration-200 text-sm disabled:opacity-50"
-          >
-            <i className={`fas fa-sync-alt ${loading ? 'animate-spin' : ''}`}></i>
-            <span>Làm mới dữ liệu</span>
-          </button>
-        </div>
       </div>
     </div>
   );
