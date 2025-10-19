@@ -1,4 +1,3 @@
-// ====== frontend/src/admin/components/dashboard/RecentBookings.jsx (TAILWIND) ======
 import { useState } from 'react';
 
 const RecentBookings = ({ bookings, onRefresh, refreshing }) => {
@@ -66,10 +65,10 @@ const RecentBookings = ({ bookings, onRefresh, refreshing }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-            <i className="fas fa-list-alt text-blue-600 dark:text-blue-400 text-sm"></i>
+          <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center">
+            <i className="fas fa-list-alt text-white"></i>
           </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -84,7 +83,7 @@ const RecentBookings = ({ bookings, onRefresh, refreshing }) => {
         <button
           onClick={onRefresh}
           disabled={refreshing}
-          className="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200"
+          className="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
           title="Làm mới"
         >
           <i className={`fas fa-sync-alt text-sm ${refreshing ? 'animate-spin' : ''}`}></i>
@@ -92,11 +91,11 @@ const RecentBookings = ({ bookings, onRefresh, refreshing }) => {
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-6">
         {bookings.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
-              <i className="fas fa-calendar-times text-gray-400 text-xl"></i>
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i className="fas fa-calendar-times text-gray-400 text-2xl"></i>
             </div>
             <p className="text-gray-500 dark:text-gray-400 text-sm">
               Chưa có đặt sân nào
@@ -111,27 +110,27 @@ const RecentBookings = ({ bookings, onRefresh, refreshing }) => {
               return (
                 <div
                   key={booking.id}
-                  className="border border-gray-200 dark:border-gray-600 rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 cursor-pointer"
+                  className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer"
                   onClick={() => toggleExpand(booking.id)}
                 >
                   {/* Main Content */}
                   <div className="flex items-center justify-between">
                     {/* Left Side */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <div className="w-6 h-6 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center flex-shrink-0">
-                          <i className="fas fa-futbol text-green-600 dark:text-green-400 text-xs"></i>
+                      <div className="flex items-center space-x-3 mb-2">
+                        <div className="w-8 h-8 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center flex-shrink-0">
+                          <i className="fas fa-futbol text-green-600 dark:text-green-400 text-sm"></i>
                         </div>
                         <h3 className="font-medium text-gray-900 dark:text-white text-sm truncate">
                           {booking.customer_name}
                         </h3>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig.class}`}>
-                          <i className={`${statusConfig.icon} mr-1`}></i>
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig.class}`}>
+                          <i className={`${statusConfig.icon} mr-1.5`}></i>
                           {statusConfig.text}
                         </span>
                       </div>
                       
-                      <div className="flex items-center space-x-4 text-xs text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center flex-wrap gap-4 text-xs text-gray-600 dark:text-gray-400">
                         <span className="flex items-center space-x-1">
                           <i className="fas fa-map-marker-alt"></i>
                           <span className="truncate">{booking.field_name}</span>
@@ -148,7 +147,7 @@ const RecentBookings = ({ bookings, onRefresh, refreshing }) => {
                     </div>
 
                     {/* Right Side */}
-                    <div className="flex items-center space-x-3 flex-shrink-0 ml-3">
+                    <div className="flex items-center space-x-4 flex-shrink-0 ml-4">
                       <div className="text-right">
                         <div className="font-semibold text-emerald-600 dark:text-emerald-400 text-sm">
                           {formatCurrency(booking.total_amount)}
@@ -157,13 +156,13 @@ const RecentBookings = ({ bookings, onRefresh, refreshing }) => {
                           {booking.phone_number}
                         </div>
                       </div>
-                      <i className={`fas fa-chevron-${isExpanded ? 'up' : 'down'} text-gray-400 text-xs`}></i>
+                      <i className={`fas fa-chevron-${isExpanded ? 'up' : 'down'} text-gray-400 text-xs transition-transform duration-200`}></i>
                     </div>
                   </div>
 
                   {/* Expanded Content */}
                   {isExpanded && (
-                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 animate-slideDown">
                       <div className="grid grid-cols-2 gap-4 text-xs">
                         <div>
                           <span className="text-gray-500 dark:text-gray-400">Loại sân:</span>
@@ -194,21 +193,15 @@ const RecentBookings = ({ bookings, onRefresh, refreshing }) => {
                       </div>
                       
                       {/* Quick Actions */}
-                      <div className="flex space-x-2 mt-3">
-                        {booking.status === 'pending' && (
-                          <>
-                            <button className="flex-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded transition-colors duration-200">
-                              <i className="fas fa-check mr-1"></i>
-                              Duyệt
-                            </button>
-                            <button className="flex-1 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded transition-colors duration-200">
-                              <i className="fas fa-times mr-1"></i>
-                              Từ chối
-                            </button>
-                          </>
-                        )}
-                        <button className="px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white text-xs font-medium rounded transition-colors duration-200">
-                          <i className="fas fa-eye mr-1"></i>
+                      <div className="flex space-x-2 mt-4">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Handle view details
+                          }}
+                          className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors duration-200"
+                        >
+                          <i className="fas fa-eye mr-2"></i>
                           Chi tiết
                         </button>
                       </div>
@@ -223,16 +216,32 @@ const RecentBookings = ({ bookings, onRefresh, refreshing }) => {
 
       {/* Footer */}
       {bookings.length > 0 && (
-        <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-600 rounded-b-lg">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-600 rounded-b-lg">
           <a
             href="/admin/bookings"
-            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center space-x-1"
+            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center justify-center space-x-2 hover:underline"
           >
             <span>Xem tất cả đặt sân</span>
             <i className="fas fa-arrow-right text-xs"></i>
           </a>
         </div>
       )}
+
+      <style>{`
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-slideDown {
+          animation: slideDown 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 };

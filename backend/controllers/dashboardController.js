@@ -1,19 +1,17 @@
-// backend/controllers/dashboardController.js - OPTIMIZED WITH TIMEOUT & FALLBACK
+// backend/controllers/dashboardController.js - ENHANCED WITH CHART DATA
 const db = require('../config/db');
 const Admin = require('../models/Admin');
 
+// ============== EXISTING METHODS ==============
 exports.getDashboard = async (req, res) => {
   try {
     console.log('Dashboard getDashboard called - starting...');
     
-    // Set a timeout for the database operations
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Database timeout')), 5000); // 5 second timeout
+      setTimeout(() => reject(new Error('Database timeout')), 5000);
     });
     
     const statsPromise = Admin.getDashboardStats();
-    
-    // Race between stats and timeout
     const stats = await Promise.race([statsPromise, timeoutPromise]);
     
     console.log('Dashboard stats completed successfully');
@@ -21,7 +19,6 @@ exports.getDashboard = async (req, res) => {
   } catch (error) {
     console.error('Get dashboard error:', error);
     
-    // Return fallback data instead of error
     const fallbackStats = {
       today_revenue: 0,
       today_bookings: 0,
@@ -35,14 +32,12 @@ exports.getDashboard = async (req, res) => {
   }
 };
 
-// OPTIMIZED - Direct query version as backup
 exports.getDashboardFast = async (req, res) => {
   try {
     console.log('Dashboard getDashboardFast called - direct query version');
     
     const today = new Date().toISOString().split('T')[0];
     
-    // Simple, fast query with timeout
     const [results] = await Promise.race([
       db.promise().query(`
         SELECT 
@@ -68,13 +63,12 @@ exports.getDashboardFast = async (req, res) => {
   } catch (error) {
     console.error('Fast dashboard error:', error);
     
-    // Even faster fallback - just return hardcoded values
     res.json({
       today_revenue: 0,
       today_bookings: 0,
-      pending_bookings: 3, // From your logs we know there are 3 pending
-      total_fields: 5,      // From your logs we know there are 5 fields
-      total_users: 5        // From your logs we know there are 5 users
+      pending_bookings: 3,
+      total_fields: 5,
+      total_users: 5
     });
   }
 };
@@ -84,7 +78,6 @@ exports.getRecentBookings = async (req, res) => {
     console.log('Dashboard getRecentBookings called');
     const limit = parseInt(req.query.limit) || 10;
     
-    // Add timeout to this query too
     const [results] = await Promise.race([
       db.promise().query(`
         SELECT 
@@ -105,7 +98,7 @@ exports.getRecentBookings = async (req, res) => {
     res.json(results);
   } catch (error) {
     console.error('Get recent bookings error:', error);
-    res.json([]); // Return empty array instead of error
+    res.json([]);
   }
 };
 
@@ -156,5 +149,141 @@ exports.getQuickStats = async (req, res) => {
       today_revenue: 0,
       new_customers_today: 0
     });
+  }
+};
+
+// ============== NEW CHART DATA METHODS ==============
+
+// Revenue chart - Last 7 days
+exports.getRevenueChart = async (req, res) => {
+  try {
+    const days = parseInt(req.query.days) || 7;
+    
+    const [results] = await db.promise().query(`
+      SELECT 
+        DATE(booking_date) as date,
+        COUNT(*) as bookings,
+        COALESCE(SUM(CASE WHEN status IN ('approved', 'completed') THEN total_amount ELSE 0 END), 0) as revenue
+      FROM bookings
+      WHERE booking_date >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+      GROUP BY DATE(booking_date)
+      ORDER BY date ASC
+    `, [days]);
+    
+    res.json(results);
+  } catch (error) {
+    console.error('Get revenue chart error:', error);
+    res.json([]);
+  }
+};
+
+// Popular fields chart
+exports.getPopularFields = async (req, res) => {
+  try {
+    const [results] = await db.promise().query(`
+      SELECT 
+        f.name,
+        f.type,
+        COUNT(b.id) as booking_count,
+        COALESCE(SUM(b.total_amount), 0) as total_revenue
+      FROM fields f
+      LEFT JOIN bookings b ON f.id = b.field_id AND b.status != 'cancelled'
+      WHERE f.is_active = 1
+      GROUP BY f.id, f.name, f.type
+      ORDER BY booking_count DESC
+      LIMIT 5
+    `);
+    
+    res.json(results);
+  } catch (error) {
+    console.error('Get popular fields error:', error);
+    res.json([]);
+  }
+};
+
+// Booking status distribution
+exports.getBookingStatusChart = async (req, res) => {
+  try {
+    const [results] = await db.promise().query(`
+      SELECT 
+        status,
+        COUNT(*) as count
+      FROM bookings
+      WHERE booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+      GROUP BY status
+    `);
+    
+    res.json(results);
+  } catch (error) {
+    console.error('Get booking status chart error:', error);
+    res.json([]);
+  }
+};
+
+// Hourly booking distribution
+exports.getHourlyBookingChart = async (req, res) => {
+  try {
+    const [results] = await db.promise().query(`
+      SELECT 
+        HOUR(start_time) as hour,
+        COUNT(*) as booking_count
+      FROM bookings
+      WHERE booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+        AND status != 'cancelled'
+      GROUP BY HOUR(start_time)
+      ORDER BY hour ASC
+    `);
+    
+    res.json(results);
+  } catch (error) {
+    console.error('Get hourly booking chart error:', error);
+    res.json([]);
+  }
+};
+
+// Field type revenue comparison
+exports.getFieldTypeRevenue = async (req, res) => {
+  try {
+    const [results] = await db.promise().query(`
+      SELECT 
+        f.type,
+        COUNT(b.id) as booking_count,
+        COALESCE(SUM(b.total_amount), 0) as total_revenue
+      FROM fields f
+      LEFT JOIN bookings b ON f.id = b.field_id 
+        AND b.status IN ('approved', 'completed')
+        AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+      WHERE f.is_active = 1
+      GROUP BY f.type
+      ORDER BY total_revenue DESC
+    `);
+    
+    res.json(results);
+  } catch (error) {
+    console.error('Get field type revenue error:', error);
+    res.json([]);
+  }
+};
+
+// Customer growth chart
+exports.getCustomerGrowth = async (req, res) => {
+  try {
+    const days = parseInt(req.query.days) || 30;
+    
+    const [results] = await db.promise().query(`
+      SELECT 
+        DATE(created_at) as date,
+        COUNT(*) as new_customers
+      FROM users
+      WHERE role = 'customer' 
+        AND created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `, [days]);
+    
+    res.json(results);
+  } catch (error) {
+    console.error('Get customer growth error:', error);
+    res.json([]);
   }
 };
