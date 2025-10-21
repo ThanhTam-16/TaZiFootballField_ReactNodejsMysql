@@ -51,7 +51,7 @@ const Booking = {
     );
     return results;
   },
-
+  
   getByDate: async (date) => {
     const [results] = await db.promise().query(
       `SELECT field_id, start_time, end_time FROM bookings WHERE booking_date = ? AND status != 'cancelled'`,

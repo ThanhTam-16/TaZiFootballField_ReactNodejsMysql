@@ -72,7 +72,7 @@ const CustomerStats = ({ stats = {} }) => {
       {statItems.map((item, index) => (
         <div 
           key={item.key}
-          className="group relative bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-3 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden"
+          className="group relative bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-3 md:p-4 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden"
           style={{
             animationDelay: `${index * 100}ms`
           }}

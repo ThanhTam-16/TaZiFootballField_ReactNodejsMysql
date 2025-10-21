@@ -1,5 +1,7 @@
-// ====== frontend/src/admin/components/field/CreateBookingModal.jsx (TAILWIND) ======
+// ====== frontend/src/admin/components/field/CreateBookingModal.jsx (COMPACT) ======
 import { useState, useEffect } from 'react';
+import API from '../../../services/api';
+import { bookingService } from '../../services'; // if relative differs adjust path
 
 const CreateBookingModal = ({ slot, fieldsData, onSave, onClose }) => {
   const [formData, setFormData] = useState({
@@ -31,7 +33,6 @@ const CreateBookingModal = ({ slot, fieldsData, onSave, onClose }) => {
     }
   }, [slot]);
 
-  // Calculate total amount when field or time changes
   useEffect(() => {
     if (formData.field_id && formData.start_time && formData.end_time) {
       calculateTotalAmount();
@@ -54,7 +55,6 @@ const CreateBookingModal = ({ slot, fieldsData, onSave, onClose }) => {
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: null }));
     }
@@ -70,13 +70,11 @@ const CreateBookingModal = ({ slot, fieldsData, onSave, onClose }) => {
     if (!formData.start_time) newErrors.start_time = 'Vui lòng chọn giờ bắt đầu';
     if (!formData.end_time) newErrors.end_time = 'Vui lòng chọn giờ kết thúc';
 
-    // Validate phone number format
     const phoneRegex = /^[0-9]{10,11}$/;
     if (formData.customer_phone && !phoneRegex.test(formData.customer_phone.replace(/\s/g, ''))) {
       newErrors.customer_phone = 'Số điện thoại không đúng định dạng';
     }
 
-    // Validate time range
     if (formData.start_time && formData.end_time) {
       const startHour = parseInt(formData.start_time.split(':')[0]);
       const endHour = parseInt(formData.end_time.split(':')[0]);
@@ -92,19 +90,67 @@ const CreateBookingModal = ({ slot, fieldsData, onSave, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setLoading(true);
     
     try {
-      await onSave({
-        ...formData,
-        phone_number: formData.customer_phone
-      });
+      // chuẩn hóa phone
+      const phone = formData.customer_phone.replace(/\s/g, '');
+      let userId = null;
+
+      // 1) Thử tìm user theo phone (API backend có thể là /users/find-by-phone hoặc /users/lookup)
+      try {
+        const lookup = await API.get('/users/find-by-phone', { params: { phone } });
+        if (lookup?.data?.user?.id) {
+          userId = lookup.data.user.id;
+        }
+      } catch (err) {
+        // nếu endpoint không tồn tại, bỏ qua và sẽ tạo user
+        console.debug('User lookup failed (ok to ignore):', err?.response?.data || err.message);
+      }
+
+      // 2) Nếu chưa có user, tạo user mới (nếu backend không cho tạo user từ admin, bỏ qua bước này)
+      if (!userId) {
+        try {
+          const created = await API.post('/users', { name: formData.customer_name.trim(), phone_number: phone });
+          userId = created?.data?.id || created?.data?.user?.id;
+        } catch (err) {
+          // nếu backend không cho tạo user từ đây, bạn có thể truyền phone_number thay vì user_id
+          console.debug('User create failed (will fallback to phone):', err?.response?.data || err.message);
+        }
+      }
+
+      // build payload giống trang quản lý đơn (admin)
+      const payload = {
+        user_id: userId || undefined, // nếu có userId gửi, không có thì backend có thể chấp nhận phone_number
+        field_id: Number(formData.field_id),
+        booking_date: formData.booking_date,
+        start_time: formData.start_time,
+        end_time: formData.end_time,
+        total_amount: Number(formData.total_amount) || 0,
+        notes: formData.notes || ''
+      };
+
+      // nếu không có userId, vẫn gửi phone_number (nếu backend xử lý)
+      if (!userId) {
+        payload.phone_number = phone;
+        payload.customer_name = formData.customer_name.trim();
+      }
+
+      // Gọi đúng API admin (như trang Quản lý đơn)
+      await bookingService.createManualBooking(payload);
+
+      // gọi onSave để parent xử lý (nếu parent cần)
+      if (onSave) onSave(payload);
+
+      onClose();
     } catch (error) {
       console.error('Error creating booking:', error);
+      // hiển thị lỗi server nếu có
+      const message = error.response?.data?.error || error.message || 'Có lỗi tạo đặt sân';
+      // nếu dùng hook/toast ở parent, gọi ở parent; ở đây log ra console
+      alert(message);
     } finally {
       setLoading(false);
     }
@@ -120,212 +166,154 @@ const CreateBookingModal = ({ slot, fieldsData, onSave, onClose }) => {
   const selectedField = fieldsData.find(f => f.id === parseInt(formData.field_id));
 
   return (
-    <div 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-300"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 max-w-2xl w-full max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-w-md w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4 text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-black/10"></div>
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                <i className="fas fa-calendar-plus text-white text-lg"></i>
-              </div>
+        <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-3 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <i className="fas fa-calendar-plus text-white"></i>
               <div>
-                <h3 className="text-xl font-bold">Thêm đặt sân mới</h3>
-                <p className="text-white/80 text-sm">Tạo đơn đặt sân cho khách hàng</p>
+                <h3 className="font-semibold">Thêm đặt sân mới</h3>
+                <p className="text-white/80 text-xs">Tạo đơn đặt sân cho khách hàng</p>
               </div>
             </div>
-            
             <button 
               onClick={onClose}
-              className="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors duration-200"
+              className="w-6 h-6 rounded bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors duration-200"
             >
-              <i className="fas fa-times text-white"></i>
+              <i className="fas fa-times text-white text-xs"></i>
             </button>
           </div>
         </div>
         
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col h-full">
-          <div className="flex-1 p-6 max-h-[60vh] overflow-y-auto">
-            <div className="space-y-6">
-              {/* Field and Date Selection */}
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
-                <div className="flex items-center space-x-2 mb-4">
-                  <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-                    <i className="fas fa-futbol text-blue-600 dark:text-blue-400 text-sm"></i>
-                  </div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white">Thông tin sân và thời gian</h4>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex-1 p-4 max-h-[60vh] overflow-y-auto">
+            <div className="space-y-4">
+              {/* Field and Time Selection */}
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Sân <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Sân *
                     </label>
-                    <div className="relative">
-                      <select 
-                        value={formData.field_id}
-                        onChange={(e) => handleInputChange('field_id', e.target.value)}
-                        className={`w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 appearance-none cursor-pointer ${
-                          errors.field_id ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                        }`}
-                        required
-                      >
-                        <option value="">Chọn sân</option>
-                        {fieldsData.map(field => (
-                          <option key={field.id} value={field.id}>
-                            {field.name} ({field.type}) - {formatCurrency(field.price_per_hour)}/giờ
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <i className="fas fa-chevron-down text-gray-400 text-sm"></i>
-                      </div>
-                    </div>
+                    <select 
+                      value={formData.field_id}
+                      onChange={(e) => handleInputChange('field_id', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm appearance-none cursor-pointer ${
+                        errors.field_id ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      }`}
+                      required
+                    >
+                      <option value="">Chọn sân</option>
+                      {fieldsData.map(field => (
+                        <option key={field.id} value={field.id}>
+                          {field.name} ({field.type})
+                        </option>
+                      ))}
+                    </select>
                     {errors.field_id && (
-                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.field_id}</p>
+                      <p className="text-red-500 text-xs mt-1">{errors.field_id}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Ngày <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Ngày *
                     </label>
                     <input 
                       type="date"
                       value={formData.booking_date}
                       onChange={(e) => handleInputChange('booking_date', e.target.value)}
-                      className={`w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      className={`w-full px-3 py-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm ${
                         errors.booking_date ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                       }`}
                       required
                     />
                     {errors.booking_date && (
-                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.booking_date}</p>
+                      <p className="text-red-500 text-xs mt-1">{errors.booking_date}</p>
                     )}
                   </div>
+                </div>
 
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Giờ bắt đầu <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Giờ bắt đầu *
                     </label>
                     <input 
                       type="time"
                       value={formData.start_time}
                       onChange={(e) => handleInputChange('start_time', e.target.value)}
-                      className={`w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      className={`w-full px-3 py-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm ${
                         errors.start_time ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                       }`}
                       required
                     />
                     {errors.start_time && (
-                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.start_time}</p>
+                      <p className="text-red-500 text-xs mt-1">{errors.start_time}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Giờ kết thúc <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Giờ kết thúc *
                     </label>
                     <input 
                       type="time"
                       value={formData.end_time}
                       onChange={(e) => handleInputChange('end_time', e.target.value)}
-                      className={`w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
+                      className={`w-full px-3 py-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm ${
                         errors.end_time ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                       }`}
                       required
                     />
                     {errors.end_time && (
-                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.end_time}</p>
+                      <p className="text-red-500 text-xs mt-1">{errors.end_time}</p>
                     )}
                   </div>
                 </div>
-
-                {/* Field Preview */}
-                {selectedField && (
-                  <div className="mt-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                          selectedField.type === '5vs5' 
-                            ? 'bg-green-100 dark:bg-green-900/20'
-                            : selectedField.type === '7vs7'
-                              ? 'bg-blue-100 dark:bg-blue-900/20'
-                              : 'bg-purple-100 dark:bg-purple-900/20'
-                        }`}>
-                          <i className={`fas fa-futbol ${
-                            selectedField.type === '5vs5' 
-                              ? 'text-green-600 dark:text-green-400'
-                              : selectedField.type === '7vs7'
-                                ? 'text-blue-600 dark:text-blue-400'
-                                : 'text-purple-600 dark:text-purple-400'
-                          } text-sm`}></i>
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900 dark:text-white">{selectedField.name}</div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">{selectedField.type}</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-semibold text-blue-600 dark:text-blue-400">
-                          {formatCurrency(selectedField.price_per_hour)}/giờ
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Customer Information */}
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800">
-                <div className="flex items-center space-x-2 mb-4">
-                  <div className="w-6 h-6 bg-emerald-100 dark:bg-emerald-900/20 rounded-lg flex items-center justify-center">
-                    <i className="fas fa-user text-emerald-600 dark:text-emerald-400 text-sm"></i>
-                  </div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white">Thông tin khách hàng</h4>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Tên khách hàng <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Tên khách hàng *
                     </label>
                     <input 
                       type="text"
                       value={formData.customer_name}
                       onChange={(e) => handleInputChange('customer_name', e.target.value)}
                       placeholder="Nhập tên khách hàng"
-                      className={`w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors duration-200 ${
+                      className={`w-full px-3 py-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm ${
                         errors.customer_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                       }`}
                       required
                     />
                     {errors.customer_name && (
-                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.customer_name}</p>
+                      <p className="text-red-500 text-xs mt-1">{errors.customer_name}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Số điện thoại <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Số điện thoại *
                     </label>
                     <input 
                       type="tel"
                       value={formData.customer_phone}
                       onChange={(e) => handleInputChange('customer_phone', e.target.value)}
                       placeholder="Nhập số điện thoại"
-                      className={`w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors duration-200 ${
+                      className={`w-full px-3 py-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm ${
                         errors.customer_phone ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                       }`}
                       required
                     />
                     {errors.customer_phone && (
-                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.customer_phone}</p>
+                      <p className="text-red-500 text-xs mt-1">{errors.customer_phone}</p>
                     )}
                   </div>
                 </div>
@@ -333,73 +321,56 @@ const CreateBookingModal = ({ slot, fieldsData, onSave, onClose }) => {
 
               {/* Total Amount */}
               {formData.total_amount > 0 && (
-                <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl p-4 border-2 border-amber-200 dark:border-amber-800">
+                <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded border border-amber-200 dark:border-amber-800">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/20 rounded-lg flex items-center justify-center">
-                        <i className="fas fa-money-bill-wave text-amber-600 dark:text-amber-400"></i>
-                      </div>
-                      <div>
-                        <div className="font-semibold text-gray-900 dark:text-white">Tổng tiền</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          {formData.start_time && formData.end_time && (
-                            `${Math.abs(
-                              new Date(`2000-01-01 ${formData.end_time}:00`).getTime() - 
-                              new Date(`2000-01-01 ${formData.start_time}:00`).getTime()
-                            ) / (1000 * 60 * 60)} giờ x ${selectedField ? formatCurrency(selectedField.price_per_hour) : ''}`
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-amber-700 dark:text-amber-400">
-                        {formatCurrency(formData.total_amount)}
-                      </div>
-                    </div>
+                    <span className="font-medium text-amber-800 dark:text-amber-400 text-sm">Tổng tiền:</span>
+                    <span className="font-bold text-amber-700 dark:text-amber-400">
+                      {formatCurrency(formData.total_amount)}
+                    </span>
                   </div>
                 </div>
               )}
 
               {/* Notes */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Ghi chú
                 </label>
                 <textarea 
                   value={formData.notes}
                   onChange={(e) => handleInputChange('notes', e.target.value)}
                   placeholder="Ghi chú thêm (tùy chọn)"
-                  rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 resize-none"
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm resize-none"
                 />
               </div>
             </div>
           </div>
           
           {/* Footer */}
-          <div className="bg-gray-50 dark:bg-gray-700/50 px-6 py-4 border-t border-gray-200 dark:border-gray-600">
-            <div className="flex flex-wrap gap-3 justify-end">
+          <div className="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 border-t border-gray-200 dark:border-gray-600">
+            <div className="flex gap-2 justify-end">
               <button 
                 type="button"
                 onClick={onClose}
-                className="flex items-center space-x-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg"
+                className="flex items-center space-x-1 px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white rounded text-sm font-medium transition-colors duration-200"
               >
-                <i className="fas fa-times"></i>
+                <i className="fas fa-times text-xs"></i>
                 <span>Hủy</span>
               </button>
               <button 
                 type="submit"
                 disabled={loading}
-                className="flex items-center space-x-2 px-6 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg"
+                className="flex items-center space-x-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded text-sm font-medium transition-colors duration-200"
               >
                 {loading ? (
                   <>
-                    <i className="fas fa-spinner animate-spin"></i>
+                    <i className="fas fa-spinner animate-spin text-xs"></i>
                     <span>Đang lưu...</span>
                   </>
                 ) : (
                   <>
-                    <i className="fas fa-save"></i>
+                    <i className="fas fa-save text-xs"></i>
                     <span>Lưu đặt sân</span>
                   </>
                 )}

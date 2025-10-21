@@ -19,7 +19,7 @@ router.delete('/:id', matchController.deleteMatchByCustomer);
 router.get('/admin', requireAuth, matchController.getAllMatches);
 router.get('/admin/stats', requireAuth, matchController.getMatchStats);
 router.get('/admin/:id', requireAuth, matchController.getMatchById);
-router.post('/admin', requireAuth, matchController.createMatch);
+router.post('/admin', requireAuth, matchController.createMatchByAdmin);
 router.put('/admin/:id', requireAuth, matchController.updateMatch);
 router.delete('/admin/:id', requireAuth, matchController.deleteMatch);
 router.post('/admin/bulk-update', requireAuth, matchController.bulkUpdateMatchStatus);

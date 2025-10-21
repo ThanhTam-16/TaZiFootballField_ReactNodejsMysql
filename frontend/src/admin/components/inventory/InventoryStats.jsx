@@ -1,114 +1,227 @@
-// ====== frontend/src/admin/components/inventory/InventoryStats.jsx ======
-const InventoryStats = ({ stats, formatPrice }) => {
+// ====== frontend/src/admin/components/inventory/InventoryStats.jsx (OPTIMIZED - WITH ANIMATION) ======
+import { useState, useEffect } from 'react';
+
+const InventoryStats = ({ stats = {}, formatPrice }) => {
+  const {
+    total_products = 0,
+    total_value = 0,
+    out_of_stock = 0,
+    low_stock = 0,
+    today_transactions = 0
+  } = stats;
+
+  const [animatedProgress, setAnimatedProgress] = useState({});
+
   const statItems = [
     {
       key: 'total',
       icon: 'fas fa-boxes',
-      value: stats.total_stock || 0,
-      label: 'Tổng tồn kho',
-      color: 'from-blue-500 to-blue-600',
-      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-      iconColor: 'text-blue-600 dark:text-blue-400'
+      value: total_products,
+      label: 'Tổng sản phẩm',
+      color: 'blue',
+      progress: 100,
+      targetProgress: 100
     },
     {
       key: 'value',
       icon: 'fas fa-dollar-sign',
-      value: formatPrice(stats.total_value || 0),
+      value: formatPrice(total_value),
       label: 'Giá trị tồn kho',
-      color: 'from-emerald-500 to-emerald-600',
-      bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
-      iconColor: 'text-emerald-600 dark:text-emerald-400',
+      color: 'emerald',
+      progress: Math.min((total_value / 10000000) * 100, 100),
+      targetProgress: Math.min((total_value / 10000000) * 100, 100),
       isPrice: true
     },
     {
       key: 'outStock',
-      icon: 'fas fa-exclamation-triangle',
-      value: stats.out_of_stock || 0,
+      icon: 'fas fa-times-circle',
+      value: out_of_stock,
       label: 'Hết hàng',
-      color: 'from-red-500 to-red-600',
-      bgColor: 'bg-red-50 dark:bg-red-900/20',
-      iconColor: 'text-red-600 dark:text-red-400'
+      color: 'red',
+      progress: total_products > 0 ? (out_of_stock / total_products) * 100 : 0,
+      targetProgress: total_products > 0 ? (out_of_stock / total_products) * 100 : 0,
+      hasAlert: out_of_stock > 0
+    },
+    {
+      key: 'lowStock',
+      icon: 'fas fa-exclamation-triangle',
+      value: low_stock,
+      label: 'Sắp hết',
+      color: 'amber',
+      progress: total_products > 0 ? (low_stock / total_products) * 100 : 0,
+      targetProgress: total_products > 0 ? (low_stock / total_products) * 100 : 0,
+      hasAlert: low_stock > 0
     },
     {
       key: 'transactions',
       icon: 'fas fa-exchange-alt',
-      value: stats.today_transactions || 0,
+      value: today_transactions,
       label: 'Giao dịch hôm nay',
-      color: 'from-amber-500 to-amber-600',
-      bgColor: 'bg-amber-50 dark:bg-amber-900/20',
-      iconColor: 'text-amber-600 dark:text-amber-400'
+      color: 'purple',
+      progress: Math.min((today_transactions / 50) * 100, 100),
+      targetProgress: Math.min((today_transactions / 50) * 100, 100),
+      hasAlert: today_transactions > 0
     }
   ];
 
-  const formatDisplayValue = (item) => {
-    if (item.isPrice) {
-      // For price values, show compact format on mobile
-      const value = stats.total_value || 0;
-      if (value >= 1000000) {
-        return `${(value / 1000000).toFixed(1)}M`;
+  // Animation effect for progress bars
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const newProgress = {};
+      statItems.forEach(item => {
+        newProgress[item.key] = item.targetProgress;
+      });
+      setAnimatedProgress(newProgress);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [stats]);
+
+  const getColorClasses = (color) => {
+    const colors = {
+      blue: {
+        gradient: 'from-blue-500 to-blue-600',
+        bg: 'bg-blue-50 dark:bg-blue-900/20',
+        icon: 'text-blue-600 dark:text-blue-400',
+        progress: 'bg-gradient-to-r from-blue-500 to-blue-600'
+      },
+      emerald: {
+        gradient: 'from-emerald-500 to-emerald-600',
+        bg: 'bg-emerald-50 dark:bg-emerald-900/20',
+        icon: 'text-emerald-600 dark:text-emerald-400',
+        progress: 'bg-gradient-to-r from-emerald-500 to-emerald-600'
+      },
+      red: {
+        gradient: 'from-red-500 to-red-600',
+        bg: 'bg-red-50 dark:bg-red-900/20',
+        icon: 'text-red-600 dark:text-red-400',
+        progress: 'bg-gradient-to-r from-red-500 to-red-600'
+      },
+      amber: {
+        gradient: 'from-amber-500 to-amber-600',
+        bg: 'bg-amber-50 dark:bg-amber-900/20',
+        icon: 'text-amber-600 dark:text-amber-400',
+        progress: 'bg-gradient-to-r from-amber-500 to-amber-600'
+      },
+      purple: {
+        gradient: 'from-purple-500 to-purple-600',
+        bg: 'bg-purple-50 dark:bg-purple-900/20',
+        icon: 'text-purple-600 dark:text-purple-400',
+        progress: 'bg-gradient-to-r from-purple-500 to-purple-600'
       }
-      if (value >= 1000) {
-        return `${(value / 1000).toFixed(0)}K`;
-      }
-      return formatPrice(value);
+    };
+    return colors[color] || colors.blue;
+  };
+
+  const formatNumber = (num) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num;
+  };
+
+  const getPercentageText = (item) => {
+    if (item.key === 'total') return '100%';
+    if (item.key === 'value') return total_value >= 1000000 ? `${(total_value / 1000000).toFixed(1)}M` : formatPrice(total_value);
+    if (item.key === 'outStock' || item.key === 'lowStock') {
+      return total_products > 0 ? `${Math.round(item.targetProgress)}%` : '0%';
     }
-    return item.value;
+    if (item.key === 'transactions') return `${Math.min(today_transactions, 50)}/50`;
+    return `${Math.round(item.targetProgress)}%`;
   };
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-      {statItems.map((item, index) => (
-        <div 
-          key={item.key}
-          className="group relative bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 md:p-4 hover:shadow-md transition-all duration-300 cursor-pointer"
-          style={{
-            animationDelay: `${index * 100}ms`
-          }}
-        >
-          {/* Gradient Background on Hover */}
-          <div className={`absolute inset-0 bg-gradient-to-r ${item.color} opacity-0 group-hover:opacity-5 rounded-lg transition-opacity duration-300`}></div>
-          
-          <div className="relative">
-            {/* Icon */}
-            <div className={`w-8 h-8 md:w-10 md:h-10 ${item.bgColor} rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
-              <i className={`${item.icon} ${item.iconColor} text-sm md:text-base`}></i>
+    <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      {statItems.map((item, index) => {
+        const colorClasses = getColorClasses(item.color);
+        const currentProgress = animatedProgress[item.key] || 0;
+        const percentageText = getPercentageText(item);
+
+        return (
+          <div 
+            key={item.key}
+            className="group relative bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-3 md:p-4 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden"
+            style={{
+              animationDelay: `${index * 100}ms`
+            }}
+          >
+            {/* Background gradient on hover */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${colorClasses.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
+            
+            {/* Alert indicator */}
+            {item.hasAlert && (
+              <div className={`absolute top-2 right-2 w-2 h-2 rounded-full animate-pulse ${
+                item.key === 'outStock' ? 'bg-red-500' : 
+                item.key === 'lowStock' ? 'bg-amber-500' : 
+                item.key === 'transactions' ? 'bg-purple-500' : 'bg-blue-500'
+              }`}></div>
+            )}
+            
+            {/* Mobile Layout - Compact */}
+            <div className="lg:hidden">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className={`w-8 h-8 ${colorClasses.bg} rounded-lg flex items-center justify-center`}>
+                    <i className={`${item.icon} ${colorClasses.icon} text-sm`}></i>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                      {item.label}
+                    </div>
+                    <div className="text-sm font-bold text-gray-900 dark:text-white">
+                      {typeof item.value === 'string' ? item.value : formatNumber(item.value)}
+                    </div>
+                  </div>
+                </div>
+                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                  {percentageText}
+                </div>
+              </div>
+
+              {/* Progress Bar - Mobile */}
+              <div className="mt-2">
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                  <div 
+                    className={`h-1.5 rounded-full transition-all duration-1000 ease-out ${colorClasses.progress}`}
+                    style={{ width: `${currentProgress}%` }}
+                  ></div>
+                </div>
+              </div>
             </div>
 
-            {/* Value */}
-            <div className="mb-1">
-              <div className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white leading-tight">
-                <span className="block sm:hidden">
-                  {formatDisplayValue(item)}
-                </span>
-                <span className="hidden sm:block">
-                  {item.value}
-                </span>
+            {/* Desktop Layout - Full with progress */}
+            <div className="hidden lg:block">
+              <div className="flex items-center justify-between mb-3">
+                <div className={`w-10 h-10 ${colorClasses.bg} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                  <i className={`${item.icon} ${colorClasses.icon} text-base`}></i>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-gray-900 dark:text-white">
+                    {typeof item.value === 'string' ? item.value : formatNumber(item.value)}
+                  </div>
+                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    {percentageText}
+                  </div>
+                </div>
               </div>
               
-              {/* Full price on mobile tooltip */}
-              {item.isPrice && (
-                <div className="sm:hidden text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  {formatPrice(stats.total_value || 0)}
-                </div>
-              )}
+              <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                {item.label}
+              </div>
+              
+              {/* Progress bar with animation */}
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div 
+                  className={`h-2 rounded-full transition-all duration-1000 ease-out ${colorClasses.progress}`}
+                  style={{ width: `${currentProgress}%` }}
+                ></div>
+              </div>
             </div>
 
-            {/* Label */}
-            <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400 font-medium leading-tight">
-              {item.label}
-            </div>
+            {/* Hover effect overlay */}
+            <div className="absolute inset-0 border-2 border-transparent group-hover:border-current rounded-lg transition-all duration-300 opacity-0 group-hover:opacity-20"></div>
           </div>
-
-          {/* Status Indicator */}
-          <div className={`absolute top-2 right-2 w-2 h-2 ${
-            item.key === 'outStock' && stats.out_of_stock > 0 
-              ? 'bg-red-500 animate-pulse' 
-              : item.key === 'transactions' && stats.today_transactions > 0
-                ? 'bg-amber-500 animate-pulse'
-                : 'bg-gray-300 dark:bg-gray-600'
-          } rounded-full`}></div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

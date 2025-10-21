@@ -1,52 +1,58 @@
-// ====== frontend/src/admin/components/inventory/ProductTable.jsx ======
-import { SkeletonTableRow } from '../common/LoadingSpinner';
+// ====== frontend/src/admin/components/inventory/ProductTable.jsx (OPTIMIZED - FIXED) ======
+import { useState } from 'react';
 
-const ProductTable = ({ 
-  products, 
-  getCategoryText, 
-  getStockStatusText, 
-  formatPrice, 
-  onQuickImport, 
+const ProductTable = ({
+  products,
+  selectedProducts,
+  onSelectProduct,
+  onSelectAll,
+  getCategoryText,
+  getStockStatusText,
+  formatPrice,
+  onViewDetail,
+  onQuickImport,
   onQuickExport,
-  loading 
+  onEditProduct,
+  onDeleteProduct,
+  loading = false
 }) => {
-  const getStockStatusConfig = (status) => {
-    const configs = {
-      'in-stock': {
-        class: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400',
-        icon: 'fas fa-check-circle'
-      },
-      'low-stock': {
-        class: 'bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400',
-        icon: 'fas fa-exclamation-triangle'
-      },
-      'out-of-stock': {
-        class: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
-        icon: 'fas fa-times-circle'
-      }
+  const [hoveredRow, setHoveredRow] = useState(null);
+
+  const getStockStatusColor = (status) => {
+    const colors = {
+      'in-stock': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400',
+      'low-stock': 'bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400',
+      'out-of-stock': 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
     };
-    return configs[status] || configs['in-stock'];
+    return colors[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
   };
+
+  const allSelected = products.length > 0 && selectedProducts.length === products.length;
+  const someSelected = selectedProducts.length > 0 && selectedProducts.length < products.length;
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px]">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mã SP</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tên sản phẩm</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Danh mục</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tồn kho</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Giá bán</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Trạng thái</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Thao tác</th>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200 dark:border-gray-700">
+                {[...Array(7)].map((_, index) => (
+                  <th key={index} className="px-3 py-2 text-left">
+                    <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody>
               {[...Array(5)].map((_, index) => (
-                <SkeletonTableRow key={index} />
+                <tr key={index} className="border-b border-gray-200 dark:border-gray-700 animate-pulse">
+                  {[...Array(7)].map((_, cellIndex) => (
+                    <td key={cellIndex} className="px-3 py-2">
+                      <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-full"></div>
+                    </td>
+                  ))}
+                </tr>
               ))}
             </tbody>
           </table>
@@ -56,258 +62,340 @@ const ProductTable = ({
   }
 
   return (
-    <>
-      {/* Mobile Card View */}
-      <div className="block lg:hidden space-y-3">
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+      {/* Desktop Table */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+              <th className="px-3 py-2 text-left">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  ref={input => {
+                    if (input) {
+                      input.indeterminate = someSelected;
+                    }
+                  }}
+                  onChange={(e) => onSelectAll(e.target.checked)}
+                  className="w-3 h-3 text-blue-600 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 cursor-pointer"
+                />
+              </th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                ID
+              </th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Sản phẩm
+              </th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Danh mục
+              </th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Giá
+              </th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Tồn kho
+              </th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Trạng thái
+              </th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Thao tác
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            {products.map((product) => {
+              const isSelected = selectedProducts.includes(product.id);
+              const isHovered = hoveredRow === product.id;
+              const stockPercentage = product.max_stock > 0 ? Math.round((product.current_stock / product.max_stock) * 100) : 0;
+
+              return (
+                <tr
+                  key={product.id}
+                  className={`transition-colors duration-150 cursor-pointer ${
+                    isSelected 
+                      ? 'bg-blue-50 dark:bg-blue-900/20' 
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  }`}
+                  onMouseEnter={() => setHoveredRow(product.id)}
+                  onMouseLeave={() => setHoveredRow(null)}
+                  onClick={() => onViewDetail(product.id)}
+                >
+                  {/* Checkbox */}
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        onSelectProduct(product.id, e.target.checked);
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-3 h-3 text-blue-600 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 cursor-pointer"
+                    />
+                  </td>
+                  
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    <span className="text-xs font-medium text-gray-900 dark:text-white">#{product.id}</span>
+                  </td>
+
+                  {/* Product Info */}
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded flex items-center justify-center flex-shrink-0">
+                        {product.image ? (
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-8 h-8 rounded object-cover"
+                          />
+                        ) : (
+                          <i className="fas fa-box text-gray-400 text-sm"></i>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[120px]">
+                          {product.name}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 font-mono truncate max-w-[100px]">
+                          #{product.code}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Category */}
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+                      {getCategoryText(product.category)}
+                    </span>
+                  </td>
+
+                  {/* Price */}
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {formatPrice(product.selling_price || product.price)}
+                    </div>
+                  </td>
+
+                  {/* Stock */}
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    <div className="flex items-center space-x-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+                          <span>{product.current_stock || 0}</span>
+                          <span>{stockPercentage}%</span>
+                        </div>
+                        <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                          <div 
+                            className={`h-1.5 rounded-full transition-all duration-300 ${
+                              product.stock_status === 'out-of-stock' ? 'bg-red-500' :
+                              product.stock_status === 'low-stock' ? 'bg-amber-500' : 'bg-emerald-500'
+                            }`}
+                            style={{ width: `${stockPercentage}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Status */}
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${getStockStatusColor(product.stock_status)}`}>
+                      {getStockStatusText(product.stock_status)}
+                    </span>
+                  </td>
+
+                  {/* Actions */}
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    <div className="flex items-center space-x-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onQuickImport(product.id);
+                        }}
+                        className="w-6 h-6 bg-emerald-500 hover:bg-emerald-600 text-white rounded flex items-center justify-center transition-colors duration-200 text-xs"
+                        title="Nhập hàng nhanh"
+                      >
+                        <i className="fas fa-arrow-down"></i>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onQuickExport(product.id);
+                        }}
+                        disabled={!product.current_stock || product.current_stock === 0}
+                        className="w-6 h-6 bg-amber-500 hover:bg-amber-600 text-white rounded flex items-center justify-center transition-colors duration-200 text-xs disabled:opacity-50"
+                        title="Xuất hàng nhanh"
+                      >
+                        <i className="fas fa-arrow-up"></i>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditProduct(product);
+                        }}
+                        className="w-6 h-6 bg-blue-100 dark:bg-blue-900/20 hover:bg-blue-200 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded flex items-center justify-center transition-colors duration-200 text-xs"
+                        title="Chỉnh sửa"
+                      >
+                        <i className="fas fa-edit"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Cards */}
+      <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
         {products.map((product) => {
-          const statusConfig = getStockStatusConfig(product.stock_status);
-          
+          const isSelected = selectedProducts.includes(product.id);
+          const stockPercentage = product.max_stock > 0 ? Math.round((product.current_stock / product.max_stock) * 100) : 0;
+
           return (
-            <div 
+            <div
               key={product.id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4"
+              className={`p-3 transition-colors duration-150 $$
+                isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-white dark:bg-gray-800'
+              }`}
+              onClick={() => onViewDetail(product.id)}
             >
-              {/* Header */}
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                    <i className="fas fa-box text-white text-sm"></i>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-medium text-gray-900 dark:text-white text-sm line-clamp-1">
-                      {product.name}
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">
-                      {product.code}
-                    </p>
-                  </div>
-                </div>
-                
-                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusConfig.class}`}>
-                  <i className={`${statusConfig.icon} mr-1`}></i>
-                  {getStockStatusText(product.stock_status)}
-                </span>
-              </div>
+              <div className="flex items-start space-x-3">
+                {/* Checkbox */}
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    onSelectProduct(product.id, e.target.checked);
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-3 h-3 text-blue-600 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 cursor-pointer mt-1 flex-shrink-0"
+                />
+               
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 ml-2">#{product.id}</span>
 
-              {/* Details Grid */}
-              <div className="grid grid-cols-3 gap-3 mb-3">
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Danh mục</div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">
-                    {getCategoryText(product.category)}
-                  </div>
+                {/* Product Image */}
+                <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded flex items-center justify-center flex-shrink-0">
+                  {product.image ? (
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-10 h-10 rounded object-cover"
+                    />
+                  ) : (
+                    <i className="fas fa-box text-gray-400"></i>
+                  )}
                 </div>
-                
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Tồn kho</div>
-                  <div className={`text-sm font-bold ${
-                    product.stock_status === 'in-stock' ? 'text-emerald-600 dark:text-emerald-400' :
-                    product.stock_status === 'low-stock' ? 'text-amber-600 dark:text-amber-400' :
-                    'text-red-600 dark:text-red-400'
-                  }`}>
-                    {product.current_stock} {product.unit}
-                  </div>
-                </div>
-                
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Giá bán</div>
-                  <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                    {formatPrice(product.selling_price)}
-                  </div>
-                </div>
-              </div>
 
-              {/* Actions */}
-              <div className="flex space-x-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-                <button className="flex-1 px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors duration-200">
-                  <i className="fas fa-eye mr-1"></i>
-                  Xem
-                </button>
-                <button 
-                  onClick={() => onQuickImport(product.id)}
-                  className="flex-1 px-3 py-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-md transition-colors duration-200"
-                >
-                  <i className="fas fa-plus mr-1"></i>
-                  Nhập
-                </button>
-                <button 
-                  onClick={() => onQuickExport(product.id)}
-                  disabled={product.current_stock === 0}
-                  className="flex-1 px-3 py-1.5 text-xs font-medium text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-md transition-colors duration-200 disabled:opacity-50"
-                >
-                  <i className="fas fa-minus mr-1"></i>
-                  Xuất
-                </button>
+                {/* Product Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                        {product.name}
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 font-mono mb-1">
+                        #{product.code}
+                      </p>
+                    </div>
+                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${getStockStatusColor(product.stock_status)}`}>
+                      {getStockStatusText(product.stock_status)}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs mb-2">
+                    <div>
+                      <span className="text-gray-500 dark:text-gray-400">Danh mục:</span>
+                      <span className="ml-1 font-medium text-gray-900 dark:text-white">
+                        {getCategoryText(product.category)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 dark:text-gray-400">Giá:</span>
+                      <span className="ml-1 font-medium text-gray-900 dark:text-white">
+                        {formatPrice(product.selling_price || product.price)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Stock Progress */}
+                  <div className="mb-2">
+                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      <span>Tồn kho: {product.current_stock || 0}</span>
+                      <span>{stockPercentage}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                      <div 
+                        className={`h-1.5 rounded-full ${
+                          product.stock_status === 'out-of-stock' ? 'bg-red-500' :
+                          product.stock_status === 'low-stock' ? 'bg-amber-500' : 'bg-emerald-500'
+                        }`}
+                        style={{ width: `${stockPercentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex space-x-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onQuickImport(product.id);
+                        }}
+                        className="w-6 h-6 bg-emerald-500 hover:bg-emerald-600 text-white rounded flex items-center justify-center transition-colors duration-200 text-xs"
+                        title="Nhập hàng nhanh"
+                      >
+                        <i className="fas fa-arrow-down"></i>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onQuickExport(product.id);
+                        }}
+                        disabled={!product.current_stock || product.current_stock === 0}
+                        className="w-6 h-6 bg-amber-500 hover:bg-amber-600 text-white rounded flex items-center justify-center transition-colors duration-200 text-xs disabled:opacity-50"
+                        title="Xuất hàng nhanh"
+                      >
+                        <i className="fas fa-arrow-up"></i>
+                      </button>
+                    </div>
+                    
+                    <div className="flex space-x-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditProduct(product);
+                        }}
+                        className="w-6 h-6 bg-blue-100 dark:bg-blue-900/20 hover:bg-blue-200 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded flex items-center justify-center transition-colors duration-200 text-xs"
+                        title="Chỉnh sửa"
+                      >
+                        <i className="fas fa-edit"></i>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteProduct(product.id);
+                        }}
+                        className="w-6 h-6 bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded flex items-center justify-center transition-colors duration-200 text-xs"
+                        title="Xóa"
+                      >
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           );
         })}
       </div>
-
-      {/* Desktop Table View */}
-      <div className="hidden lg:block bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px]">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Mã SP
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Tên sản phẩm
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Danh mục
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Tồn kho
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Đơn vị
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Giá nhập
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Giá bán
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Trạng thái
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Thao tác
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {products.length === 0 ? (
-                <tr>
-                  <td colSpan="9" className="px-6 py-12 text-center">
-                    <div className="flex flex-col items-center">
-                      <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                        <i className="fas fa-box-open text-gray-400 text-2xl"></i>
-                      </div>
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                        Không có sản phẩm nào
-                      </h3>
-                      <p className="text-gray-500 dark:text-gray-400">
-                        Thử thay đổi bộ lọc hoặc thêm sản phẩm mới
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                products.map((product) => {
-                  const statusConfig = getStockStatusConfig(product.stock_status);
-                  
-                  return (
-                    <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
-                      <td className="px-4 py-3">
-                        <span className="font-mono text-sm text-gray-900 dark:text-white">
-                          {product.code}
-                        </span>
-                      </td>
-                      
-                      <td className="px-4 py-3">
-                        <div>
-                          <div className="font-medium text-gray-900 dark:text-white">
-                            {product.name}
-                          </div>
-                          {product.description && (
-                            <div className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                              {product.description}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      
-                      <td className="px-4 py-3">
-                        <span className="text-sm text-gray-900 dark:text-white">
-                          {getCategoryText(product.category)}
-                        </span>
-                      </td>
-                      
-                      <td className="px-4 py-3">
-                        <span className={`font-bold ${
-                          product.stock_status === 'in-stock' ? 'text-emerald-600 dark:text-emerald-400' :
-                          product.stock_status === 'low-stock' ? 'text-amber-600 dark:text-amber-400' :
-                          'text-red-600 dark:text-red-400'
-                        }`}>
-                          {product.current_stock}
-                        </span>
-                      </td>
-                      
-                      <td className="px-4 py-3">
-                        <span className="text-sm text-gray-900 dark:text-white">
-                          {product.unit}
-                        </span>
-                      </td>
-                      
-                      <td className="px-4 py-3">
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">
-                          {formatPrice(product.purchase_price)}
-                        </span>
-                      </td>
-                      
-                      <td className="px-4 py-3">
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">
-                          {formatPrice(product.selling_price)}
-                        </span>
-                      </td>
-                      
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusConfig.class}`}>
-                          <i className={`${statusConfig.icon} mr-1`}></i>
-                          {getStockStatusText(product.stock_status)}
-                        </span>
-                      </td>
-                      
-                      <td className="px-4 py-3">
-                        <div className="flex space-x-1">
-                          <button
-                            className="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200"
-                            title="Xem chi tiết"
-                          >
-                            <i className="fas fa-eye text-xs"></i>
-                          </button>
-                          <button
-                            onClick={() => onQuickImport(product.id)}
-                            className="p-2 text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-all duration-200"
-                            title="Nhập hàng"
-                          >
-                            <i className="fas fa-plus text-xs"></i>
-                          </button>
-                          <button
-                            onClick={() => onQuickExport(product.id)}
-                            disabled={product.current_stock === 0}
-                            className="p-2 text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Xuất hàng"
-                          >
-                            <i className="fas fa-minus text-xs"></i>
-                          </button>
-                          <button
-                            className="p-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-all duration-200"
-                            title="Chỉnh sửa"
-                          >
-                            <i className="fas fa-edit text-xs"></i>
-                          </button>
-                          <button
-                            className="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200"
-                            title="Xóa"
-                          >
-                            <i className="fas fa-trash text-xs"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </>
+    </div>
   );
 };
 

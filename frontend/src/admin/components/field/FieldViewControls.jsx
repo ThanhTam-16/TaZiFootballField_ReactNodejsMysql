@@ -1,4 +1,4 @@
-// ====== frontend/src/admin/components/field/FieldViewControls.jsx (NORMAL SIZE INLINE) ======
+// ====== frontend/src/admin/components/field/FieldViewControls.jsx (COMPACT) ======
 const FieldViewControls = ({ currentView, filters, onViewChange, onFilterChange, onRefresh, loading }) => {
   const hasActiveFilters = filters.fieldType !== 'all' || filters.status !== 'all';
 
@@ -14,146 +14,41 @@ const FieldViewControls = ({ currentView, filters, onViewChange, onFilterChange,
       key: 'timeline',
       label: 'Timeline',
       icon: 'fas fa-calendar-week',
-      description: 'Xem theo lịch thời gian'
     },
     {
       key: 'list',
       label: 'Danh sách',
       icon: 'fas fa-list',
-      description: 'Xem theo danh sách'
     }
   ];
 
   const fieldTypeOptions = [
-    { value: 'all', label: 'Tất cả sân', icon: 'fas fa-futbol' },
-    { value: '5vs5', label: 'Sân 5 người', icon: 'fas fa-users' },
-    { value: '7vs7', label: 'Sân 7 người', icon: 'fas fa-users' },
-    { value: '11vs11', label: 'Sân 11 người', icon: 'fas fa-users' }
+    { value: 'all', label: 'Tất cả sân' },
+    { value: '5vs5', label: 'Sân 5' },
+    { value: '7vs7', label: 'Sân 7' },
+    { value: '11vs11', label: 'Sân 11' }
   ];
 
   const statusOptions = [
-    { value: 'all', label: 'Tất cả trạng thái', icon: 'fas fa-filter' },
-    { value: 'available', label: 'Trống', icon: 'fas fa-check-circle' },
-    { value: 'booked', label: 'Đã đặt', icon: 'fas fa-calendar-check' },
-    { value: 'maintenance', label: 'Bảo trì', icon: 'fas fa-tools' }
+    { value: 'all', label: 'Tất cả trạng thái' },
+    { value: 'available', label: 'Trống' },
+    { value: 'booked', label: 'Đã đặt' },
+    { value: 'maintenance', label: 'Bảo trì' }
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-      {/* Desktop: All Controls in One Row */}
-      <div className="hidden lg:flex flex-wrap items-center gap-6">
-        {/* Header with Clear Filters */}
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
-            <i className="fas fa-sliders-h text-purple-600 dark:text-purple-400 text-sm"></i>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Điều khiển hiển thị</h3>
-            {hasActiveFilters && (
-              <p className="text-sm text-purple-600 dark:text-purple-400">
-                Đang áp dụng {Object.values(filters).filter(v => v !== 'all').length} bộ lọc
-              </p>
-            )}
-          </div>
-          {hasActiveFilters && (
-            <button
-              onClick={clearFilters}
-              className="flex items-center space-x-1 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
-            >
-              <i className="fas fa-times"></i>
-              <span>Xóa lọc</span>
-            </button>
-          )}
-        </div>
-
-        {/* Divider */}
-        <div className="h-8 w-px bg-gray-300 dark:bg-gray-600"></div>
-
-        {/* View Mode Toggle */}
-        <div className="flex items-center space-x-3">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Chế độ xem:</span>
-          <div className="flex space-x-2">
-            {viewModes.map((mode) => (
-              <button
-                key={mode.key}
-                onClick={() => onViewChange(mode.key)}
-                className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg border-2 transition-all duration-200 text-sm font-medium ${
-                  currentView === mode.key
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
-                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-600'
-                }`}
-                title={mode.description}
-              >
-                <i className={mode.icon}></i>
-                <span>{mode.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="h-8 w-px bg-gray-300 dark:bg-gray-600"></div>
-
-        {/* Filters */}
-        <div className="flex items-center space-x-4">
-          {/* Field Type Filter */}
-          <div className="flex items-center space-x-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Loại sân:</span>
-            <div className="relative">
-              <select
-                value={filters.fieldType}
-                onChange={(e) => onFilterChange({...filters, fieldType: e.target.value})}
-                className="px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm appearance-none cursor-pointer pr-8"
-              >
-                {fieldTypeOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                <i className="fas fa-chevron-down text-gray-400"></i>
-              </div>
-            </div>
-          </div>
-
-          {/* Status Filter */}
-          <div className="flex items-center space-x-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Trạng thái:</span>
-            <div className="relative">
-              <select
-                value={filters.status}
-                onChange={(e) => onFilterChange({...filters, status: e.target.value})}
-                className="px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm appearance-none cursor-pointer pr-8"
-              >
-                {statusOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                <i className="fas fa-chevron-down text-gray-400"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        
-      </div>
-
-      {/* Mobile/Tablet: Stacked Layout */}
-      <div className="lg:hidden space-y-4">
-        {/* Header */}
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      {/* Header */}
+      <div className="p-3 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
-              <i className="fas fa-sliders-h text-purple-600 dark:text-purple-400 text-sm"></i>
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900/20 rounded flex items-center justify-center">
+              <i className="fas fa-sliders-h text-blue-600 dark:text-blue-400 text-xs"></i>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Điều khiển hiển thị</h3>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Bộ lọc hiển thị</h3>
               {hasActiveFilters && (
-                <p className="text-sm text-purple-600 dark:text-purple-400">
+                <p className="text-xs text-blue-600 dark:text-blue-400">
                   Đang áp dụng {Object.values(filters).filter(v => v !== 'all').length} bộ lọc
                 </p>
               )}
@@ -163,50 +58,51 @@ const FieldViewControls = ({ currentView, filters, onViewChange, onFilterChange,
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
-              className="flex items-center space-x-1 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+              className="flex items-center space-x-1 px-2 py-1 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors duration-200"
             >
-              <i className="fas fa-times"></i>
+              <i className="fas fa-times text-xs"></i>
               <span>Xóa lọc</span>
             </button>
           )}
         </div>
+      </div>
 
-        {/* View Mode Toggle */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Chế độ xem
-          </label>
-          <div className="flex space-x-2">
-            {viewModes.map((mode) => (
-              <button
-                key={mode.key}
-                onClick={() => onViewChange(mode.key)}
-                className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-lg border-2 transition-all duration-200 text-sm font-medium ${
-                  currentView === mode.key
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
-                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-600'
-                }`}
-                title={mode.description}
-              >
-                <i className={mode.icon}></i>
-                <span className="hidden sm:inline">{mode.label}</span>
-              </button>
-            ))}
+      {/* Controls */}
+      <div className="p-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {/* View Mode Toggle */}
+          <div className="col-span-2 md:col-span-1">
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Chế độ xem
+            </label>
+            <div className="flex space-x-1">
+              {viewModes.map((mode) => (
+                <button
+                  key={mode.key}
+                  onClick={() => onViewChange(mode.key)}
+                  className={`flex-1 flex items-center justify-center space-x-1 px-2 py-1.5 rounded border text-xs font-medium transition-colors duration-200 ${
+                    currentView === mode.key
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                      : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500'
+                  }`}
+                >
+                  <i className={`${mode.icon} text-xs`}></i>
+                  <span>{mode.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Filters */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           {/* Field Type Filter */}
-          <div className="min-w-0">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div>
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
               Loại sân
             </label>
             <div className="relative">
               <select
                 value={filters.fieldType}
                 onChange={(e) => onFilterChange({...filters, fieldType: e.target.value})}
-                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm appearance-none cursor-pointer"
+                className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-xs appearance-none cursor-pointer"
               >
                 {fieldTypeOptions.map(option => (
                   <option key={option.value} value={option.value}>
@@ -214,22 +110,22 @@ const FieldViewControls = ({ currentView, filters, onViewChange, onFilterChange,
                   </option>
                 ))}
               </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <i className="fas fa-chevron-down text-gray-400"></i>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                <i className="fas fa-chevron-down text-gray-400 text-xs"></i>
               </div>
             </div>
           </div>
 
           {/* Status Filter */}
-          <div className="min-w-0">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div>
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
               Trạng thái
             </label>
             <div className="relative">
               <select
                 value={filters.status}
                 onChange={(e) => onFilterChange({...filters, status: e.target.value})}
-                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm appearance-none cursor-pointer"
+                className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-xs appearance-none cursor-pointer"
               >
                 {statusOptions.map(option => (
                   <option key={option.value} value={option.value}>
@@ -237,13 +133,12 @@ const FieldViewControls = ({ currentView, filters, onViewChange, onFilterChange,
                   </option>
                 ))}
               </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <i className="fas fa-chevron-down text-gray-400"></i>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                <i className="fas fa-chevron-down text-gray-400 text-xs"></i>
               </div>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

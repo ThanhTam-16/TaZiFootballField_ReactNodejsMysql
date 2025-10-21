@@ -1,3 +1,4 @@
+// ====== frontend/src/admin/pages/AdminDashboard.jsx (OPTIMIZED - COMPACT) ======
 import { useState, useEffect } from 'react';
 import { dashboardService } from '../services';
 import DashboardStats from '../components/dashboard/DashboardStats';
@@ -21,7 +22,7 @@ const AdminDashboard = () => {
   const [recentBookings, setRecentBookings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [chartPeriod, setChartPeriod] = useState(7); // 7, 14, 30 days
+  const [chartPeriod, setChartPeriod] = useState(7);
 
   const { showToast } = useToast();
 
@@ -31,36 +32,23 @@ const AdminDashboard = () => {
 
   const loadDashboardData = async () => {
     try {
-      if (stats.pending_bookings === 0 && recentBookings.length === 0) {
-        setLoading(true);
+      setLoading(true);
+      
+      const [statsResult, bookingsResult] = await Promise.allSettled([
+        dashboardService.getStatsOnly(),
+        dashboardService.getRecentBookings(5)
+      ]);
+
+      if (statsResult.status === 'fulfilled') {
+        setStats(statsResult.value);
       }
       
-      const bookingsPromise = dashboardService.getRecentBookings(5)
-        .then(result => {
-          setRecentBookings(result || []);
-          return result;
-        })
-        .catch(error => {
-          console.error('Bookings loading failed:', error);
-          setRecentBookings([]);
-          return [];
-        });
-      
-      const statsPromise = dashboardService.getStatsOnly()
-        .then(result => {
-          setStats(result);
-          return result;
-        })
-        .catch(error => {
-          console.error('Stats loading failed:', error);
-          return stats;
-        });
-      
-      await Promise.allSettled([statsPromise, bookingsPromise]);
-      
+      if (bookingsResult.status === 'fulfilled') {
+        setRecentBookings(bookingsResult.value || []);
+      }
     } catch (error) {
       console.error('Dashboard loading error:', error);
-      showToast('Dashboard đã tải với dữ liệu cơ bản', 'warning');
+      showToast('Không thể tải dữ liệu dashboard', 'error');
     } finally {
       setLoading(false);
     }
@@ -69,20 +57,7 @@ const AdminDashboard = () => {
   const handleRefresh = async () => {
     try {
       setRefreshing(true);
-      
-      const [statsResult, bookingsResult] = await Promise.allSettled([
-        dashboardService.getStatsOnly(),
-        dashboardService.getRecentBookings(5)
-      ]);
-      
-      if (statsResult.status === 'fulfilled') {
-        setStats(statsResult.value);
-      }
-      
-      if (bookingsResult.status === 'fulfilled') {
-        setRecentBookings(bookingsResult.value || []);
-      }
-      
+      await loadDashboardData();
       showToast('Đã cập nhật dữ liệu', 'success');
     } catch (error) {
       showToast('Lỗi khi cập nhật', 'error');
@@ -91,7 +66,7 @@ const AdminDashboard = () => {
     }
   };
 
-  if (loading && recentBookings.length === 0) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <LoadingSpinner message="Đang tải dashboard..." />
@@ -100,77 +75,74 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="space-y-6 p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
-      {/* Header với Refresh Button */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      {/* Header - Compact */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white">
             Dashboard
           </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
             Tổng quan hoạt động hệ thống
           </p>
         </div>
         
-        <div className="flex items-center space-x-3">
-          {/* Period Selector */}
+        <div className="flex items-center space-x-2">
+          {/* Period Selector - Compact */}
           <select
             value={chartPeriod}
             onChange={(e) => setChartPeriod(Number(e.target.value))}
-            className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value={7}>7 ngày qua</option>
-            <option value={14}>14 ngày qua</option>
-            <option value={30}>30 ngày qua</option>
+            <option value={7}>7 ngày</option>
+            <option value={14}>14 ngày</option>
+            <option value={30}>30 ngày</option>
           </select>
 
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:opacity-50"
+            className="flex items-center space-x-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 text-xs font-medium disabled:opacity-50"
           >
-            <i className={`fas fa-sync-alt ${refreshing ? 'animate-spin' : ''}`}></i>
-            <span>Làm mới</span>
+            <i className={`fas fa-sync-alt text-xs ${refreshing ? 'animate-spin' : ''}`}></i>
+            <span className="hidden sm:inline">Làm mới</span>
           </button>
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards - Compact */}
       <DashboardStats stats={stats} />
 
-      {/* Revenue & Booking Status Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Revenue Chart - 2 cols */}
-        <div className="lg:col-span-2">
-          <RevenueChart days={chartPeriod} />
+      {/* Charts Grid - Optimized Layout */}
+      <div className="space-y-4">
+        {/* Revenue & Status Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2">
+            <RevenueChart days={chartPeriod} />
+          </div>
+          <div className="lg:col-span-1">
+            <BookingStatusChart />
+          </div>
         </div>
 
-        {/* Booking Status Chart - 1 col */}
-        <div className="lg:col-span-1">
-          <BookingStatusChart />
-        </div>
-      </div>
-
-      {/* Popular Fields & Hourly Distribution Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <PopularFieldsChart />
-        <HourlyBookingChart />
-      </div>
-
-      {/* Field Type Revenue & Recent Bookings Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Field Type Revenue - 1 col */}
-        <div className="lg:col-span-1">
-          <FieldTypeRevenueChart />
+        {/* Popular Fields & Hourly Distribution */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <PopularFieldsChart />
+          <HourlyBookingChart />
         </div>
 
-        {/* Recent Bookings - 2 cols */}
-        <div className="lg:col-span-2">
-          <RecentBookings 
-            bookings={recentBookings} 
-            onRefresh={handleRefresh}
-            refreshing={refreshing}
-          />
+        {/* Field Revenue & Recent Bookings */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-1">
+            <FieldTypeRevenueChart />
+          </div>
+          <div className="lg:col-span-2">
+            <RecentBookings 
+              bookings={recentBookings} 
+              onRefresh={handleRefresh}
+              refreshing={refreshing}
+            />
+          </div>
         </div>
       </div>
     </div>

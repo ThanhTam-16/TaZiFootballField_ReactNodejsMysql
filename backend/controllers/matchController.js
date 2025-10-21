@@ -420,3 +420,39 @@ exports.getMatchStats = async (req, res) => {
   }
 };
 
+// =============== ADMIN CREATE (NEW) ===============
+exports.createMatchByAdmin = async (req, res) => {
+  try {
+    const data = req.body || {};
+    console.log('Admin create match request:', data);
+
+    const adminCreatorId = req.admin?.admin_id || req.admin?.id || req.session?.admin_id || null;
+    if (!data.creator_id && adminCreatorId) {
+      data.creator_id = adminCreatorId;
+    }
+
+    // Validate required fields including field_id (DB requires NOT NULL)
+    if (!data.creator_id || !data.field_id || !data.field_type || !data.match_date || !data.start_time || !data.contact_name || !data.contact_phone) {
+      return res.status(400).json({ 
+        error: 'Thiếu thông tin bắt buộc. Vui lòng cung cấp: creator_id, field_id, field_type, match_date, start_time, contact_name, contact_phone' 
+      });
+    }
+
+    // Reuse createAsync which already builds correct INSERT
+    const result = await Match.createAsync(data);
+
+    console.log('Admin match created successfully:', result.insertId);
+
+    res.status(201).json({
+      message: 'Tạo match (admin) thành công',
+      matchId: result.insertId
+    });
+  } catch (error) {
+    console.error('Admin create match error:', error);
+    res.status(500).json({
+      error: 'Lỗi tạo match (admin)',
+      details: error.message
+    });
+  }
+};
+

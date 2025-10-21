@@ -1,4 +1,4 @@
-// ====== frontend/src/admin/pages/AdminFieldManagement.jsx (TAILWIND VERSION) ======
+// ====== frontend/src/admin/pages/AdminFieldManagement.jsx (OPTIMIZED) ======
 import { useState, useEffect } from 'react';
 import { fieldService, bookingService } from '../services';
 import FieldDateNavigation from '../components/field/FieldDateNavigation';
@@ -144,27 +144,30 @@ const AdminFieldManagement = () => {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6 p-3 md:p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white">
             Quản lý sân
           </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
             Xem lịch đặt sân và quản lý hoạt động sân bóng
           </p>
         </div>
         
-        <button 
+        <div className='flex'>
+          <button 
           onClick={loadFieldData}
           disabled={loading}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200 text-sm disabled:opacity-50"
+          className="flex items-center space-x-2 px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors duration-200 text-xs disabled:opacity-50"
         >
-          <i className={`fas fa-sync-alt ${loading ? 'animate-spin' : ''}`}></i>
-          <span>Làm mới</span>
+          <i className={`fas fa-sync-alt text-xs ${loading ? 'animate-spin' : ''}`}></i>
+          <span className="hidden sm:inline">Làm mới</span>
         </button>
-      </div>
+        </div>
+        
+      </div>  
 
       {/* Date Navigation */}
       <FieldDateNavigation
@@ -184,24 +187,24 @@ const AdminFieldManagement = () => {
         loading={loading}
       />
 
-      {/* Legend */}
+      {/* Legend - Compact */}
       <FieldLegend />
 
       {/* Content Views */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center p-8">
+          <div className="flex items-center justify-center p-4">
             <LoadingSpinner message="Đang tải..." />
           </div>
         ) : fieldsData.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i className="fas fa-calendar-times text-gray-400 text-2xl"></i>
+          <div className="text-center py-8">
+            <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+              <i className="fas fa-calendar-times text-gray-400 text-lg"></i>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
               Không có dữ liệu sân
             </h3>
-            <p className="text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               Không thể tải dữ liệu sân cho ngày này
             </p>
           </div>

@@ -261,21 +261,27 @@ const Match = {
 
   updateByAdmin: async (id, data) => {
     try {
+      // Only allow known/allowed columns to avoid SQL errors from unknown frontend fields
+      const allowed = new Set([
+        'creator_id', 'field_id', 'field_type', 'match_date', 'start_time', 'end_time',
+        'current_players', 'max_players', 'level', 'age_min', 'age_max', 'price_per_person',
+        'description', 'contact_name', 'contact_phone', 'allow_join', 'status'
+      ]);
+
       const fields = [];
       const values = [];
 
       Object.keys(data).forEach(key => {
-        if (data[key] !== undefined) {
+        if (allowed.has(key) && data[key] !== undefined) {
           fields.push(`${key} = ?`);
           values.push(data[key]);
         }
       });
 
-      if (fields.length === 0) return;
+      if (fields.length === 0) return; // nothing to update after filtering
 
       values.push(id);
       const sql = `UPDATE matches SET ${fields.join(', ')}, updated_at = NOW() WHERE id = ?`;
-      
       await db.promise().query(sql, values);
     } catch (error) {
       console.error('Error in Match.updateByAdmin:', error);

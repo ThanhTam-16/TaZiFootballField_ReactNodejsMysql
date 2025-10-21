@@ -56,7 +56,8 @@ const CustomerTable = ({
                 />
               </th>
               
-              {[
+              {[ 
+                { key: 'id', label: 'ID', width: 'w-12' },
                 { key: 'customer', label: 'Khách hàng', width: 'w-40' },
                 { key: 'contact', label: 'Liên hệ', width: 'w-32' },
                 { key: 'bookings', label: 'Đặt sân', width: 'w-20' },
@@ -90,7 +91,7 @@ const CustomerTable = ({
                     if (e.key === 'Enter' || e.key === ' ') onViewDetail(customer.id);
                   }}
                   onClick={() => onViewDetail(customer.id)}
-                  className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150 ${
+                  className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150 $$
                     isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                   }`}
                 >
@@ -104,14 +105,13 @@ const CustomerTable = ({
                       className="w-3 h-3 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 focus:ring-1"
                     />
                   </td>
+                 
+                  <td className="px-2 py-2">
+                    <span className="text-xs font-medium text-gray-900 dark:text-white">#{customer.id}</span>
+                  </td>
                   
                   <td className="px-2 py-2">
                     <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-white text-xs font-bold">
-                          {customer.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center space-x-1">
                           <p className="text-xs font-medium text-gray-900 dark:text-white truncate">
@@ -197,13 +197,6 @@ const CustomerTable = ({
                   <td className="px-2 py-2">
                     <div className="flex space-x-1">
                       <button
-                        onClick={(e) => { e.stopPropagation(); onViewDetail(customer.id); }}
-                        className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-all duration-200 text-xs"
-                        title="Xem chi tiết"
-                      >
-                        <i className="fas fa-eye"></i>
-                      </button>
-                      <button
                         onClick={(e) => { e.stopPropagation(); onEditCustomer(customer); }}
                         className="p-1 text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded transition-all duration-200 text-xs"
                         title="Chỉnh sửa"
@@ -242,7 +235,7 @@ const CustomerTable = ({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') onViewDetail(customer.id);
               }}
-              className={`bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 shadow-xs p-3 ${
+              className={`bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 shadow-xs p-3 $$
                 isSelected ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''
               }`}
             >
@@ -257,11 +250,7 @@ const CustomerTable = ({
                     className="w-3 h-3 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 focus:ring-1 mt-0.5"
                   />
                   
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-xs font-bold">
-                      {customer.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400">#{customer.id}</span>
                   
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center space-x-1">
@@ -317,13 +306,6 @@ const CustomerTable = ({
 
               {/* Quick Action Buttons */}
               <div className="flex items-center justify-end space-x-1 pt-2 border-t border-gray-100 dark:border-gray-600">
-                <button
-                  onClick={(e) => { e.stopPropagation(); onViewDetail(customer.id); }}
-                  className="px-2 py-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors duration-200 text-xs flex items-center space-x-1"
-                >
-                  <i className="fas fa-eye text-xs"></i>
-                  <span>Xem</span>
-                </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); onEditCustomer(customer); }}
                   className="px-2 py-1 text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded transition-colors duration-200 text-xs flex items-center space-x-1"

@@ -1,159 +1,326 @@
-// ====== frontend/src/admin/components/inventory/InventoryFilters.jsx (MOBILE OPTIMIZED) ======
-const InventoryFilters = ({ filters, onFilterChange, onClearFilters, getCategoryText }) => {
-  const hasActiveFilters = filters.search || filters.category !== 'all' || filters.stock_status !== 'all';
+// ====== frontend/src/admin/components/inventory/InventoryFilters.jsx (OPTIMIZED - FULL FEATURES) ======
+import { useState, useEffect } from 'react';
+
+const InventoryFilters = ({ filters, onFilterChange, onClearFilters, getCategoryText, onAddProduct }) => {
+  const [localFilters, setLocalFilters] = useState(filters);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
+  useEffect(() => {
+    setLocalFilters(filters);
+  }, [filters]);
+
+  const handleFilterChange = (key, value) => {
+    const newFilters = { ...localFilters, [key]: value };
+    setLocalFilters(newFilters);
+    onFilterChange(key, value);
+  };
+
+  const handleClearFilters = () => {
+    const clearedFilters = {
+      search: '',
+      category: 'all',
+      stock_status: 'all',
+      min_stock: '',
+      max_stock: '',
+      sortBy: 'name',
+      sortOrder: 'ASC'
+    };
+    setLocalFilters(clearedFilters);
+    onClearFilters();
+  };
+
+  const hasActiveFilters = localFilters.search || 
+    localFilters.category !== 'all' || 
+    localFilters.stock_status !== 'all' ||
+    localFilters.min_stock ||
+    localFilters.max_stock;
 
   const categoryOptions = [
-    { value: 'soft-drink', label: 'Nước ngọt' },
-    { value: 'energy-drink', label: 'Nước tăng lực' },
-    { value: 'water', label: 'Nước suối' },
-    { value: 'tea', label: 'Trà' },
-    { value: 'snack', label: 'Đồ ăn nhẹ' },
-    { value: 'equipment', label: 'Thiết bị' }
+    { value: 'all', label: 'Tất cả danh mục', icon: 'fas fa-list' },
+    { value: 'soft-drink', label: 'Nước ngọt', icon: 'fas fa-wine-bottle' },
+    { value: 'energy-drink', label: 'Nước tăng lực', icon: 'fas fa-bolt' },
+    { value: 'water', label: 'Nước suối', icon: 'fas fa-tint' },
+    { value: 'tea', label: 'Trà', icon: 'fas fa-coffee' },
+    { value: 'snack', label: 'Đồ ăn nhẹ', icon: 'fas fa-cookie' },
+    { value: 'equipment', label: 'Thiết bị', icon: 'fas fa-tools' }
   ];
 
   const stockStatusOptions = [
-    { value: 'in-stock', label: 'Còn hàng' },
-    { value: 'low-stock', label: 'Sắp hết' },
-    { value: 'out-of-stock', label: 'Hết hàng' }
+    { value: 'all', label: 'Tất cả trạng thái', icon: 'fas fa-list' },
+    { value: 'in-stock', label: 'Còn hàng', icon: 'fas fa-check-circle' },
+    { value: 'low-stock', label: 'Sắp hết', icon: 'fas fa-exclamation-triangle' },
+    { value: 'out-of-stock', label: 'Hết hàng', icon: 'fas fa-times-circle' }
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-      {/* Main Filter Row */}
-      <div className="p-3 md:p-4">
-        <div className="space-y-3">
-          {/* Search Input - Full width on all devices */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <i className="fas fa-search text-gray-400 text-sm"></i>
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      {/* Header - Always Visible */}
+      <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+              <i className="fas fa-filter text-blue-600 dark:text-blue-400 text-sm"></i>
             </div>
-            <input
-              type="text"
-              placeholder="Tìm theo tên, mã sản phẩm..."
-              value={filters.search}
-              onChange={(e) => onFilterChange('search', e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
-            />
-            {filters.search && (
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Bộ lọc</h3>
+              {hasActiveFilters && (
+                <p className="text-xs text-blue-600 dark:text-blue-400">
+                  Đang áp dụng {Object.values(localFilters).filter(v => v && v !== 'all').length} bộ lọc
+                </p>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            {hasActiveFilters && (
               <button
-                onClick={() => onFilterChange('search', '')}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                onClick={handleClearFilters}
+                className="hidden sm:flex items-center space-x-1 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
               >
-                <i className="fas fa-times text-sm"></i>
+                <i className="fas fa-times text-xs"></i>
+                <span>Xóa lọc</span>
               </button>
             )}
+            
+            {/* Advanced Filters Toggle - Desktop */}
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="hidden sm:flex items-center space-x-1 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+            >
+              <i className={`fas fa-sliders-h text-xs ${showAdvanced ? 'text-blue-600' : ''}`}></i>
+              <span>Bộ lọc nâng cao</span>
+            </button>
+
+            {/* Mobile Toggle Button */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="sm:hidden flex items-center space-x-1 px-3 py-1.5 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-200"
+            >
+              <i className={`fas fa-chevron-${showFilters ? 'up' : 'down'} text-xs`}></i>
+              <span>{showFilters ? 'Ẩn' : 'Hiện'} bộ lọc</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Quick Status Filters - Always visible on mobile */}
+        <div className="sm:hidden mt-3 flex flex-wrap gap-2">
+          {stockStatusOptions.slice(1).map(option => (
+            <button
+              key={option.value}
+              onClick={() => handleFilterChange('stock_status', option.value)}
+              className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium transition-colors duration-200 ${
+                localFilters.stock_status === option.value
+                  ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              <i className={option.icon}></i>
+              <span>{option.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Filters Grid - Hidden on mobile by default */}
+      <div className={`p-3 ${showFilters ? 'block' : 'hidden sm:block'}`}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* Search */}
+          <div className="lg:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Tìm kiếm
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i className="fas fa-search text-gray-400 text-sm"></i>
+              </div>
+              <input
+                type="text"
+                placeholder="Tìm theo tên, mã sản phẩm..."
+                value={localFilters.search || ''}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm"
+              />
+              {localFilters.search && (
+                <button
+                  onClick={() => handleFilterChange('search', '')}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  <i className="fas fa-times text-xs"></i>
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Filter Row - Responsive layout */}
-          <div className="flex gap-2 md:gap-3">
-            {/* Category Filter */}
-            <div className="flex-1 relative">
+          {/* Category Filter */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Danh mục
+            </label>
+            <div className="relative">
               <select
-                value={filters.category}
-                onChange={(e) => onFilterChange('category', e.target.value)}
-                className="appearance-none w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 md:px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 cursor-pointer"
+                value={localFilters.category || 'all'}
+                onChange={(e) => handleFilterChange('category', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm appearance-none cursor-pointer"
               >
-                <option value="all">
-                  <span className="hidden md:inline">Tất cả danh mục</span>
-                  <span className="md:hidden">Tất cả</span>
-                </option>
                 {categoryOptions.map(option => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
                 ))}
               </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                 <i className="fas fa-chevron-down text-gray-400 text-xs"></i>
               </div>
             </div>
+          </div>
 
-            {/* Stock Status Filter */}
-            <div className="flex-1 relative">
-              <select
-                value={filters.stock_status}
-                onChange={(e) => onFilterChange('stock_status', e.target.value)}
-                className="appearance-none w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 md:px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 cursor-pointer"
-              >
-                <option value="all">
-                  <span className="hidden md:inline">Tất cả trạng thái</span>
-                  <span className="md:hidden">Tất cả</span>
-                </option>
-                {stockStatusOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <i className="fas fa-chevron-down text-gray-400 text-xs"></i>
-              </div>
-            </div>
-
-            {/* Clear Filters */}
-            {hasActiveFilters && (
-              <button
-                onClick={onClearFilters}
-                className="px-3 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200 flex items-center justify-center flex-shrink-0"
-                title="Xóa lọc"
-              >
-                <i className="fas fa-times text-xs"></i>
-                <span className="hidden sm:inline ml-1">Xóa</span>
-              </button>
-            )}
+          {/* Add Product Button */}
+          <div className="flex items-end">
+            <button
+              onClick={onAddProduct}
+              className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg flex items-center justify-center space-x-2"
+            >
+              <i className="fas fa-plus text-xs"></i>
+              <span>Thêm sản phẩm</span>
+            </button>
           </div>
         </div>
+
+        {/* Advanced Filters - Desktop */}
+        {showAdvanced && (
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {/* Stock Status Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Trạng thái tồn kho
+                </label>
+                <div className="relative">
+                  <select
+                    value={localFilters.stock_status || 'all'}
+                    onChange={(e) => handleFilterChange('stock_status', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm appearance-none cursor-pointer"
+                  >
+                    {stockStatusOptions.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                    <i className="fas fa-chevron-down text-gray-400 text-xs"></i>
+                  </div>
+                </div>
+              </div>
+
+              {/* Min Stock */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Tồn kho tối thiểu
+                </label>
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={localFilters.min_stock || ''}
+                  onChange={(e) => handleFilterChange('min_stock', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm"
+                />
+              </div>
+
+              {/* Max Stock */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Tồn kho tối đa
+                </label>
+                <input
+                  type="number"
+                  placeholder="999"
+                  value={localFilters.max_stock || ''}
+                  onChange={(e) => handleFilterChange('max_stock', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm"
+                />
+              </div>
+
+              {/* Sort By */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Sắp xếp theo
+                </label>
+                <div className="flex space-x-2">
+                  <select
+                    value={localFilters.sortBy || 'name'}
+                    onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm appearance-none cursor-pointer"
+                  >
+                    <option value="name">Tên</option>
+                    <option value="price">Giá</option>
+                    <option value="stock">Tồn kho</option>
+                    <option value="created_at">Ngày tạo</option>
+                  </select>
+                  <button
+                    onClick={() => handleFilterChange('sortOrder', localFilters.sortOrder === 'ASC' ? 'DESC' : 'ASC')}
+                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
+                  >
+                    <i className={`fas fa-sort-amount-${localFilters.sortOrder === 'ASC' ? 'down' : 'up'}`}></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Active Filters Display */}
+        {hasActiveFilters && (
+          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Bộ lọc đang hoạt động:</span>
+              <div className="flex flex-wrap gap-2">
+                {localFilters.search && (
+                  <span className="inline-flex items-center space-x-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-full text-xs">
+                    <span>Tìm: "{localFilters.search}"</span>
+                    <button onClick={() => handleFilterChange('search', '')} className="hover:text-blue-900">
+                      <i className="fas fa-times text-xs"></i>
+                    </button>
+                  </span>
+                )}
+                {localFilters.category !== 'all' && (
+                  <span className="inline-flex items-center space-x-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-full text-xs">
+                    <span>Danh mục: {getCategoryText(localFilters.category)}</span>
+                    <button onClick={() => handleFilterChange('category', 'all')} className="hover:text-blue-900">
+                      <i className="fas fa-times text-xs"></i>
+                    </button>
+                  </span>
+                )}
+                {localFilters.stock_status !== 'all' && (
+                  <span className="inline-flex items-center space-x-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-full text-xs">
+                    <span>Trạng thái: {localFilters.stock_status}</span>
+                    <button onClick={() => handleFilterChange('stock_status', 'all')} className="hover:text-blue-900">
+                      <i className="fas fa-times text-xs"></i>
+                    </button>
+                  </span>
+                )}
+                {localFilters.min_stock && (
+                  <span className="inline-flex items-center space-x-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-full text-xs">
+                    <span>Tồn tối thiểu: {localFilters.min_stock}</span>
+                    <button onClick={() => handleFilterChange('min_stock', '')} className="hover:text-blue-900">
+                      <i className="fas fa-times text-xs"></i>
+                    </button>
+                  </span>
+                )}
+                {localFilters.max_stock && (
+                  <span className="inline-flex items-center space-x-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-full text-xs">
+                    <span>Tồn tối đa: {localFilters.max_stock}</span>
+                    <button onClick={() => handleFilterChange('max_stock', '')} className="hover:text-blue-900">
+                      <i className="fas fa-times text-xs"></i>
+                    </button>
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* Filter Summary */}
-      {hasActiveFilters && (
-        <div className="px-3 md:px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border-t border-gray-200 dark:border-gray-600">
-          <div className="flex items-center space-x-2 text-sm">
-            <i className="fas fa-info-circle text-blue-500 flex-shrink-0"></i>
-            <span className="text-blue-700 dark:text-blue-300 hidden sm:inline">
-              Đang áp dụng bộ lọc:
-            </span>
-            <span className="text-blue-700 dark:text-blue-300 sm:hidden">
-              Bộ lọc:
-            </span>
-            <div className="flex flex-wrap gap-1">
-              {filters.search && (
-                <span className="inline-flex items-center px-2 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded text-xs">
-                  "{filters.search.length > 10 ? filters.search.substring(0, 10) + '...' : filters.search}"
-                  <button
-                    onClick={() => onFilterChange('search', '')}
-                    className="ml-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
-                  >
-                    <i className="fas fa-times"></i>
-                  </button>
-                </span>
-              )}
-              {filters.category !== 'all' && (
-                <span className="inline-flex items-center px-2 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded text-xs">
-                  {getCategoryText(filters.category)}
-                  <button
-                    onClick={() => onFilterChange('category', 'all')}
-                    className="ml-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
-                  >
-                    <i className="fas fa-times"></i>
-                  </button>
-                </span>
-              )}
-              {filters.stock_status !== 'all' && (
-                <span className="inline-flex items-center px-2 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded text-xs">
-                  {stockStatusOptions.find(opt => opt.value === filters.stock_status)?.label}
-                  <button
-                    onClick={() => onFilterChange('stock_status', 'all')}
-                    className="ml-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
-                  >
-                    <i className="fas fa-times"></i>
-                  </button>
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 // ====== 4. CREATE: frontend/src/admin/components/common/ConfirmModal.jsx ======
-const ConfirmModal = ({ message, onConfirm, onCancel, title = "Xác nhận" }) => {
+const ConfirmModal = ({ message, onConfirm, onCancel, title = "Xác nhận", confirmText = "Xác nhận", cancelText = "Hủy", config = { confirmBg: "bg-blue-600" } }) => {
   return (
     <div
       className="admin-modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
@@ -18,18 +18,20 @@ const ConfirmModal = ({ message, onConfirm, onCancel, title = "Xác nhận" }) =
         <p className="admin-confirm-message text-center text-gray-700 dark:text-gray-300 mb-4">
           {message}
         </p>
-        <div className="admin-confirm-actions flex justify-center space-x-3">
+        <div className="admin-confirm-actions flex flex-col sm:flex-row gap-3 sm:gap-3">
           <button
-            onClick={onCancel}
-            className="admin-btn admin-btn-secondary px-4 py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onCancel && onCancel(); }}
+            className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 transition-colors duration-200"
           >
-            Hủy
+            {cancelText}
           </button>
           <button
-            onClick={onConfirm}
-            className="admin-btn admin-btn-primary px-4 py-2 rounded bg-blue-600 text-white"
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onConfirm && onConfirm(); }}
+            className={`flex-1 px-4 py-2.5 text-sm font-medium text-white ${config.confirmBg} rounded-lg focus:ring-2 focus:ring-offset-2 transition-colors duration-200`}
           >
-            Xác nhận
+            {confirmText}
           </button>
         </div>
       </div>

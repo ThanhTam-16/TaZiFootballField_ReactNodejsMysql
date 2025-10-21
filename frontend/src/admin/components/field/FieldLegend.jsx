@@ -36,8 +36,8 @@ const FieldLegend = () => {
       {/* All in One Row - Dashboard Style */}
       <div className="flex flex-wrap items-center gap-3">
         {/* Header */}
-        <div className="flex items-center space-x-2">
-          <div className="w-6 h-6 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-center">
+        <div className="flex items-center space-x-1">
+          <div className="w-4 h-4 rounded-md flex items-center justify-center">
             <i className="fas fa-info-circle text-gray-600 dark:text-gray-400 text-xs"></i>
           </div>
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Chú thích:</h3>
@@ -47,7 +47,7 @@ const FieldLegend = () => {
         {legendItems.map((item, index) => (
           <div 
             key={item.class}
-            className="group flex items-center space-x-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md px-2 py-1 transition-all duration-200 cursor-pointer"
+            className="group flex items-center space-x-1 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md px-2 py-1 transition-all duration-200 cursor-pointer"
             title={item.description}
           >
             {/* Color indicator - Smaller */}
@@ -60,7 +60,7 @@ const FieldLegend = () => {
             {/* Label - Compact */}
             <div className="flex items-center space-x-1">
               <i className={`${item.icon} text-gray-600 dark:text-gray-400 text-xs`}></i>
-              <span className="text-xs font-medium text-gray-900 dark:text-white">
+              <span className="text-xs font-medium text-gray-600 dark:text-white">
                 {item.label}
               </span>
             </div>
@@ -74,16 +74,6 @@ const FieldLegend = () => {
         <div className="hidden lg:flex items-center space-x-2 text-xs text-blue-600 dark:text-blue-400">
           <i className="fas fa-lightbulb"></i>
           <span>Nhấn vào ô trống để tạo đặt sân mới, nhấn vào ô đã đặt để xem chi tiết</span>
-        </div>
-      </div>
-
-      {/* Mobile Tips */}
-      <div className="lg:hidden mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-md">
-        <div className="flex items-start space-x-2">
-          <i className="fas fa-lightbulb text-blue-600 dark:text-blue-400 text-xs mt-0.5"></i>
-          <p className="text-xs text-blue-700 dark:text-blue-400">
-            Nhấn vào ô trống để tạo đặt sân mới, nhấn vào ô đã đặt để xem chi tiết
-          </p>
         </div>
       </div>
 

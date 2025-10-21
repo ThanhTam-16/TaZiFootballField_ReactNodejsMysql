@@ -41,7 +41,7 @@ const BookingStats = ({ bookings = [] }) => {
       label: 'Tổng đơn',
       color: 'from-blue-500 to-blue-600',
       bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-      iconBg: 'bg-blue-100 dark:bg-blue-900/30',
+      iconBg: 'bg-blue-50 dark:bg-blue-900/20',
       iconColor: 'text-blue-600 dark:text-blue-400',
       progress: 100,
       percentage: '100%'
@@ -53,7 +53,7 @@ const BookingStats = ({ bookings = [] }) => {
       label: 'Chờ duyệt',
       color: 'from-amber-500 to-amber-600',
       bgColor: 'bg-amber-50 dark:bg-amber-900/20',
-      iconBg: 'bg-amber-100 dark:bg-amber-900/30',
+      iconBg: 'bg-amber-50 dark:bg-amber-900/20',
       iconColor: 'text-amber-600 dark:text-amber-400',
       progress: getPercentage(stats.pending, stats.total),
       percentage: `${getPercentage(stats.pending, stats.total)}%`,
@@ -66,7 +66,7 @@ const BookingStats = ({ bookings = [] }) => {
       label: 'Đã duyệt',
       color: 'from-emerald-500 to-emerald-600',
       bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
-      iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
+      iconBg: 'bg-emerald-50 dark:bg-emerald-900/20',
       iconColor: 'text-emerald-600 dark:text-emerald-400',
       progress: getPercentage(stats.approved, stats.total),
       percentage: `${getPercentage(stats.approved, stats.total)}%`
@@ -78,7 +78,7 @@ const BookingStats = ({ bookings = [] }) => {
       label: 'Hoàn thành',
       color: 'from-green-500 to-green-600',
       bgColor: 'bg-green-50 dark:bg-green-900/20',
-      iconBg: 'bg-green-100 dark:bg-green-900/30',
+      iconBg: 'bg-green-50 dark:bg-green-900/20',
       iconColor: 'text-green-600 dark:text-green-400',
       progress: getPercentage(stats.completed, stats.total),
       percentage: `${getPercentage(stats.completed, stats.total)}%`
@@ -90,7 +90,7 @@ const BookingStats = ({ bookings = [] }) => {
       label: 'Doanh thu',
       color: 'from-purple-500 to-purple-600',
       bgColor: 'bg-purple-50 dark:bg-purple-900/20',
-      iconBg: 'bg-purple-100 dark:bg-purple-900/30',
+      iconBg: 'bg-purple-50 dark:bg-purple-900/20',
       iconColor: 'text-purple-600 dark:text-purple-400',
       progress: 85,
       percentage: '85%'
