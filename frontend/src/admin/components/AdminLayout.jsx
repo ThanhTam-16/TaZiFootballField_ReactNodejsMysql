@@ -1,8 +1,10 @@
 // ====== frontend/src/admin/components/AdminLayout.jsx (FIXED RESPONSIVE) ======
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
 import DarkModeToggle, { CompactDarkModeToggle } from './common/DarkModeToggle';
+
+import adminlogo from '../assets/images/logoadmin.png';
 
 const AdminLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -124,12 +126,12 @@ const AdminLayout = () => {
         {/* Sidebar Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className={`flex items-center space-x-3 transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : ''}`}>
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <i className="fas fa-futbol text-white text-sm"></i>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
+              <img src={adminlogo} alt="logo" className='w-full h-full object-cover' />
             </div>
             {!sidebarCollapsed && (
-              <span className="font-bold text-gray-900 dark:text-white text-lg">
-                FootballField
+              <span className="font-bold text-purple-600 dark:text-purple-700 text-lg">
+                TaZiFootball
               </span>
             )}
           </div>
@@ -218,7 +220,7 @@ const AdminLayout = () => {
       </aside>
 
       {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm h-16">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center space-x-3">
             <button
@@ -229,11 +231,15 @@ const AdminLayout = () => {
             </button>
             
             <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded flex items-center justify-center">
-                <i className="fas fa-futbol text-white text-xs"></i>
+              <div className="w-6 h-6 rounded flex items-center justify-center overflow-hidden">
+                <img 
+                  src={adminlogo} 
+                  alt="Logo" 
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <span className="font-bold text-gray-900 dark:text-white">
-                FootballField
+              <span className="font-bold text-purple-600 dark:text-purple-700">
+                TaZiFootball
               </span>
             </div>
           </div>
@@ -258,26 +264,30 @@ const AdminLayout = () => {
         <div className={`absolute left-0 top-0 h-full w-80 max-w-[85vw] bg-white dark:bg-gray-800 shadow-2xl transform transition-transform duration-300 ease-out ${
           mobileNavOpen ? 'translate-x-0' : '-translate-x-full'
         } flex flex-col`}>
-          {/* Mobile Nav Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-600 to-purple-600">
+          {/* Mobile Nav Header - Đã chỉnh màu nhẹ nhàng */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                <i className="fas fa-futbol text-white text-sm"></i>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
+                <img 
+                  src={adminlogo} 
+                  alt="Logo" 
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <span className="font-bold text-white text-lg">
-                FootballField
+              <span className="font-bold  text-purple-600 dark:text-purple-700 text-lg">
+                TaZiFootball
               </span>
             </div>
             <button
               onClick={() => setMobileNavOpen(false)}
-              className="p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors duration-200"
+              className="p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
             >
               <i className="fas fa-times"></i>
             </button>
           </div>
           
           {/* Mobile Nav Menu */}
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto ">
+          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             {menuItems.map((item, index) => (
               <a
                 key={item.path}
@@ -289,32 +299,31 @@ const AdminLayout = () => {
                 }}
                 className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 transform hover:scale-[1.02] ${
                   location.pathname === item.path
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-r-2 border-blue-600'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                 }`}
                 style={{
                   animationDelay: `${index * 50}ms`,
-                  animation: mobileNavOpen ? 'slideInLeft 0.3s ease-out forwards' : 'none'
                 }}
               >
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                   location.pathname === item.path
-                    ? 'bg-white/20'
+                    ? 'bg-blue-100 dark:bg-blue-900/30'
                     : 'bg-gray-100 dark:bg-gray-700'
                 }`}>
                   <i className={`${item.icon} text-sm ${
-                    location.pathname === item.path ? 'text-white' : 'text-gray-600 dark:text-gray-400'
+                    location.pathname === item.path ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'
                   }`}></i>
                 </div>
                 <span className="font-medium">{item.label}</span>
                 {location.pathname === item.path && (
-                  <div className="ml-auto w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                  <div className="ml-auto w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
                 )}
               </a>
             ))}
           </nav>
           
-          {/* Mobile Nav Footer */}
+          {/* Mobile Nav Footer - Đã chỉnh màu nhẹ nhàng */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
             <div className="flex items-center space-x-3 mb-4 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
               <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
@@ -331,11 +340,9 @@ const AdminLayout = () => {
             </div>
             
             <div className="space-y-2">
-              {/* <CompactDarkModeToggle className="w-full justify-center py-2" /> */}
-              
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 text-sm font-medium shadow-lg transform hover:scale-[1.02]"
+                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 text-sm font-medium"
               >
                 <i className="fas fa-sign-out-alt"></i>
                 <span>Đăng xuất</span>

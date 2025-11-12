@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+import logo from '../assets/images/logo.png';
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -83,10 +84,9 @@ function Header() {
             <div className="flex-shrink-0">
               <Link to="/" className="flex items-center space-x-2 group">
                 <div className="relative">
-                  <div className="w-7 h-7 md:w-10 md:h-10 gradient-primary rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
-                    <i className="fas fa-futbol text-white text-xs md:text-base"></i>
+                  <div className="w-6 h-6 md:w-10 md:h-10  rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
+                    <img src={logo} alt="logo" className='w-full h-full object-cover' />
                   </div>
-                  <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 md:w-2 md:h-2 bg-green-400 rounded-full animate-pulse"></div>
                 </div>
                 <span className="text-base md:text-xl font-bold bg-gradient-to-r from-green-600 to-green-500 bg-clip-text text-transparent">
                   TaZiFootball

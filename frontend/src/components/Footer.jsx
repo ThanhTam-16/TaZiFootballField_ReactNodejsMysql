@@ -1,3 +1,5 @@
+import logo from '../assets/images/logo.png';
+
 function Footer() {
   const currentYear = new Date().getFullYear();
 
@@ -71,11 +73,11 @@ function Footer() {
             {/* Brand Section */}
             <div className="lg:col-span-1">
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center">
-                  <i className="fas fa-futbol text-white text-xl"></i>
+                <div className="w-6 h-6 md:w-10 md:h-10  rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
+                  <img src={logo} alt="logo" className='w-full h-full object-cover' />
                 </div>
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-green-300 bg-clip-text text-transparent">
-                  FootballField
+                  TaZiFootball
                 </h3>
               </div>
               <p className="text-gray-300 leading-relaxed mb-6">

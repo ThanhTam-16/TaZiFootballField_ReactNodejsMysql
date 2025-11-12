@@ -35,10 +35,6 @@ function App() {
   useEffect(() => {
     const initializeDarkMode = () => {
       const savedTheme = localStorage.getItem('admin-theme');
-      // const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      
-      // Apply dark mode if saved preference is dark or system prefers dark (and no saved preference)
-      // if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
       if (savedTheme === 'dark') {
         document.documentElement.classList.add('dark');
       } else {

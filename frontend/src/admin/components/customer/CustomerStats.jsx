@@ -55,6 +55,18 @@ const CustomerStats = ({ stats = {} }) => {
       percentage: `${Math.min(new_customers_30d, 50)}/50`,
       hasAlert: new_customers_30d > 0
     },
+    {
+      key: 'inactive',
+      icon: 'fas fa-user-slash',
+      value: inactive_customers,
+      label: 'Không hoạt động',
+      color: 'from-red-500 to-red-600',
+      bgColor: 'bg-red-50 dark:bg-red-900/20',
+      iconColor: 'text-red-600 dark:text-red-400',
+      progress: total_customers > 0 ? Math.round((inactive_customers / total_customers) * 100) : 0,
+      percentage: total_customers > 0 ? `${Math.round((inactive_customers / total_customers) * 100)}%` : '0%',
+      hasAlert: inactive_customers > 0
+    }
   ];
 
   const formatNumber = (num) => {

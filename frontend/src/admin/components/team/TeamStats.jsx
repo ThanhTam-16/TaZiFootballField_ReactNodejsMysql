@@ -73,6 +73,18 @@ const TeamStats = ({ stats, activeTab }) => {
       progress: getPercentage(stats.thisWeek || 0, stats.total || 1),
       percentage: `${getPercentage(stats.thisWeek || 0, stats.total || 1)}%`
     },
+    {
+      key: 'revenue',
+      icon: 'fas fa-money-bill-wave',
+      value: window.innerWidth < 768 ? formatCompactNumber(stats.revenue || 0) : formatCurrency(stats.revenue || 0),
+      label: 'Doanh thu',
+      color: 'from-green-500 to-green-600',
+      bgColor: 'bg-green-50 dark:bg-green-900/20',
+      iconBg: 'bg-green-100 dark:bg-green-900/30',
+      iconColor: 'text-green-600 dark:text-green-400',
+      progress: 85,
+      percentage: '85%'
+    }
   ];
 
   return (
