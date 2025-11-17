@@ -24,7 +24,8 @@ import AdminInventoryManagement from './admin/pages/AdminInventoryManagement';
 import AdminMaintenanceManagement from './admin/pages/AdminMaintenanceManagement';
 import AdminTeamManagement from './admin/pages/AdminTeamManagement';
 
-// Shared Components
+// Shared 
+import ToastProvider from './components/ToastProvider';
 import ScrollToTop from './components/ScrollToTop';
 
 // Styles
@@ -63,6 +64,7 @@ function App() {
 
   return (
     <Router>
+      <ToastProvider>
       <AuthProvider>
         <AdminProvider>
           <ScrollToTop />
@@ -197,6 +199,7 @@ function App() {
           </Routes>
         </AdminProvider>
       </AuthProvider>
+      </ToastProvider>
     </Router>
   );
 }

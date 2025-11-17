@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchAvailableFields } from '../services/bookingService';
+import { useToast } from '../hooks/useToast';
 
 function BookingSearchForm({ setFields, setSearchInfo }) {
   const [form, setForm] = useState({
@@ -12,6 +13,7 @@ function BookingSearchForm({ setFields, setSearchInfo }) {
   const [endTimeOptions, setEndTimeOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const { showWarning, showInfo } = useToast();
 
   // Animation trigger
   useEffect(() => {
@@ -115,7 +117,7 @@ function BookingSearchForm({ setFields, setSearchInfo }) {
     e.preventDefault();
 
     if (!form.startTime || !form.endTime) {
-      alert('Vui lòng chọn thời gian bắt đầu và kết thúc');
+      showWarning('Vui lòng chọn thời gian bắt đầu và kết thúc');
       return;
     }
 
@@ -130,17 +132,17 @@ function BookingSearchForm({ setFields, setSearchInfo }) {
     const durationHours = durationMinutes / 60;
 
     if (durationMinutes < 30) {
-      alert('Thời gian tối thiểu là 30 phút');
+      showWarning('Thời gian tối thiểu là 30 phút');
       return;
     }
 
     if (durationHours > 3) {
-      alert('Bạn chỉ được phép đặt sân tối đa 3 giờ');
+      showWarning('Bạn chỉ được phép đặt sân tối đa 3 giờ');
       return;
     }
 
     if (form.fieldTypes.length === 0) {
-      alert('Vui lòng chọn ít nhất một loại sân');
+      showWarning('Vui lòng chọn ít nhất một loại sân');
       return;
     }
 
@@ -151,7 +153,7 @@ function BookingSearchForm({ setFields, setSearchInfo }) {
       setSearchInfo(form);
     } catch (err) {
       console.error(err);
-      alert('Lỗi khi tìm sân trống. Vui lòng thử lại.');
+      showWarning('Lỗi khi tìm sân trống. Vui lòng thử lại.');
       setFields([]);
     } finally {
       setIsLoading(false);

@@ -3,6 +3,9 @@ import { useAuth } from '../context/AuthContext';
 import { fetchMatches } from '../services/matchService';
 import { fetchTeamJoinPosts, updateTeamJoinPost, deleteTeamJoinPost } from '../services/teamJoinService';
 import API from '../services/api';
+import { useToast } from '../hooks/useToast';
+import { useConfirm } from '../hooks/useConfirm';
+import ConfirmModal from './ConfirmModal';
 
 function UserPostsManagement() {
   const { user } = useAuth();
@@ -12,6 +15,8 @@ function UserPostsManagement() {
   const [actionLoading, setActionLoading] = useState({});
   const [editModal, setEditModal] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const { showSuccess, showError } = useToast();
+  const { hideConfirm, showConfirm, confirmState } = useConfirm();
   
   // Collapsible states - Mặc định mở và hiển thị tin chưa hoàn thành
   const [matchesExpanded, setMatchesExpanded] = useState(true);
@@ -49,86 +54,117 @@ function UserPostsManagement() {
   };
 
   const handleCompleteMatch = async (matchId) => {
-    if (!confirm('Đánh dấu trận đấu này đã hoàn thành?')) return;
-    
-    setActionLoading(prev => ({ ...prev, [`complete-match-${matchId}`]: true }));
-    try {
-      await API.put(`/matches/${matchId}/status`, { 
-        status: 'completed',
-        user_id: user.id,
-        phone_number: user.phone_number
-      });
-      await fetchUserPosts();
-      alert('Đã đánh dấu hoàn thành trận đấu');
-    } catch (error) {
-      console.error('Error completing match:', error);
-      alert(error.response?.data?.error || 'Lỗi khi cập nhật trạng thái');
-    } finally {
-      setActionLoading(prev => ({ ...prev, [`complete-match-${matchId}`]: false }));
-    }
+    showConfirm({
+      title: "Hoàn thành trận đấu",
+      message: "Đánh dấu trận đấu này đã hoàn thành?",
+      type: "success",
+      confirmText: "Hoàn thành",
+      cancelText: "Hủy",
+      onConfirm: async () => {
+        setActionLoading(prev => ({ ...prev, [`complete-match-${matchId}`]: true }));
+        try {
+          await API.put(`/matches/${matchId}/status`, { 
+            status: 'completed',
+            user_id: user.id,
+            phone_number: user.phone_number
+          });
+          await fetchUserPosts();
+          showSuccess('Đã đánh dấu hoàn thành trận đấu');
+          hideConfirm();
+        } catch (error) {
+          console.error('Error completing match:', error);
+          showError(error.response?.data?.error || 'Lỗi khi cập nhật trạng thái');
+        } finally {
+          setActionLoading(prev => ({ ...prev, [`complete-match-${matchId}`]: false }));
+        }
+      },
+      onCancel: hideConfirm
+    });
   };
 
   const handleCancelMatch = async (matchId) => {
-    if (!confirm('Hủy trận đấu này? Hành động không thể hoàn tác.')) return;
-    
-    setActionLoading(prev => ({ ...prev, [`cancel-match-${matchId}`]: true }));
-    try {
-      await API.delete(`/matches/${matchId}`, { 
-        data: {
-          user_id: user.id,
-          phone_number: user.phone_number
+    showConfirm({
+      title: "Hủy trận đấu",
+      message: "Bạn có chắc chắn muốn hủy trận đấu này? Hành động không thể hoàn tác.",
+      type: "danger",
+      confirmText: "Hủy trận đấu",
+      cancelText: "Đóng",
+      onConfirm: async () => {
+        setActionLoading(prev => ({ ...prev, [`cancel-match-${matchId}`]: true }));
+        try {
+          await API.delete(`/matches/${matchId}`, { 
+            data: {
+              user_id: user.id,
+              phone_number: user.phone_number
+            }
+          });
+          await fetchUserPosts();
+          showSuccess('Đã hủy trận đấu');
+          hideConfirm();
+        } catch (error) {
+          console.error('Error canceling match:', error);
+          showError(error.response?.data?.error || 'Lỗi khi hủy trận đấu');
+        } finally {
+          setActionLoading(prev => ({ ...prev, [`cancel-match-${matchId}`]: false }));
         }
-      });
-      await fetchUserPosts();
-      alert('Đã hủy trận đấu');
-    } catch (error) {
-      console.error('Error canceling match:', error);
-      alert(error.response?.data?.error || 'Lỗi khi hủy trận đấu');
-    } finally {
-      setActionLoading(prev => ({ ...prev, [`cancel-match-${matchId}`]: false }));
-    }
+      },
+      onCancel: hideConfirm
+    });
   };
 
   const handleCompleteTeamPost = async (postId) => {
-  if (!confirm('Đánh dấu tin ghép đội này đã hoàn thành?')) return;
-  
-  setActionLoading(prev => ({ ...prev, [`complete-team-${postId}`]: true }));
-  try {
-    // 👇 GỌI TRỰC TIẾP API GIỐNG MATCH
-    await API.put(`/team-joins/${postId}/status`, { 
-      status: 'closed',
-      phone_number: user.phone_number
+    showConfirm({
+      title: "Hoàn thành tin ghép đội",
+      message: "Đánh dấu tin ghép đội này đã hoàn thành?",
+      type: "success",
+      confirmText: "Hoàn thành",
+      cancelText: "Hủy",
+      onConfirm: async () => {
+        setActionLoading(prev => ({ ...prev, [`complete-team-${postId}`]: true }));
+        try {
+          await API.put(`/team-joins/${postId}/status`, { 
+            status: 'closed',
+            phone_number: user.phone_number
+          });
+          showSuccess('Đã đánh dấu hoàn thành tin ghép đội');
+          await fetchUserPosts();
+          hideConfirm();
+        } catch (error) {
+          console.error('Error completing team post:', error);
+          showError(error.response?.data?.error || 'Lỗi khi cập nhật trạng thái');
+        } finally {
+          setActionLoading(prev => ({ ...prev, [`complete-team-${postId}`]: false }));
+        }
+      },
+      onCancel: hideConfirm
     });
-    
-    alert('Đã đánh dấu hoàn thành tin ghép đội');
-    
-    // 👇 REFRESH DATA
-    await fetchUserPosts();
-    
-  } catch (error) {
-    console.error('Error completing team post:', error);
-    alert(error.response?.data?.error || 'Lỗi khi cập nhật trạng thái');
-  } finally {
-    setActionLoading(prev => ({ ...prev, [`complete-team-${postId}`]: false }));
-  }
-};
+  };
 
   const handleDeleteTeamPost = async (postId) => {
-    if (!confirm('Hủy tin ghép đội này? Hành động không thể hoàn tác.')) return;
-    
-    setActionLoading(prev => ({ ...prev, [`delete-team-${postId}`]: true }));
-    try {
-      await API.delete(`/team-joins/${postId}`, {
-        data: { phone_number: user.phone_number }
-      });
-      await fetchUserPosts();
-      alert('Đã hủy tin ghép đội');
-    } catch (error) {
-      console.error('Error deleting team post:', error);
-      alert('Lỗi khi hủy tin');
-    } finally {
-      setActionLoading(prev => ({ ...prev, [`delete-team-${postId}`]: false }));
-    }
+    showConfirm({
+      title: "Hủy tin ghép đội",
+      message: "Hủy tin ghép đội này? Hành động không thể hoàn tác.",
+      type: "danger",
+      confirmText: "Hủy tin",
+      cancelText: "Đóng",
+      onConfirm: async () => {
+        setActionLoading(prev => ({ ...prev, [`delete-team-${postId}`]: true }));
+        try {
+          await API.delete(`/team-joins/${postId}`, {
+            data: { phone_number: user.phone_number }
+          });
+          await fetchUserPosts();
+          showSuccess('Đã hủy tin ghép đội');
+          hideConfirm();
+        } catch (error) {
+          console.error('Error deleting team post:', error);
+          showError('Lỗi khi hủy tin');
+        } finally {
+          setActionLoading(prev => ({ ...prev, [`delete-team-${postId}`]: false }));
+        }
+      },
+      onCancel: hideConfirm
+    });
   };
 
   const openEditModal = (item, type) => {
@@ -183,10 +219,10 @@ function UserPostsManagement() {
       
       await fetchUserPosts();
       setEditModal(null);
-      alert('Cập nhật thành công!');
+      showSuccess('Cập nhật thành công!');
     } catch (error) {
       console.error('Error updating:', error);
-      alert(error.response?.data?.error || 'Lỗi khi cập nhật');
+      showError(error.response?.data?.error || 'Lỗi khi cập nhật');
     } finally {
       setActionLoading(prev => ({ ...prev, [`edit-${type}-${item.id}`]: false }));
     }
@@ -440,6 +476,19 @@ function UserPostsManagement() {
         )}
       </div>
 
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmState.isOpen}
+        onClose={hideConfirm}
+        onConfirm={confirmState.onConfirm}
+        title={confirmState.title}
+        message={confirmState.message}
+        confirmText={confirmState.confirmText}
+        cancelText={confirmState.cancelText}
+        type={confirmState.type}
+        isLoading={confirmState.isLoading}
+      />
+
       {/* Edit Modal */}
       {editModal && (
         <EditModal 
@@ -453,6 +502,7 @@ function UserPostsManagement() {
           positionMap={positionMap}
         />
       )}
+      
     </div>
   );
 }

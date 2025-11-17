@@ -1,4 +1,4 @@
-// backend/models/User.js - FIXED with booking stats
+// backend/models/User.js - FIXED: Allow email-only registration
 const db = require('../config/db');
 
 const User = {
@@ -70,12 +70,32 @@ const User = {
     return results[0] || null;
   },
 
+  // ✅ FIXED: Allow creating user with email only (phone is optional)
   create: async (userData) => {
     const { name, phone_number, email, role = 'customer' } = userData;
-    const [result] = await db.promise().query(
-      `INSERT INTO users (name, phone_number, email, role, created_at) VALUES (?, ?, ?, ?, NOW())`,
-      [name, phone_number, email, role]
-    );
+    
+    // Build dynamic SQL based on available fields
+    const fields = ['name', 'role', 'created_at'];
+    const values = [name, role];
+    const placeholders = ['?', '?', 'NOW()'];
+    
+    // Add phone_number if provided
+    if (phone_number) {
+      fields.push('phone_number');
+      values.push(phone_number);
+      placeholders.push('?');
+    }
+    
+    // Add email if provided
+    if (email) {
+      fields.push('email');
+      values.push(email);
+      placeholders.push('?');
+    }
+    
+    const sql = `INSERT INTO users (${fields.join(', ')}) VALUES (${placeholders.join(', ')})`;
+    
+    const [result] = await db.promise().query(sql, values);
     return result.insertId;
   },
 
@@ -112,9 +132,11 @@ const User = {
   findOrCreate: async (email, phone) => {
     // Tìm user hiện có
     let user = null;
+    
     if (email) {
       user = await User.findByEmail(email);
     }
+    
     if (!user && phone) {
       user = await User.findByPhone(phone);
     }
@@ -124,13 +146,16 @@ const User = {
       return user;
     }
 
-    // Tạo user mới
-    const userId = await User.create({
+    // Tạo user mới - phone_number có thể là NULL
+    const userData = {
       name: 'Người dùng mới',
-      phone_number: phone,
-      email: email,
       role: 'customer'
-    });
+    };
+    
+    if (phone) userData.phone_number = phone;
+    if (email) userData.email = email;
+    
+    const userId = await User.create(userData);
 
     return await User.findById(userId);
   },

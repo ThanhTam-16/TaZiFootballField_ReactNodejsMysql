@@ -9,6 +9,7 @@ import BookingModal from '../components/BookingModal';
 import { createBooking } from '../services/bookingService';
 import LoginModal from '../components/LoginModal';
 import { Helmet } from 'react-helmet';
+import { useToast } from '../hooks/useToast';
 
 function Booking() {
   const { user } = useAuth();
@@ -19,6 +20,7 @@ function Booking() {
   const [isLoading, setIsLoading] = useState(false);
   const [searchPerformed, setSearchPerformed] = useState(false);
   const resultRef = useRef(null);
+  const { showSuccess, showError, showInfo } = useToast();
 
   // Auto scroll to results when search is performed
   useEffect(() => {
@@ -42,7 +44,7 @@ function Booking() {
 
   const handleConfirmBooking = async (formData) => {
     if (!user) {
-      alert('Vui lòng đăng nhập để đặt sân');
+      showInfo('Vui lòng đăng nhập để đặt sân');
       return;
     }
 
@@ -62,7 +64,7 @@ function Booking() {
       };
 
       await createBooking(payload);
-      alert('Đặt sân thành công! Cảm ơn bạn đã sử dụng dịch vụ.');
+      showSuccess('Đặt sân thành công! Cảm ơn bạn đã sử dụng dịch vụ.');
       setSelected(null);
       
       // Refresh search results
@@ -72,7 +74,7 @@ function Booking() {
       }
     } catch (err) {
       console.error('Booking error:', err);
-      alert('Đặt sân thất bại. Vui lòng thử lại hoặc liên hệ hỗ trợ.');
+      showError('Đặt sân thất bại. Vui lòng thử lại hoặc liên hệ hỗ trợ.');
     } finally {
       setIsLoading(false);
     }

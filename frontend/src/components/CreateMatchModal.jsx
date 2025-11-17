@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { createMatch } from '../services/matchService';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../hooks/useToast'
 
 function CreateMatchModal({ onClose, onRefresh }) {
   const { user } = useAuth();
+  const { showSuccess, showError, showInfo, showWarning } = useToast();
+
   const [form, setForm] = useState({
     field_type: '5vs5',
     match_date: new Date().toISOString().split('T')[0],
@@ -22,8 +25,8 @@ function CreateMatchModal({ onClose, onRefresh }) {
 
   useEffect(() => {
     if (!user) {
-      alert('Bạn cần đăng nhập để tạo kèo!');
-      onClose();
+        showInfo('Bạn cần đăng nhập để tạo kèo!');
+        onClose();
     }
   }, [user, onClose]);
 
@@ -35,17 +38,17 @@ function CreateMatchModal({ onClose, onRefresh }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) {
-      alert('Bạn cần đăng nhập để tạo kèo!');
+      showInfo('Bạn cần đăng nhập để tạo kèo!');
       return;
     }
 
     if (!form.start_time || !form.end_time) {
-      alert('Vui lòng chọn thời gian bắt đầu và kết thúc');
+      showInfo('Vui lòng chọn thời gian bắt đầu và kết thúc');
       return;
     }
 
     if (form.start_time >= form.end_time) {
-      alert('Thời gian kết thúc phải sau thời gian bắt đầu');
+      showInfo('Thời gian kết thúc phải sau thời gian bắt đầu');
       return;
     }
 
@@ -58,10 +61,10 @@ function CreateMatchModal({ onClose, onRefresh }) {
       await createMatch(data);
       onRefresh();
       onClose();
-      alert('Tạo kèo thành công');
+      showSuccess('Tạo kèo thành công');
     } catch (err) {
       console.error(err);
-      alert('Lỗi khi tạo kèo. Vui lòng thử lại.');
+      showError('Lỗi khi tạo kèo. Vui lòng thử lại.');
     } finally {
       setIsSubmitting(false);
     }

@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { createTeamJoinPost } from '../services/teamJoinService';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../hooks/useToast';
 
 function JoinTeamModal({ onClose, onRefresh }) {
   const { user } = useAuth();
+  const { showSuccess, showError, showInfo, showWarning } = useToast();
+
   const [form, setForm] = useState({
     match_date: new Date().toISOString().split('T')[0],
     start_time: '',
@@ -26,17 +29,17 @@ function JoinTeamModal({ onClose, onRefresh }) {
     e.preventDefault();
     
     if (!form.contact_name.trim() || !form.contact_phone.trim()) {
-      alert('Vui lòng nhập đầy đủ thông tin liên hệ');
+      showInfo('Vui lòng nhập đầy đủ thông tin liên hệ');
       return;
     }
 
     if (form.contact_phone.length < 10) {
-      alert('Số điện thoại không hợp lệ');
+      showInfo('Số điện thoại không hợp lệ');
       return;
     }
 
     if (!form.start_time) {
-      alert('Vui lòng chọn giờ đá');
+      showInfo('Vui lòng chọn giờ đá');
       return;
     }
 
@@ -45,10 +48,10 @@ function JoinTeamModal({ onClose, onRefresh }) {
       await createTeamJoinPost(form);
       onClose();
       onRefresh();
-      alert('Đăng tin ghép đội thành công!');
+      showSuccess('Đăng tin ghép đội thành công!');
     } catch (err) {
       console.error(err);
-      alert('Lỗi khi đăng tin. Vui lòng thử lại.');
+      showError('Lỗi khi đăng tin. Vui lòng thử lại.');
     } finally {
       setIsSubmitting(false);
     }

@@ -1,6 +1,9 @@
+import { useToast } from '../hooks/useToast';
+
 function ContactModal({ data, onClose }) {
   if (!data) return null;
 
+  const { showSuccess } = useToast();
   const handleCall = () => {
     window.open(`tel:${data.phone}`, '_self');
   };
@@ -11,7 +14,7 @@ function ContactModal({ data, onClose }) {
 
   const copyPhone = () => {
     navigator.clipboard.writeText(data.phone).then(() => {
-      alert('Đã sao chép số điện thoại!');
+      showSuccess('Đã sao chép số điện thoại!');
     });
   };
 

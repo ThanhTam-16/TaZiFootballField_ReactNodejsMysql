@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import UserPostsManagement from '../components/UserPostsManagement';
+import ConfirmModal from '../components/ConfirmModal';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import API from '../services/api';
 import { Helmet } from 'react-helmet';
+import { useToast } from '../hooks/useToast';
+import { useConfirm } from '../hooks/useConfirm';
 
 function UserProfile() {
   const { user, login, logout } = useAuth();
@@ -19,6 +22,8 @@ function UserProfile() {
   const [activeTab, setActiveTab] = useState('profile');
   const [actionLoading, setActionLoading] = useState({}); // Track loading state for individual actions
   const bookingInfo = location.state?.bookingInfo;
+  const { showSuccess, showError, showInfo } = useToast();
+  const { confirmState, showConfirm, hideConfirm } = useConfirm();
 
   useEffect(() => {
     if (user?.id) {
@@ -78,7 +83,7 @@ function UserProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name.trim()) {
-      alert('Vui lòng nhập tên');
+      showInfo('Vui lòng nhập tên');
       return;
     }
     
@@ -98,12 +103,12 @@ function UserProfile() {
         phone_number: res.data.phone_number || user.phone_number || '',
       });
       
-      alert('Cập nhật thành công');
+      showSuccess('Cập nhật thành công');
       if (bookingInfo) {
         navigate('/booking', { state: { bookingInfo } });
       }
     } catch (err) {
-      alert('Lỗi khi cập nhật: ' + (err.response?.data?.message || err.message));
+      showError('Lỗi khi cập nhật: ' + (err.response?.data?.message || err.message));
     } finally {
       setUpdating(false);
     }
@@ -144,33 +149,40 @@ function UserProfile() {
     });
   };
 
-  // ...existing code...
 
-  // FIXED: Add cancel booking handler (removed "notes: 'Hủy bởi khách hàng'")
+  // THAY THẾ HÀM handleCancelBooking HIỆN TẠI
   const handleCancelBooking = async (bookingId) => {
-    if (!confirm('Bạn có chắc chắn muốn hủy đặt sân này?')) {
-      return;
-    }
-
-    setActionLoading(prev => ({ ...prev, [`cancel-${bookingId}`]: true }));
-    
-    try {
-      // Call API to cancel booking (no notes sent)
-      await API.put(`/bookings/user/${bookingId}/cancel`, {
-        status: 'cancelled'
-      });
-      
-      alert('Hủy đặt sân thành công');
-      
-      // Refresh data
-      await fetchUserData();
-      await fetchBookingHistory();
-      
+  try {
+    await showConfirm({
+      title: "Hủy đặt sân",
+      message: "Bạn có chắc chắn muốn hủy đặt sân này?",
+      type: "warning",
+      confirmText: "Hủy sân",
+      cancelText: "Giữ lại",
+      onConfirm: async () => {
+        setActionLoading(prev => ({ ...prev, [`cancel-${bookingId}`]: true }));
+        
+        try {
+          await API.put(`/bookings/user/${bookingId}/cancel`, {
+            status: 'cancelled'
+          });
+          
+          showSuccess('Hủy đặt sân thành công');
+          await fetchUserData();
+          await fetchBookingHistory();
+          
+        } catch (error) {
+          console.error('Cancel booking error:', error);
+          showError('Lỗi khi hủy đặt sân: ' + (error.response?.data?.error || error.message));
+          throw error;
+        } finally {
+          setActionLoading(prev => ({ ...prev, [`cancel-${bookingId}`]: false }));
+        }
+      }
+    });
     } catch (error) {
-      console.error('Cancel booking error:', error);
-      alert('Lỗi khi hủy đặt sân: ' + (error.response?.data?.error || error.message));
-    } finally {
-      setActionLoading(prev => ({ ...prev, [`cancel-${bookingId}`]: false }));
+      // Người dùng đã hủy bỏ hoặc có lỗi
+      console.log('Cancel booking was cancelled or failed');
     }
   };
 
@@ -389,10 +401,22 @@ function UserProfile() {
 
                       <button
                         type="button"
-                        onClick={() => {
-                          if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
-                            logout();
-                            navigate('/');
+                        onClick={async () => {
+                          try {
+                            await showConfirm({
+                              title: "Đăng xuất",
+                              message: "Bạn có chắc chắn muốn đăng xuất?",
+                              type: "danger",
+                              confirmText: "Đăng xuất",
+                              cancelText: "Ở lại",
+                              onConfirm: () => {
+                                logout();
+                                showSuccess('Đăng xuất thành công!');
+                                navigate('/');
+                              }
+                            });
+                          } catch (error) {
+                            // Người dùng đã hủy bỏ
                           }
                         }}
                         className="flex-1 sm:flex-none bg-red-500 hover:bg-red-600 text-white py-2.5 md:py-3 px-4 md:px-6 rounded-lg font-medium transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center space-x-2 text-sm"
@@ -538,6 +562,18 @@ function UserProfile() {
         </section>
       </main>
 
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmState.isOpen}
+        onClose={hideConfirm}
+        onConfirm={confirmState.onConfirm}
+        title={confirmState.title}
+        message={confirmState.message}
+        type={confirmState.type}
+        confirmText={confirmState.confirmText}
+        cancelText={confirmState.cancelText}
+        isLoading={confirmState.isLoading}
+      />
       <Footer />
     </div>
   );

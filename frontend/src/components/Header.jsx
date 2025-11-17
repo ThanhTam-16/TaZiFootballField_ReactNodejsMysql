@@ -1,7 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useConfirm } from '../hooks/useConfirm';
+import { useToast } from '../hooks/useToast';
 
+import ConfirmModal from './ConfirmModal';
 import logo from '../assets/images/logo.png';
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -10,6 +14,8 @@ function Header() {
   const location = useLocation();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { showConfirm, confirmState, hideConfirm } = useConfirm();
+  const { showSuccess } = useToast();
 
   // Theme management
   useEffect(() => {
@@ -56,12 +62,6 @@ function Header() {
   };
 
   const isActive = (path) => location.pathname === path;
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-    setMenuOpen(false);
-  };
 
   const navItems = [
     { path: '/', label: 'Trang chủ', icon: 'fas fa-home' },
@@ -140,10 +140,27 @@ function Header() {
                     </span>
                   </Link>
                   <button
-                    onClick={handleLogout}
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await showConfirm({
+                          title: "Đăng xuất",
+                          message: "Bạn có chắc chắn muốn đăng xuất?",
+                          type: "danger",
+                          confirmText: "Đăng xuất",
+                          cancelText: "Ở lại",
+                          onConfirm: () => {
+                            logout();
+                            showSuccess('Đăng xuất thành công!');
+                            navigate('/');
+                          }
+                        });
+                      } catch (error) {
+                        // Người dùng đã hủy bỏ
+                      }
+                    }}
                     className="text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors duration-300 p-1"
-                    title="Đăng xuất"
-                  >
+                      >
                     <i className="fas fa-sign-out-alt text-xs"></i>
                   </button>
                 </div>
@@ -228,7 +245,25 @@ function Header() {
 
               {user && (
                 <button
-                  onClick={handleLogout}
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await showConfirm({
+                        title: "Đăng xuất",
+                        message: "Bạn có chắc chắn muốn đăng xuất?",
+                        type: "danger",
+                        confirmText: "Đăng xuất",
+                        cancelText: "Ở lại",
+                        onConfirm: () => {
+                          logout();
+                          showSuccess('Đăng xuất thành công!');
+                          navigate('/');
+                        }
+                      });
+                    } catch (error) {
+                      // Người dùng đã hủy bỏ
+                    }
+                  }}
                   className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 w-full text-left"
                 >
                   <i className="fas fa-sign-out-alt w-4 text-center text-sm"></i>
@@ -239,6 +274,19 @@ function Header() {
           </div>
         </div>
       </header>
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmState.isOpen}
+        onClose={hideConfirm}
+        onConfirm={confirmState.onConfirm}
+        title={confirmState.title}
+        message={confirmState.message}
+        type={confirmState.type}
+        confirmText={confirmState.confirmText}
+        cancelText={confirmState.cancelText}
+        isLoading={confirmState.isLoading}
+      />
 
       {/* Spacer để tránh content bị che */}
       <div className="h-12 md:h-16"></div>

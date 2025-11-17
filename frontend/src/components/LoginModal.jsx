@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { sendOtp, verifyOtp, adminLogin } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../hooks/useToast';
 
 function LoginModal() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { showSuccess, showError, showWarning, showInfo } = useToast();
   
   // States
   const [loginType, setLoginType] = useState('customer'); // 'customer' hoặc 'admin'
@@ -67,7 +69,7 @@ function LoginModal() {
   // Customer OTP Login
   const handleSendOtp = async () => {
     if (!emailOrPhone.trim()) {
-      alert('Vui lòng nhập email hoặc số điện thoại');
+      showWarning('Vui lòng nhập email hoặc số điện thoại');
       return;
     }
     
@@ -76,9 +78,10 @@ function LoginModal() {
       await sendOtp(emailOrPhone);
       setStep(2);
       setTimer(60);
+      showSuccess('Mã OTP đã được gửi thành công!');
     } catch (err) {
       console.error(err);
-      alert('Không gửi được OTP. Vui lòng thử lại.');
+      showError('Không gửi được OTP. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
@@ -86,7 +89,12 @@ function LoginModal() {
 
   const handleVerifyOtp = async () => {
     if (!otp.trim()) {
-      alert('Vui lòng nhập mã OTP');
+      showWarning('Vui lòng nhập mã OTP');
+      return;
+    }
+    
+    if (otp.length !== 6) {
+      showWarning('Mã OTP phải có 6 số');
       return;
     }
     
@@ -99,12 +107,16 @@ function LoginModal() {
       modal?.classList.remove('active');
       document.body.style.overflow = '';
       
+      showSuccess('Đăng nhập thành công!');
+      
       if (!res.data.user.name || res.data.user.name.trim().toLowerCase() === 'người dùng mới') {
-        navigate('/profile');
+        setTimeout(() => {
+          navigate('/profile');
+        }, 1000);
       }
     } catch (err) {
       console.error(err);
-      alert('Mã OTP không đúng hoặc đã hết hạn');
+      showError('Mã OTP không đúng hoặc đã hết hạn');
     } finally {
       setIsLoading(false);
     }
@@ -128,10 +140,10 @@ function LoginModal() {
     }
   }
 
-  // Admin Login - FIXED VERSION
+  // Admin Login
   const handleAdminLogin = async () => {
     if (!emailOrPhone.trim() || !password.trim()) {
-      alert('Vui lòng nhập đầy đủ email và mật khẩu');
+      showWarning('Vui lòng nhập đầy đủ email và mật khẩu');
       return;
     }
     
@@ -153,20 +165,23 @@ function LoginModal() {
       modal?.classList.remove('active');
       document.body.style.overflow = '';
       
-      // Force page reload to ensure AdminContext picks up the new token
-      window.location.href = '/admin/dashboard';
+      showSuccess('Đăng nhập Admin thành công!');
       
-      alert('Đăng nhập admin thành công!');
+      // Force page reload to ensure AdminContext picks up the new token
+      setTimeout(() => {
+        window.location.href = '/admin/dashboard';
+      }, 1500);
+      
     } catch (err) {
       console.error('Admin login error:', err);
       
       // More specific error handling
       if (err.response?.status === 401) {
-        alert('Email hoặc mật khẩu không đúng');
+        showError('Email hoặc mật khẩu không đúng');
       } else if (err.response?.status === 400) {
-        alert('Thông tin đăng nhập không hợp lệ');
+        showError('Thông tin đăng nhập không hợp lệ');
       } else {
-        alert('Đăng nhập thất bại. Vui lòng thử lại.');
+        showError('Đăng nhập thất bại. Vui lòng thử lại.');
       }
     } finally {
       setIsLoading(false);
@@ -176,6 +191,7 @@ function LoginModal() {
   const resendOtp = () => {
     setTimer(60);
     handleSendOtp();
+    showInfo('Đang gửi lại mã OTP...');
   };
 
   return (
@@ -270,6 +286,7 @@ function LoginModal() {
                       </>
                     )}
                   </button>
+                  
                   {/* Demo Account Info */}
                   <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                     <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-2">
@@ -358,7 +375,7 @@ function LoginModal() {
               )}
             </div>
           ) : (
-            // Admin Login Form - UPDATED
+            // Admin Login Form
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

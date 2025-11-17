@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import useToast from '../hooks/useToast';
 
 function BookingModal({ field, slot, searchInfo, onClose, onConfirm }) {
   const { user } = useAuth();
+  const { showWarning, showInfo } = useToast();
+
   const [form, setForm] = useState({
     phone: user?.phone_number || '',
     name: user?.name || '',
@@ -20,12 +23,12 @@ function BookingModal({ field, slot, searchInfo, onClose, onConfirm }) {
     e.preventDefault();
     
     if (!form.phone.trim() || !form.name.trim()) {
-      alert('Vui lòng nhập đầy đủ thông tin liên hệ');
+      showInfo('Vui lòng nhập đầy đủ thông tin liên hệ');
       return;
     }
 
     if (form.phone.length < 10) {
-      alert('Số điện thoại không hợp lệ');
+      showWarning('Số điện thoại không hợp lệ');
       return;
     }
 
