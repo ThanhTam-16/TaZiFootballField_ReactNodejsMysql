@@ -54,6 +54,7 @@ Hệ thống được thiết kế với 2 giao diện chính:
 - **Authentication**: JWT + OTP (Twilio/NodeMailer)
 - **File Upload**: Multer
 - **Validation**: Express-validator
+- **OTP**: SMTP Google
 
 ### Frontend
 - **Framework**: React 18 + Vite
