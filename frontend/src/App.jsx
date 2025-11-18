@@ -1,6 +1,6 @@
-// ====== frontend/src/App.jsx (UPDATED WITH DARK MODE SUPPORT) ======
+// ====== frontend/src/App.jsx ======
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react'; // Thêm useState
 import { AuthProvider } from './context/AuthContext';
 import { AdminProvider } from './admin/context/AdminContext';
 
@@ -27,11 +27,14 @@ import AdminTeamManagement from './admin/pages/AdminTeamManagement';
 // Shared 
 import ToastProvider from './components/ToastProvider';
 import ScrollToTop from './components/ScrollToTop';
+import LoadingScreen from './components/LoadingScreen'; // Thêm import
 
 // Styles
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true); // Thêm state loading
+
   // Initialize dark mode from localStorage or system preference
   useEffect(() => {
     const initializeDarkMode = () => {
@@ -48,7 +51,6 @@ function App() {
     // Listen for system theme changes
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleSystemThemeChange = (e) => {
-      // Only apply system preference if no user preference is saved
       if (!localStorage.getItem('admin-theme')) {
         if (e.matches) {
           document.documentElement.classList.add('dark');
@@ -59,10 +61,22 @@ function App() {
     };
 
     mediaQuery.addEventListener('change', handleSystemThemeChange);
-    return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
+
+    // Simulate initial app loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleSystemThemeChange);
+      clearTimeout(timer);
+    };
   }, []);
 
   return (
+    <>
+    {isLoading && <LoadingScreen /> }
+
     <Router>
       <ToastProvider>
       <AuthProvider>
@@ -201,6 +215,7 @@ function App() {
       </AuthProvider>
       </ToastProvider>
     </Router>
+    </>
   );
 }
 
