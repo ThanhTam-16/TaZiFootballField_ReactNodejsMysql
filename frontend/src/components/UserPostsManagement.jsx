@@ -145,7 +145,7 @@ function UserPostsManagement() {
       title: "Hủy tin ghép đội",
       message: "Hủy tin ghép đội này? Hành động không thể hoàn tác.",
       type: "danger",
-      confirmText: "Hủy tin",
+      confirmText: "Hủy",
       cancelText: "Đóng",
       onConfirm: async () => {
         setActionLoading(prev => ({ ...prev, [`delete-team-${postId}`]: true }));
@@ -672,7 +672,7 @@ function TeamPostCard({ post, onEdit, onComplete, onDelete, actionLoading, forma
               ) : (
                 <i className="fas fa-times text-xs"></i>
               )}
-              <span>Hủy tin</span>
+              <span>Hủy</span>
             </button>
           </div>
         )}

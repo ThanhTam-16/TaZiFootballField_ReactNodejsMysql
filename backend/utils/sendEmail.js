@@ -51,7 +51,7 @@ const sendEmail = {
             
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
             <p style="color: #666; font-size: 12px;">
-              Email này được gửi tự động từ hệ thống TaZi FootballField Contact Form.
+              Email này được gửi tự động từ hệ thống TaZiFootball Contact Form.
             </p>
           </div>
         `
@@ -82,7 +82,7 @@ const sendEmail = {
             <h2 style="color: #4CAF50;">Xác Nhận Đặt Sân Thành Công</h2>
             
             <p>Xin chào <strong>${userName}</strong>,</p>
-            <p>Cảm ơn bạn đã đặt sân tại TaZi FootballField. Đây là thông tin đặt sân của bạn:</p>
+            <p>Cảm ơn bạn đã đặt sân tại TaZiFootball. Đây là thông tin đặt sân của bạn:</p>
             
             <div style="background-color: #f9f9f9; padding: 20px; border-radius: 5px; margin: 20px 0;">
               <h3 style="margin-top: 0; color: #333;">Chi Tiết Đặt Sân</h3>
@@ -104,9 +104,9 @@ const sendEmail = {
             
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
             <p style="color: #666; font-size: 12px;">
-              TaZi FootballField<br>
+              TaZiFootball<br>
               Email: ${process.env.MAIL_USER}<br>
-              Website: https://tazi-football.com
+              Website: https://tzfootballfield.vercel.app
             </p>
           </div>
         `
@@ -131,7 +131,7 @@ const sendEmail = {
       const mailOptions = {
         from: process.env.MAIL_USER,
         to: email,
-        subject: 'Đặt lại mật khẩu - TaZi FootballField',
+        subject: 'Đặt lại mật khẩu - TaZiFootball',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2 style="color: #4CAF50;">Đặt Lại Mật Khẩu</h2>

@@ -1,6 +1,6 @@
 // ====== frontend/src/App.jsx ======
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useEffect, useState } from 'react'; // Thêm useState
+import { useEffect, useState } from 'react'; // 
 import { AuthProvider } from './context/AuthContext';
 import { AdminProvider } from './admin/context/AdminContext';
 
@@ -27,13 +27,13 @@ import AdminTeamManagement from './admin/pages/AdminTeamManagement';
 // Shared 
 import ToastProvider from './components/ToastProvider';
 import ScrollToTop from './components/ScrollToTop';
-import LoadingScreen from './components/LoadingScreen'; // Thêm import
+import LoadingScreen from './components/LoadingScreen'; 
 
 // Styles
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true); // Thêm state loading
+  const [isLoading, setIsLoading] = useState(true); 
 
   // Initialize dark mode from localStorage or system preference
   useEffect(() => {

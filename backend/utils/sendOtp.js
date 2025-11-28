@@ -36,11 +36,11 @@ const sendOtp = {
       const mailOptions = {
         from: process.env.MAIL_USER,
         to: email,
-        subject: 'Mã xác thực OTP - TaZi FootballField',
+        subject: 'Mã xác thực OTP - TaZiFootball',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <div style="background: linear-gradient(135deg, #10b981, #059669); padding: 20px; text-align: center;">
-              <h1 style="color: white; margin: 0;">TaZi FootballField</h1>
+              <h1 style="color: white; margin: 0;">TaZiFootball</h1>
             </div>
             <div style="padding: 30px; background: #f9f9f9;">
               <h2 style="color: #333;">Mã xác thực OTP của bạn</h2>
@@ -95,7 +95,7 @@ const sendOtp = {
       console.log(`Phone: ${phone}`);
       console.log(`OTP Code: ${otpCode}`);
       console.log(`Time: ${new Date().toLocaleString()}`);
-      console.log('Message: Mã xác thực TaZi FootballField của bạn là: ' + otpCode + '. Có hiệu lực trong 5 phút.');
+      console.log('Message: Mã xác thực TaZiFootball của bạn là: ' + otpCode + '. Có hiệu lực trong 5 phút.');
       console.log('='.repeat(50));
 
       // TODO: Integrate with real SMS service like:

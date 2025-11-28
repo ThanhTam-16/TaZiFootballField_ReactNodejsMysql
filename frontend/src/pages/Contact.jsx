@@ -47,10 +47,10 @@ function Contact() {
     {
       icon: 'fas fa-map-marker-alt',
       title: 'Địa chỉ',
-      content: '16 TL03, Thạnh Lộc, Q.12, TP.HCM',
+      content: '23 TL31 KP3C Thạnh Lộc Q.12 TP.HCM',
       color: 'text-red-500',
       bgColor: 'bg-red-50 dark:bg-red-900/20',
-      link: 'https://maps.google.com/?q=16+TL03+Thạnh+Lộc+Quận+12+TP+HCM'
+      link: 'https://maps.google.com/?q=23+TL31+KP3C+Thạnh+Lộc+Quận+12+TP+HCM'
     },
     {
       icon: 'fas fa-phone',
@@ -401,8 +401,8 @@ function Contact() {
             </div>
             
             <div className="rounded-2xl overflow-hidden shadow-xl border border-gray-200 dark:border-gray-700">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.363581788153!2d106.68094251032075!3d10.859926457603919!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317529fb7fc7aa8b%3A0x2d547093695adcdb!2zTmluYSBIb3VzZSBUaOG6oW5oIEzhu5lj!5e0!3m2!1svi!2s!4v1754792866878!5m2!1svi!2s"
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3729.4535035055837!2d106.691980844113!3d10.87071162022562!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317528243ad4c54b%3A0x25585a3d3af4b23a!2zMjMgxJDGsOG7nW5nIFRo4bqhbmggTOG7mWMgMzEsIGtodSBwaOG7kSAzYywgUXXhuq1uIDEyLCBUaMOgbmggcGjhu5EgSOG7kyBDaMOtIE1pbmgsIFZp4buHdCBOYW0!5e1!3m2!1svi!2s!4v1764127896395!5m2!1svi!2s" 
                 width="100%"
                 height="400"
                 style={{ border: 0 }}

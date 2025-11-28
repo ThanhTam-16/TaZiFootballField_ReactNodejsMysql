@@ -14,8 +14,8 @@ function Footer() {
   const contactInfo = [
     {
       icon: 'fas fa-map-marker-alt',
-      text: '16 TL03 p.Thạnh Lộc q.12 tp.Hồ Chí Minh',
-      link: 'https://maps.google.com/?q=16+TL03+Thạnh+Lộc+Quận+12+TP+HCM'
+      text: '23 TL31 KP3C Thạnh Lộc Q.12 TP.HCM',
+      link: 'https://maps.google.com/?q=23+TL31+KP3C+Thạnh+Lộc+Quận+12+TP+HCM'
     },
     {
       icon: 'fas fa-phone',
