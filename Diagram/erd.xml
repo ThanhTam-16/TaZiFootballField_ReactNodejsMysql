@@ -1,0 +1,167 @@
+<mxfile host="app.diagrams.net" modified="2025-11-18T06:31:00.000Z" agent="Mozilla/5.0" etag="Z8sx6qWwrgqHErk5pQYI" version="24.6.9">
+  <diagram name="Page-1" id="x5cXYDm2C-71hI_SBmjx">
+    <mxGraphModel dx="1662" dy="834" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Users Table -->
+        <mxCell id="users" value="&lt;b&gt;users&lt;/b&gt;&lt;br&gt;id: int&lt;br&gt;phone_number: varchar(15)&lt;br&gt;name: varchar(100)&lt;br&gt;email: varchar(100)&lt;br&gt;role: enum('customer','admin')&lt;br&gt;is_active: tinyint&lt;br&gt;total_bookings: int&lt;br&gt;cancelled_bookings: int&lt;br&gt;created_at: timestamp&lt;br&gt;updated_at: timestamp" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="200" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- Admins Table -->
+        <mxCell id="admins" value="&lt;b&gt;admins&lt;/b&gt;&lt;br&gt;id: int&lt;br&gt;email: varchar(100)&lt;br&gt;password: varchar(255)&lt;br&gt;name: varchar(100)&lt;br&gt;role: enum('super_admin','admin','manager')&lt;br&gt;permissions: json&lt;br&gt;is_active: tinyint&lt;br&gt;last_login: timestamp&lt;br&gt;created_at: timestamp&lt;br&gt;updated_at: timestamp" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="200" width="200" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- Admin Sessions Table -->
+        <mxCell id="admin_sessions" value="&lt;b&gt;admin_sessions&lt;/b&gt;&lt;br&gt;id: int&lt;br&gt;admin_id: int&lt;br&gt;session_token: varchar(255)&lt;br&gt;expires_at: timestamp&lt;br&gt;is_active: tinyint&lt;br&gt;created_at: timestamp" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="420" width="200" height="150" as="geometry" />
+        </mxCell>
+        
+        <!-- Fields Table -->
+        <mxCell id="fields" value="&lt;b&gt;fields&lt;/b&gt;&lt;br&gt;id: int&lt;br&gt;name: varchar(100)&lt;br&gt;type: enum('5vs5','7vs7','11vs11')&lt;br&gt;price_per_hour: decimal(10,2)&lt;br&gt;description: text&lt;br&gt;images: json&lt;br&gt;facilities: json&lt;br&gt;is_active: tinyint&lt;br&gt;created_at: timestamp&lt;br&gt;updated_at: timestamp" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="420" width="200" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Bookings Table -->
+        <mxCell id="bookings" value="&lt;b&gt;bookings&lt;/b&gt;&lt;br&gt;id: int&lt;br&gt;user_id: int&lt;br&gt;field_id: int&lt;br&gt;booking_date: date&lt;br&gt;time_slot_id: int&lt;br&gt;status: enum('pending','approved','cancelled','completed')&lt;br&gt;total_amount: decimal(10,2)&lt;br&gt;payment_method: enum('cash','online')&lt;br&gt;payment_status: enum('pending','paid','refunded')&lt;br&gt;notes: text&lt;br&gt;created_at: timestamp&lt;br&gt;updated_at: timestamp&lt;br&gt;start_time: time&lt;br&gt;end_time: time" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="200" width="220" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- Services Table -->
+        <mxCell id="services" value="&lt;b&gt;services&lt;/b&gt;&lt;br&gt;id: int&lt;br&gt;name: varchar(100)&lt;br&gt;price: decimal(10,2)&lt;br&gt;category: enum('drink','food','equipment')&lt;br&gt;stock: int&lt;br&gt;image: varchar(255)&lt;br&gt;is_active: tinyint&lt;br&gt;created_at: timestamp&lt;br&gt;updated_at: timestamp" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="440" width="200" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Booking Services Table -->
+        <mxCell id="booking_services" value="&lt;b&gt;booking_services&lt;/b&gt;&lt;br&gt;id: int&lt;br&gt;booking_id: int&lt;br&gt;service_id: int&lt;br&gt;quantity: int&lt;br&gt;price: decimal(10,2)&lt;br&gt;created_at: timestamp" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="300" width="200" height="130" as="geometry" />
+        </mxCell>
+        
+        <!-- Matches Table -->
+        <mxCell id="matches" value="&lt;b&gt;matches&lt;/b&gt;&lt;br&gt;id: int&lt;br&gt;creator_id: int&lt;br&gt;field_id: int&lt;br&gt;field_type: enum('5vs5','7vs7','11vs11')&lt;br&gt;match_date: date&lt;br&gt;start_time: time&lt;br&gt;end_time: time&lt;br&gt;current_players: int&lt;br&gt;max_players: int&lt;br&gt;level: enum('beginner','intermediate','advanced')&lt;br&gt;age_min: int&lt;br&gt;age_max: int&lt;br&gt;price_per_person: decimal(10,2)&lt;br&gt;description: text&lt;br&gt;contact_name: varchar(100)&lt;br&gt;contact_phone: varchar(15)&lt;br&gt;allow_join: tinyint&lt;br&gt;status: enum('open','full','closed','completed')&lt;br&gt;created_at: timestamp&lt;br&gt;updated_at: timestamp" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="620" width="220" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- Team Join Posts Table -->
+        <mxCell id="team_join_posts" value="&lt;b&gt;team_join_posts&lt;/b&gt;&lt;br&gt;id: int&lt;br&gt;match_date: date&lt;br&gt;start_time: time&lt;br&gt;field_type: enum('5vs5','7vs7','11vs11')&lt;br&gt;level: enum('beginner','intermediate','advanced','pro')&lt;br&gt;players_needed: int&lt;br&gt;position_needed: enum('goalkeeper','defender','midfielder','forward','any')&lt;br&gt;description: text&lt;br&gt;contact_name: varchar(100)&lt;br&gt;contact_phone: varchar(15)&lt;br&gt;status: enum('open','closed')&lt;br&gt;created_at: timestamp" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="620" width="220" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Maintenance Schedules Table -->
+        <mxCell id="maintenance_schedules" value="&lt;b&gt;maintenance_schedules&lt;/b&gt;&lt;br&gt;id: int&lt;br&gt;field_id: int&lt;br&gt;maintenance_date: date&lt;br&gt;start_time: time&lt;br&gt;end_time: time&lt;br&gt;reason: varchar(255)&lt;br&gt;description: text&lt;br&gt;type: enum('regular','holiday','emergency')&lt;br&gt;is_active: tinyint&lt;br&gt;created_at: timestamp&lt;br&gt;updated_at: timestamp" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="640" width="220" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Products Table -->
+        <mxCell id="products" value="&lt;b&gt;products&lt;/b&gt;&lt;br&gt;id: int&lt;br&gt;code: varchar(50)&lt;br&gt;name: varchar(200)&lt;br&gt;category: enum('soft-drink','energy-drink','water','tea','snack','equipment')&lt;br&gt;unit: varchar(20)&lt;br&gt;purchase_price: decimal(10,2)&lt;br&gt;selling_price: decimal(10,2)&lt;br&gt;current_stock: int&lt;br&gt;min_stock: int&lt;br&gt;supplier: varchar(200)&lt;br&gt;description: text&lt;br&gt;image: varchar(255)&lt;br&gt;is_active: tinyint&lt;br&gt;created_at: timestamp&lt;br&gt;updated_at: timestamp" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="860" width="220" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- Stock Transactions Table -->
+        <mxCell id="stock_transactions" value="&lt;b&gt;stock_transactions&lt;/b&gt;&lt;br&gt;id: int&lt;br&gt;product_id: int&lt;br&gt;type: enum('import','export')&lt;br&gt;quantity: int&lt;br&gt;price: decimal(10,2)&lt;br&gt;total_amount: decimal(10,2)&lt;br&gt;transaction_date: date&lt;br&gt;reference: varchar(100)&lt;br&gt;notes: text&lt;br&gt;created_by: int&lt;br&gt;created_at: timestamp" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="860" width="220" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Pricing Rules Table -->
+        <mxCell id="pricing_rules" value="&lt;b&gt;pricing_rules&lt;/b&gt;&lt;br&gt;id: int&lt;br&gt;field_type: enum('5vs5','7vs7','11vs11')&lt;br&gt;start_hour: tinyint&lt;br&gt;end_hour: tinyint&lt;br&gt;price_per_hour: decimal(10,2)" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="860" width="200" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- OTP Codes Table -->
+        <mxCell id="otp_codes" value="&lt;b&gt;otp_codes&lt;/b&gt;&lt;br&gt;id: int&lt;br&gt;phone_number: varchar(15)&lt;br&gt;email: varchar(255)&lt;br&gt;otp_code: varchar(6)&lt;br&gt;expires_at: timestamp&lt;br&gt;is_used: tinyint&lt;br&gt;created_at: timestamp" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="860" width="200" height="140" as="geometry" />
+        </mxCell>
+        
+        <!-- Relationships -->
+        
+        <!-- users → bookings (1:N) -->
+        <mxCell id="rel1" value="" style="endArrow=classic;endFill=1;endSize=6;html=1;exitX=0.5;exitY=1;entryX=0.25;entryY=0;" edge="1" parent="1" source="users" target="bookings">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="140" y="400" as="sourcePoint" />
+            <mxPoint x="610" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- admins → admin_sessions (1:N) -->
+        <mxCell id="rel2" value="" style="endArrow=classic;endFill=1;endSize=6;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="admins" target="admin_sessions">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="400" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- fields → bookings (1:N) -->
+        <mxCell id="rel3" value="" style="endArrow=classic;endFill=1;endSize=6;html=1;exitX=0.75;exitY=0.5;entryX=0.25;entryY=0.5;" edge="1" parent="1" source="fields" target="bookings">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="240" y="510" as="sourcePoint" />
+            <mxPoint x="550" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- fields → maintenance_schedules (1:N) -->
+        <mxCell id="rel4" value="" style="endArrow=classic;endFill=1;endSize=6;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="fields" target="maintenance_schedules">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="240" y="510" as="sourcePoint" />
+            <mxPoint x="550" y="730" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- fields → matches (1:N) -->
+        <mxCell id="rel5" value="" style="endArrow=classic;endFill=1;endSize=6;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="fields" target="matches">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="140" y="600" as="sourcePoint" />
+            <mxPoint x="150" y="620" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- users → matches (1:N) -->
+        <mxCell id="rel6" value="" style="endArrow=classic;endFill=1;endSize=6;html=1;exitX=0.75;exitY=0.5;entryX=0;entryY=0.25;" edge="1" parent="1" source="users" target="matches">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="240" y="300" as="sourcePoint" />
+            <mxPoint x="40" y="740" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- bookings → booking_services (1:N) -->
+        <mxCell id="rel7" value="" style="endArrow=classic;endFill=1;endSize=6;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="bookings" target="booking_services">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="770" y="310" as="sourcePoint" />
+            <mxPoint x="780" y="365" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- services → booking_services (1:N) -->
+        <mxCell id="rel8" value="" style="endArrow=classic;endFill=1;endSize=6;html=1;exitX=1;exitY=0.25;entryX=0;entryY=0.25;" edge="1" parent="1" source="services" target="booking_services">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="750" y="485" as="sourcePoint" />
+            <mxPoint x="780" y="365" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- products → stock_transactions (1:N) -->
+        <mxCell id="rel9" value="" style="endArrow=classic;endFill=1;endSize=6;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="products" target="stock_transactions">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="260" y="960" as="sourcePoint" />
+            <mxPoint x="300" y="950" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- admins → stock_transactions (1:N) -->
+        <mxCell id="rel10" value="" style="endArrow=classic;endFill=1;endSize=6;html=1;exitX=0.25;exitY=1;entryX=0.75;entryY=0;" edge="1" parent="1" source="admins" target="stock_transactions">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="350" y="400" as="sourcePoint" />
+            <mxPoint x="410" y="860" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Legend -->
+        <mxCell id="legend" value="&lt;b&gt;Football Field Management System - ERD Diagram&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font color=&quot;#0066cc&quot;&gt;🔷 Core Entities&lt;/font&gt;&lt;br&gt;&lt;font color=&quot;#00cc66&quot;&gt;🟢 Business Logic&lt;/font&gt;&lt;br&gt;&lt;font color=&quot;#cc6600&quot;&gt;🟠 Authentication&lt;/font&gt;&lt;br&gt;&lt;font color=&quot;#cc0066&quot;&gt;🔴 Inventory Management&lt;/font&gt;&lt;br&gt;&lt;br&gt;📊 12 Tables | 🔗 10 Relationships" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="600" y="40" width="250" height="120" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

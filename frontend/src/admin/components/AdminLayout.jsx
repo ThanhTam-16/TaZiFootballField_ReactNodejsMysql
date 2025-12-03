@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
 import DarkModeToggle, { CompactDarkModeToggle } from './common/DarkModeToggle';
+import ConfirmModal from './ConfirmModal';
+import { useToast} from '../hooks/useToast';
 
 import adminlogo from '../assets/images/logoadmin.png';
 
@@ -10,10 +12,12 @@ const AdminLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   
   const { admin, logout, hasPermission } = useAdmin();
   const navigate = useNavigate();
   const location = useLocation();
+  const { showToast } = useToast();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -32,10 +36,26 @@ const AdminLayout = () => {
   };
 
   const handleLogout = async () => {
-    if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+    try {
       await logout();
+      showToast('Đăng xuất thành công', 'success');
       navigate('/');
+    } catch (error) {
+      showToast('Không thể đăng xuất', 'error');
     }
+  };
+
+  const confirmLogout = () => {
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    setShowConfirmModal(false);
+    await handleLogout();
+  };
+
+  const handleCancelLogout = () => {
+    setShowConfirmModal(false);
   };
 
   const menuItems = [
@@ -80,12 +100,6 @@ const AdminLayout = () => {
       icon: 'fas fa-tools',
       label: 'Bảo trì',
       permission: 'fields'
-    },
-    {
-      path: '/admin/reports',
-      icon: 'fas fa-chart-line',
-      label: 'Báo cáo',
-      permission: 'reports'
     }
   ].filter(item => !item.permission || hasPermission(item.permission));
 
@@ -97,8 +111,7 @@ const AdminLayout = () => {
       '/admin/users': 'Quản lý khách hàng',
       '/admin/teams': 'Quản lý Kèo & Ghép đội',
       '/admin/inventory': 'Quản lý tồn kho',
-      '/admin/maintenance': 'Quản lý bảo trì',
-      '/admin/reports': 'Báo cáo'
+      '/admin/maintenance': 'Quản lý bảo trì'
     };
     return titles[location.pathname] || 'Admin Panel';
   };
@@ -197,7 +210,7 @@ const AdminLayout = () => {
           
           {/* Logout Button */}
           <button
-            onClick={handleLogout}
+            onClick={confirmLogout}
             className={`mt-3 w-full flex items-center space-x-2 px-3 py-2 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200 text-sm font-medium ${
               sidebarCollapsed ? 'justify-center' : ''
             }`}
@@ -341,9 +354,9 @@ const AdminLayout = () => {
             
             <div className="space-y-2">
               <button
-                onClick={handleLogout}
+                onClick={confirmLogout}
                 className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 text-sm font-medium"
-              >
+                >
                 <i className="fas fa-sign-out-alt"></i>
                 <span>Đăng xuất</span>
               </button>
@@ -391,6 +404,18 @@ const AdminLayout = () => {
             </div>
           </div>
         </header>
+
+        {showConfirmModal && (
+          <ConfirmModal
+            message="Bạn có chắc chắn muốn đăng xuất?"
+            onConfirm={handleConfirmLogout}
+            onCancel={handleCancelLogout}
+            title="Xác nhận đăng xuất"
+            type="warning"
+            confirmText="Đăng xuất"
+            cancelText="Ở lại"
+          />
+        )}
 
         {/* Page Content - RESPONSIVE CONTAINER */}
         <div className="w-full">

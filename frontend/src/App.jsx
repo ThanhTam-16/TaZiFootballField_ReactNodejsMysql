@@ -1,6 +1,5 @@
-// ====== frontend/src/App.jsx ======
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useEffect, useState } from 'react'; // 
+import { useEffect, useState } from 'react'; 
 import { AuthProvider } from './context/AuthContext';
 import { AdminProvider } from './admin/context/AdminContext';
 
@@ -146,30 +145,6 @@ function App() {
                 </ProtectedAdminRoute>
               } />
               
-              {/* Reports - Cần quyền 'reports' */}
-              <Route path="reports" element={
-                <ProtectedAdminRoute permission="reports">
-                  <div className="flex items-center justify-center min-h-[60vh]">
-                    <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 max-w-md mx-auto">
-                      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i className="fas fa-chart-line text-white text-2xl"></i>
-                      </div>
-                      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                        Báo cáo & Thống kê
-                      </h2>
-                      <p className="text-gray-600 dark:text-gray-400 mb-4">
-                        Trang này đang trong quá trình phát triển...
-                      </p>
-                      <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
-                        <p>• Doanh thu theo thời gian</p>
-                        <p>• Sân phổ biến nhất</p>
-                        <p>• Khách hàng VIP</p>
-                        <p>• Biểu đồ thống kê chi tiết</p>
-                      </div>
-                    </div>
-                  </div>
-                </ProtectedAdminRoute>
-              } />
 
               {/* Default redirect to dashboard */}
               <Route index element={<AdminDashboard />} />

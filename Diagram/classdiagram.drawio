@@ -1,0 +1,161 @@
+classDiagram
+%% ======= KHAI BÁO CÁC LỚP (BẢNG) =======
+
+class Admins {
+  +int id
+  +string email
+  +string password
+  +string name
+  +string role
+  +bool is_active
+  +datetime created_at
+  +datetime updated_at
+}
+
+class AdminSessions {
+  +int id
+  +int admin_id
+  +string session_token
+  +datetime expires_at
+  +bool is_active
+  +datetime created_at
+}
+
+class Users {
+  +int id
+  +string phone_number
+  +string name
+  +string email
+  +bool is_active
+  +int total_bookings
+  +int cancelled_bookings
+  +datetime created_at
+  +datetime updated_at
+}
+
+class Otp_codes {
+  +int id
+  +string phone_number
+  +string email
+  +string otp_code
+  +datetime expires_at
+  +bool is_used
+  +datetime created_at
+}
+
+class Fields {
+  +int id
+  +string name
+  +enum type        %% 5vs5, 7vs7, 11vs11
+  +decimal price_per_hour
+  +text description
+  +json images
+  +json facilities
+  +bool is_active
+  +datetime created_at
+  +datetime updated_at
+}
+
+class Matches {
+  +int id
+  +int creator_id
+  +int field_id
+  +enum field_type
+  +date match_date
+  +time start_time
+  +time end_time
+  +int current_players
+  +int max_players
+  +enum level
+  +int age_min
+  +int age_max
+  +decimal price_per_person
+  +text description
+  +string contact_name
+  +string contact_phone
+  +bool allow_join
+  +enum status
+  +datetime created_at
+  +datetime updated_at
+}
+
+class Bookings {
+  +int id
+  +int user_id
+  +int field_id
+  +date booking_date
+  +int time_slot_id
+  +enum status
+  +decimal total_amount
+  +enum payment_method
+  +enum payment_status
+  +text notes
+  +time start_time
+  +time end_time
+  +datetime created_at
+  +datetime updated_at
+}
+
+class Services {
+  +int id
+  +string name
+  +decimal price
+  +string category
+  +int stock
+  +string image
+  +bool is_active
+  +datetime created_at
+  +datetime updated_at
+}
+
+class Booking_services {
+  +int id
+  +int booking_id
+  +int service_id
+  +int quantity
+  +decimal price
+  +datetime created_at
+}
+
+class Maintenance_schedules {
+  +int id
+  +int field_id
+  +date maintenance_date
+  +time start_time
+  +time end_time
+  +string reason
+  +text description
+  +string type
+  +bool is_active
+  +datetime created_at
+  +datetime updated_at
+}
+
+%% ======= QUAN HỆ & BỘ SỐ LƯỢNG (CARDINALITY) =======
+
+%% Admin 1 - * AdminSessions
+Admins "1" --> "0..*" AdminSessions : has sessions
+
+%% User 1 - * Bookings
+Users "1" --> "0..*" Bookings : places
+
+%% Field 1 - * Bookings
+Fields "1" --> "0..*" Bookings : reserved_for
+
+%% Field 1 - * Maintenance_schedules
+Fields "1" --> "0..*" Maintenance_schedules : has_maintenance
+
+%% User 1 - * Matches (creator)
+Users "1" --> "0..*" Matches : creates
+
+%% Field 1 - * Matches
+Fields "1" --> "0..*" Matches : played_on
+
+%% Booking 1 - * Booking_services
+Bookings "1" --> "0..*" Booking_services : includes
+
+%% Service 1 - * Booking_services
+Services "1" --> "0..*" Booking_services : used_in
+
+%% User 1 - * Otp_codes
+Users "1" --> "0..*" Otp_codes : verifies_with
