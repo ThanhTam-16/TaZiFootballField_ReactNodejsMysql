@@ -1,13 +1,15 @@
-// backend/models/Match.js - FIXED VERSION
+// backend/models/Match.js
 const db = require('../config/db');
 
 const Match = {
-  // =============== ASYNC METHODS (NEW) ===============
+  // =============== ASYNC METHODS ===============
   createAsync: async (data) => {
     try {
       const sql = `
         INSERT INTO matches 
-        (creator_id, field_id, field_type, match_date, start_time, end_time, level, age_min, age_max, price_per_person, description, contact_name, contact_phone, allow_join)
+        (creator_id, field_id, field_type, match_date, start_time, end_time, 
+         level, age_min, age_max, price_per_person, description, 
+         contact_name, contact_phone, allow_join)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       const values = [
@@ -24,9 +26,9 @@ const Match = {
         data.description || '',
         data.contact_name,
         data.contact_phone,
-        data.allow_join !== false ? 1 : 0
+        data.allow_join !== false ? 1 : 0,
       ];
-      
+
       const [result] = await db.promise().query(sql, values);
       return result;
     } catch (error) {
@@ -63,7 +65,7 @@ const Match = {
       }
 
       sql += ' ORDER BY m.match_date ASC, m.start_time ASC';
-      
+
       const [results] = await db.promise().query(sql, params);
       return results;
     } catch (error) {
@@ -72,12 +74,14 @@ const Match = {
     }
   },
 
-  // =============== CALLBACK METHODS (LEGACY) ===============
+  // =============== CALLBACK (LEGACY) ===============
   create: (data, callback) => {
     if (callback) {
       const sql = `
         INSERT INTO matches 
-        (creator_id, field_id, field_type, match_date, start_time, end_time, level, age_min, age_max, price_per_person, description, contact_name, contact_phone, allow_join)
+        (creator_id, field_id, field_type, match_date, start_time, end_time, 
+         level, age_min, age_max, price_per_person, description, 
+         contact_name, contact_phone, allow_join)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       const values = [
@@ -94,13 +98,12 @@ const Match = {
         data.description || '',
         data.contact_name,
         data.contact_phone,
-        data.allow_join !== false ? 1 : 0
+        data.allow_join !== false ? 1 : 0,
       ];
       db.query(sql, values, callback);
       return;
     }
-    
-    // If no callback, return promise
+
     return Match.createAsync(data);
   },
 
@@ -135,19 +138,27 @@ const Match = {
       db.query(sql, params, callback);
       return;
     }
-    
-    // If no callback, return promise
+
     return Match.listOpenMatchesAsync(filter);
   },
 
   // =============== ADMIN METHODS ===============
   getAllForAdmin: async (options) => {
     try {
-      const { page, limit, status, field_type, date_from, date_to, search } = options;
+      const {
+        page,
+        limit,
+        status,
+        field_type,
+        date_from,
+        date_to,
+        search,
+      } = options;
       const offset = (page - 1) * limit;
-      
+
       let sql = `
-        SELECT m.*, u.name as creator_name, u.phone_number as creator_phone, f.name as field_name
+        SELECT m.*, u.name as creator_name, u.phone_number as creator_phone, 
+               f.name as field_name
         FROM matches m
         LEFT JOIN users u ON m.creator_id = u.id
         LEFT JOIN fields f ON m.field_id = f.id
@@ -155,7 +166,6 @@ const Match = {
       `;
       const params = [];
 
-      // Filters
       if (status) {
         sql += ' AND m.status = ?';
         params.push(status);
@@ -173,20 +183,22 @@ const Match = {
         params.push(date_to);
       }
       if (search) {
-        sql += ' AND (m.contact_name LIKE ? OR m.contact_phone LIKE ? OR m.description LIKE ? OR u.name LIKE ?)';
-        const searchTerm = `%${search}%`;
-        params.push(searchTerm, searchTerm, searchTerm, searchTerm);
+        sql +=
+          ' AND (m.contact_name LIKE ? OR m.contact_phone LIKE ? OR m.description LIKE ? OR u.name LIKE ?)';
+        const term = `%${search}%`;
+        params.push(term, term, term, term);
       }
 
-      // Count total
-      const countSql = sql.replace('SELECT m.*, u.name as creator_name, u.phone_number as creator_phone, f.name as field_name', 'SELECT COUNT(*) as total');
+      const countSql = sql.replace(
+        'SELECT m.*, u.name as creator_name, u.phone_number as creator_phone, f.name as field_name',
+        'SELECT COUNT(*) as total'
+      );
       const [countResult] = await db.promise().query(countSql, params);
       const total = countResult[0].total;
 
-      // Get data with pagination
       sql += ' ORDER BY m.created_at DESC LIMIT ? OFFSET ?';
       params.push(limit, offset);
-      
+
       const [matches] = await db.promise().query(sql, params);
 
       return {
@@ -195,8 +207,8 @@ const Match = {
           page,
           limit,
           total,
-          totalPages: Math.ceil(total / limit)
-        }
+          totalPages: Math.ceil(total / limit),
+        },
       };
     } catch (error) {
       console.error('Error in Match.getAllForAdmin:', error);
@@ -227,8 +239,9 @@ const Match = {
       const sql = `
         INSERT INTO matches 
         (creator_id, field_id, field_type, match_date, start_time, end_time, 
-         current_players, max_players, level, age_min, age_max, price_per_person, 
-         description, contact_name, contact_phone, allow_join, status)
+         current_players, max_players, level, age_min, age_max, 
+         price_per_person, description, contact_name, contact_phone, 
+         allow_join, status)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       const values = [
@@ -248,9 +261,9 @@ const Match = {
         data.contact_name,
         data.contact_phone,
         data.allow_join !== false ? 1 : 0,
-        data.status || 'open'
+        data.status || 'open',
       ];
-      
+
       const [result] = await db.promise().query(sql, values);
       return result;
     } catch (error) {
@@ -261,27 +274,44 @@ const Match = {
 
   updateByAdmin: async (id, data) => {
     try {
-      // Only allow known/allowed columns to avoid SQL errors from unknown frontend fields
       const allowed = new Set([
-        'creator_id', 'field_id', 'field_type', 'match_date', 'start_time', 'end_time',
-        'current_players', 'max_players', 'level', 'age_min', 'age_max', 'price_per_person',
-        'description', 'contact_name', 'contact_phone', 'allow_join', 'status'
+        'creator_id',
+        'field_id',
+        'field_type',
+        'match_date',
+        'start_time',
+        'end_time',
+        'current_players',
+        'max_players',
+        'level',
+        'age_min',
+        'age_max',
+        'price_per_person',
+        'description',
+        'contact_name',
+        'contact_phone',
+        'allow_join',
+        'status',
       ]);
 
       const fields = [];
       const values = [];
 
-      Object.keys(data).forEach(key => {
+      Object.keys(data).forEach((key) => {
         if (allowed.has(key) && data[key] !== undefined) {
           fields.push(`${key} = ?`);
           values.push(data[key]);
         }
       });
 
-      if (fields.length === 0) return; // nothing to update after filtering
+      if (fields.length === 0) return;
 
       values.push(id);
-      const sql = `UPDATE matches SET ${fields.join(', ')}, updated_at = NOW() WHERE id = ?`;
+      const sql = `
+        UPDATE matches 
+        SET ${fields.join(', ')}, updated_at = NOW() 
+        WHERE id = ?
+      `;
       await db.promise().query(sql, values);
     } catch (error) {
       console.error('Error in Match.updateByAdmin:', error);
@@ -301,10 +331,14 @@ const Match = {
   bulkUpdateStatus: async (matchIds, status) => {
     try {
       if (!matchIds || matchIds.length === 0) return;
-      
+
       const placeholders = matchIds.map(() => '?').join(',');
-      const sql = `UPDATE matches SET status = ?, updated_at = NOW() WHERE id IN (${placeholders})`;
-      
+      const sql = `
+        UPDATE matches 
+        SET status = ?, updated_at = NOW() 
+        WHERE id IN (${placeholders})
+      `;
+
       await db.promise().query(sql, [status, ...matchIds]);
     } catch (error) {
       console.error('Error in Match.bulkUpdateStatus:', error);
@@ -320,11 +354,11 @@ const Match = {
         'SELECT COUNT(*) as completed FROM matches WHERE status = "completed"',
         'SELECT COUNT(*) as today FROM matches WHERE match_date = CURDATE()',
         'SELECT COUNT(*) as this_week FROM matches WHERE YEARWEEK(match_date) = YEARWEEK(NOW())',
-        'SELECT field_type, COUNT(*) as count FROM matches GROUP BY field_type'
+        'SELECT field_type, COUNT(*) as count FROM matches GROUP BY field_type',
       ];
 
       const results = await Promise.all(
-        queries.map(query => db.promise().query(query))
+        queries.map((q) => db.promise().query(q))
       );
 
       return {
@@ -333,13 +367,13 @@ const Match = {
         completed: results[2][0][0].completed,
         today: results[3][0][0].today,
         thisWeek: results[4][0][0].this_week,
-        byFieldType: results[5][0]
+        byFieldType: results[5][0],
       };
     } catch (error) {
       console.error('Error in Match.getAdminStats:', error);
       throw error;
     }
-  }
+  },
 };
 
 module.exports = Match;

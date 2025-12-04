@@ -1,18 +1,30 @@
-// backend/routes/teamJoinRoutes.js - FIXED VERSION
+// backend/routes/teamJoinRoutes.js - Team Join (Customer & Admin)
 const express = require('express');
 const router = express.Router();
 const teamJoinController = require('../controllers/teamJoinController');
-const { requireAuth, requirePermission } = require('../middleware/adminAuth');
+const { requireAuth } = require('../middleware/adminAuth');
 
 // =============== ADMIN ROUTES (PHẢI ĐẶT TRƯỚC) ===============
-// Lưu ý: Admin routes phải đặt trước customer routes để tránh conflict
+// Đặt trước để tránh /admin bị bắt bởi '/:id'
 router.get('/admin/stats', requireAuth, teamJoinController.getPostStats);
 router.get('/admin', requireAuth, teamJoinController.getAllPosts);
 router.get('/admin/:id', requireAuth, teamJoinController.getPostById);
 router.post('/admin', requireAuth, teamJoinController.createPost);
-router.put('/admin/:id', requireAuth, teamJoinController.updatePostByAdmin);
-router.delete('/admin/:id', requireAuth, teamJoinController.deletePostByAdmin);
-router.post('/admin/bulk-update', requireAuth, teamJoinController.bulkUpdatePostStatus);
+router.put(
+  '/admin/:id',
+  requireAuth,
+  teamJoinController.updatePostByAdmin
+);
+router.delete(
+  '/admin/:id',
+  requireAuth,
+  teamJoinController.deletePostByAdmin
+);
+router.post(
+  '/admin/bulk-update',
+  requireAuth,
+  teamJoinController.bulkUpdatePostStatus
+);
 
 // =============== CUSTOMER ROUTES ===============
 router.get('/', teamJoinController.listPosts);

@@ -1,13 +1,14 @@
-// backend/models/TeamJoin.js - FIXED VERSION
+// backend/models/TeamJoin.js
 const db = require('../config/db');
 
 const TeamJoin = {
-  // =============== ASYNC METHODS (NEW) ===============
+  // =============== ASYNC METHODS ===============
   createAsync: async (data) => {
     try {
       const sql = `
         INSERT INTO team_join_posts 
-        (match_date, start_time, field_type, level, players_needed, position_needed, description, contact_name, contact_phone, status)
+        (match_date, start_time, field_type, level, players_needed, 
+         position_needed, description, contact_name, contact_phone, status)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'open')
       `;
       const values = [
@@ -19,9 +20,9 @@ const TeamJoin = {
         data.position_needed || 'any',
         data.description || '',
         data.contact_name,
-        data.contact_phone
+        data.contact_phone,
       ];
-      
+
       const [result] = await db.promise().query(sql, values);
       return result;
     } catch (error) {
@@ -32,7 +33,8 @@ const TeamJoin = {
 
   listAsync: async (filter = {}) => {
     try {
-      let sql = `SELECT * FROM team_join_posts WHERE status = 'open' AND match_date >= CURDATE()`;
+      let sql =
+        "SELECT * FROM team_join_posts WHERE status = 'open' AND match_date >= CURDATE()";
       const values = [];
 
       if (filter.date) {
@@ -57,7 +59,7 @@ const TeamJoin = {
       }
 
       sql += ' ORDER BY match_date ASC, start_time ASC';
-      
+
       const [results] = await db.promise().query(sql, values);
       return results;
     } catch (error) {
@@ -68,8 +70,9 @@ const TeamJoin = {
 
   getByIdAsync: async (id) => {
     try {
-      const sql = 'SELECT * FROM team_join_posts WHERE id = ?';
-      const [posts] = await db.promise().query(sql, [id]);
+      const [posts] = await db
+        .promise()
+        .query('SELECT * FROM team_join_posts WHERE id = ?', [id]);
       return posts[0] || null;
     } catch (error) {
       console.error('Error in TeamJoin.getByIdAsync:', error);
@@ -82,7 +85,7 @@ const TeamJoin = {
       const fields = [];
       const values = [];
 
-      Object.keys(data).forEach(key => {
+      Object.keys(data).forEach((key) => {
         if (data[key] !== undefined) {
           fields.push(`${key} = ?`);
           values.push(data[key]);
@@ -92,8 +95,12 @@ const TeamJoin = {
       if (fields.length === 0) return;
 
       values.push(id);
-      const sql = `UPDATE team_join_posts SET ${fields.join(', ')} WHERE id = ?`;
-      
+      const sql = `
+        UPDATE team_join_posts 
+        SET ${fields.join(', ')} 
+        WHERE id = ?
+      `;
+
       const [result] = await db.promise().query(sql, values);
       return result;
     } catch (error) {
@@ -104,10 +111,12 @@ const TeamJoin = {
 
   softDeleteAsync: async (id) => {
     try {
-      const [result] = await db.promise().query(
-        'UPDATE team_join_posts SET status = "closed" WHERE id = ?',
-        [id]
-      );
+      const [result] = await db
+        .promise()
+        .query(
+          'UPDATE team_join_posts SET status = "closed" WHERE id = ?',
+          [id]
+        );
       return result;
     } catch (error) {
       console.error('Error in TeamJoin.softDeleteAsync:', error);
@@ -115,12 +124,13 @@ const TeamJoin = {
     }
   },
 
-  // =============== CALLBACK METHODS (LEGACY) ===============
+  // =============== CALLBACK (LEGACY) ===============
   create: (data, callback) => {
     if (callback) {
       const sql = `
         INSERT INTO team_join_posts 
-        (match_date, start_time, field_type, level, players_needed, position_needed, description, contact_name, contact_phone, status)
+        (match_date, start_time, field_type, level, players_needed, 
+         position_needed, description, contact_name, contact_phone, status)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'open')
       `;
       const values = [
@@ -132,19 +142,19 @@ const TeamJoin = {
         data.position_needed || 'any',
         data.description || '',
         data.contact_name,
-        data.contact_phone
+        data.contact_phone,
       ];
       db.query(sql, values, callback);
       return;
     }
-    
-    // If no callback, return promise
+
     return TeamJoin.createAsync(data);
   },
 
   list: (filter = {}, callback) => {
     if (callback) {
-      let sql = `SELECT * FROM team_join_posts WHERE status = 'open' AND match_date >= CURDATE()`;
+      let sql =
+        "SELECT * FROM team_join_posts WHERE status = 'open' AND match_date >= CURDATE()";
       const values = [];
 
       if (filter.date) {
@@ -172,8 +182,7 @@ const TeamJoin = {
       db.query(sql, values, callback);
       return;
     }
-    
-    // If no callback, return promise
+
     return TeamJoin.listAsync(filter);
   },
 
@@ -186,8 +195,7 @@ const TeamJoin = {
       });
       return;
     }
-    
-    // If no callback, return promise
+
     return TeamJoin.getByIdAsync(id);
   },
 
@@ -196,49 +204,60 @@ const TeamJoin = {
       const fields = [];
       const values = [];
 
-      Object.keys(data).forEach(key => {
+      Object.keys(data).forEach((key) => {
         if (data[key] !== undefined) {
           fields.push(`${key} = ?`);
           values.push(data[key]);
         }
       });
 
-      if (fields.length === 0) return callback(null, { affectedRows: 0 });
+      if (fields.length === 0)
+        return callback(null, { affectedRows: 0 });
 
       values.push(id);
-      const sql = `UPDATE team_join_posts SET ${fields.join(', ')} WHERE id = ?`;
+      const sql = `
+        UPDATE team_join_posts 
+        SET ${fields.join(', ')} 
+        WHERE id = ?
+      `;
       db.query(sql, values, callback);
       return;
     }
-    
-    // If no callback, return promise
+
     return TeamJoin.updateAsync(id, data);
   },
 
   softDelete: (id, callback) => {
     if (callback) {
-      const sql = 'UPDATE team_join_posts SET status = "closed" WHERE id = ?';
+      const sql =
+        'UPDATE team_join_posts SET status = "closed" WHERE id = ?';
       db.query(sql, [id], callback);
       return;
     }
-    
-    // If no callback, return promise
+
     return TeamJoin.softDeleteAsync(id);
   },
 
   // =============== ADMIN METHODS ===============
   getAllForAdmin: async (options) => {
     try {
-      const { page, limit, status, field_type, date_from, date_to, search } = options;
+      const {
+        page,
+        limit,
+        status,
+        field_type,
+        date_from,
+        date_to,
+        search,
+      } = options;
       const offset = (page - 1) * limit;
-      
+
       let sql = `
         SELECT * FROM team_join_posts
         WHERE 1=1
       `;
       const params = [];
 
-      // Filters
       if (status) {
         sql += ' AND status = ?';
         params.push(status);
@@ -256,20 +275,22 @@ const TeamJoin = {
         params.push(date_to);
       }
       if (search) {
-        sql += ' AND (contact_name LIKE ? OR contact_phone LIKE ? OR description LIKE ?)';
-        const searchTerm = `%${search}%`;
-        params.push(searchTerm, searchTerm, searchTerm);
+        sql +=
+          ' AND (contact_name LIKE ? OR contact_phone LIKE ? OR description LIKE ?)';
+        const term = `%${search}%`;
+        params.push(term, term, term);
       }
 
-      // Count total
-      const countSql = sql.replace('SELECT *', 'SELECT COUNT(*) as total');
+      const countSql = sql.replace(
+        'SELECT *',
+        'SELECT COUNT(*) as total'
+      );
       const [countResult] = await db.promise().query(countSql, params);
       const total = countResult[0].total;
 
-      // Get data with pagination
       sql += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
       params.push(limit, offset);
-      
+
       const [posts] = await db.promise().query(sql, params);
 
       return {
@@ -278,8 +299,8 @@ const TeamJoin = {
           page,
           limit,
           total,
-          totalPages: Math.ceil(total / limit)
-        }
+          totalPages: Math.ceil(total / limit),
+        },
       };
     } catch (error) {
       console.error('Error in TeamJoin.getAllForAdmin:', error);
@@ -289,8 +310,9 @@ const TeamJoin = {
 
   getByIdForAdmin: async (id) => {
     try {
-      const sql = 'SELECT * FROM team_join_posts WHERE id = ?';
-      const [posts] = await db.promise().query(sql, [id]);
+      const [posts] = await db
+        .promise()
+        .query('SELECT * FROM team_join_posts WHERE id = ?', [id]);
       return posts[0] || null;
     } catch (error) {
       console.error('Error in TeamJoin.getByIdForAdmin:', error);
@@ -302,8 +324,8 @@ const TeamJoin = {
     try {
       const sql = `
         INSERT INTO team_join_posts 
-        (match_date, start_time, field_type, level, players_needed, position_needed, 
-         description, contact_name, contact_phone, status)
+        (match_date, start_time, field_type, level, players_needed, 
+         position_needed, description, contact_name, contact_phone, status)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       const values = [
@@ -316,9 +338,9 @@ const TeamJoin = {
         data.description || '',
         data.contact_name,
         data.contact_phone,
-        data.status || 'open'
+        data.status || 'open',
       ];
-      
+
       const [result] = await db.promise().query(sql, values);
       return result;
     } catch (error) {
@@ -332,7 +354,7 @@ const TeamJoin = {
       const fields = [];
       const values = [];
 
-      Object.keys(data).forEach(key => {
+      Object.keys(data).forEach((key) => {
         if (data[key] !== undefined) {
           fields.push(`${key} = ?`);
           values.push(data[key]);
@@ -342,8 +364,12 @@ const TeamJoin = {
       if (fields.length === 0) return;
 
       values.push(id);
-      const sql = `UPDATE team_join_posts SET ${fields.join(', ')} WHERE id = ?`;
-      
+      const sql = `
+        UPDATE team_join_posts 
+        SET ${fields.join(', ')} 
+        WHERE id = ?
+      `;
+
       await db.promise().query(sql, values);
     } catch (error) {
       console.error('Error in TeamJoin.updateByAdmin:', error);
@@ -353,7 +379,9 @@ const TeamJoin = {
 
   deleteByAdmin: async (id) => {
     try {
-      await db.promise().query('DELETE FROM team_join_posts WHERE id = ?', [id]);
+      await db
+        .promise()
+        .query('DELETE FROM team_join_posts WHERE id = ?', [id]);
     } catch (error) {
       console.error('Error in TeamJoin.deleteByAdmin:', error);
       throw error;
@@ -363,9 +391,13 @@ const TeamJoin = {
   bulkUpdateStatus: async (postIds, status) => {
     try {
       if (!postIds || postIds.length === 0) return;
-      
+
       const placeholders = postIds.map(() => '?').join(',');
-      const sql = `UPDATE team_join_posts SET status = ? WHERE id IN (${placeholders})`;
+      const sql = `
+        UPDATE team_join_posts 
+        SET status = ? 
+        WHERE id IN (${placeholders})
+      `;
 
       await db.promise().query(sql, [status, ...postIds]);
     } catch (error) {
@@ -383,11 +415,11 @@ const TeamJoin = {
         'SELECT COUNT(*) as today FROM team_join_posts WHERE match_date = CURDATE()',
         'SELECT COUNT(*) as this_week FROM team_join_posts WHERE YEARWEEK(match_date) = YEARWEEK(NOW())',
         'SELECT field_type, COUNT(*) as count FROM team_join_posts GROUP BY field_type',
-        'SELECT position_needed, COUNT(*) as count FROM team_join_posts GROUP BY position_needed'
+        'SELECT position_needed, COUNT(*) as count FROM team_join_posts GROUP BY position_needed',
       ];
 
       const results = await Promise.all(
-        queries.map(query => db.promise().query(query))
+        queries.map((q) => db.promise().query(q))
       );
 
       return {
@@ -397,13 +429,13 @@ const TeamJoin = {
         today: results[3][0][0].today,
         thisWeek: results[4][0][0].this_week,
         byFieldType: results[5][0],
-        byPosition: results[6][0]
+        byPosition: results[6][0],
       };
     } catch (error) {
       console.error('Error in TeamJoin.getAdminStats:', error);
       throw error;
     }
-  }
+  },
 };
 
 module.exports = TeamJoin;
