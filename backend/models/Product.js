@@ -59,7 +59,8 @@ class Product {
 
   static async getById(id) {
     try {
-      const rows = await query(`
+      const rows = await query(
+        `
         SELECT p.*, 
                CASE 
                  WHEN p.current_stock = 0 THEN 'out-of-stock'
@@ -68,8 +69,10 @@ class Product {
                END as stock_status
         FROM products p 
         WHERE p.id = ?
-      `, [id]);
-      
+      `,
+        [id]
+      );
+
       return rows?.[0] || null;
     } catch (error) {
       console.error('Database error in getById:', error);
@@ -79,17 +82,39 @@ class Product {
 
   static async create(productData) {
     const {
-      code, name, category, unit, purchase_price, selling_price,
-      current_stock = 0, min_stock = 10, supplier, description
+      code,
+      name,
+      category,
+      unit,
+      purchase_price,
+      selling_price,
+      current_stock = 0,
+      min_stock = 10,
+      supplier,
+      description,
     } = productData;
 
     try {
-      const result = await query(`
+      const result = await query(
+        `
         INSERT INTO products (
           code, name, category, unit, purchase_price, selling_price,
           current_stock, min_stock, supplier, description
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `, [code, name, category, unit, purchase_price, selling_price, current_stock, min_stock, supplier, description]);
+      `,
+        [
+          code,
+          name,
+          category,
+          unit,
+          purchase_price,
+          selling_price,
+          current_stock,
+          min_stock,
+          supplier,
+          description,
+        ]
+      );
 
       return result.insertId;
     } catch (error) {
@@ -98,42 +123,101 @@ class Product {
     }
   }
 
+  /**
+   * Update sản phẩm:
+   * - Hỗ trợ update một phần field (partial)
+   * - Trả về MySQL result (có affectedRows) để controller kiểm tra
+   */
   static async update(id, productData) {
-    const {
-      code, name, category, unit, purchase_price, selling_price,
-      current_stock, min_stock, supplier, description
-    } = productData;
-
     try {
-      await query(`
+      const existing = await this.getById(id);
+      if (!existing) {
+        return { affectedRows: 0 };
+      }
+
+      const merged = {
+        code: productData.code ?? existing.code,
+        name: productData.name ?? existing.name,
+        category: productData.category ?? existing.category,
+        unit: productData.unit ?? existing.unit,
+        purchase_price:
+          productData.purchase_price ?? existing.purchase_price,
+        selling_price:
+          productData.selling_price ?? existing.selling_price,
+        current_stock:
+          productData.current_stock ?? existing.current_stock,
+        min_stock: productData.min_stock ?? existing.min_stock,
+        supplier: productData.supplier ?? existing.supplier,
+        description: productData.description ?? existing.description,
+      };
+
+      const result = await query(
+        `
         UPDATE products SET
-          code = ?, name = ?, category = ?, unit = ?,
-          purchase_price = ?, selling_price = ?, current_stock = ?,
-          min_stock = ?, supplier = ?, description = ?,
+          code = ?, 
+          name = ?, 
+          category = ?, 
+          unit = ?,
+          purchase_price = ?, 
+          selling_price = ?, 
+          current_stock = ?,
+          min_stock = ?, 
+          supplier = ?, 
+          description = ?,
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
-      `, [code, name, category, unit, purchase_price, selling_price, current_stock, min_stock, supplier, description, id]);
+      `,
+        [
+          merged.code,
+          merged.name,
+          merged.category,
+          merged.unit,
+          merged.purchase_price,
+          merged.selling_price,
+          merged.current_stock,
+          merged.min_stock,
+          merged.supplier,
+          merged.description,
+          id,
+        ]
+      );
 
-      return true;
+      return result;
     } catch (error) {
       console.error('Database error in update:', error);
       throw error;
     }
   }
 
-  static async delete(id) {
+  /**
+   * Soft delete: set is_active = 0
+   * Dùng cho inventoryController.deleteProduct
+   */
+  static async softDelete(id) {
     try {
-      await query('UPDATE products SET is_active = 0 WHERE id = ?', [id]);
-      return true;
+      const result = await query(
+        'UPDATE products SET is_active = 0 WHERE id = ?',
+        [id]
+      );
+      return result;
     } catch (error) {
-      console.error('Database error in delete:', error);
+      console.error('Database error in softDelete:', error);
       throw error;
     }
   }
 
+  /**
+   * Giữ hàm delete để tương thích ngược
+   * (gọi lại softDelete)
+   */
+  static async delete(id) {
+    return this.softDelete(id);
+  }
+
   static async getStats() {
     try {
-      const stats = await query(`
+      const stats = await query(
+        `
         SELECT 
           COUNT(*) as total_products,
           COALESCE(SUM(current_stock), 0) as total_stock,
@@ -142,26 +226,32 @@ class Product {
           SUM(CASE WHEN current_stock > 0 AND current_stock <= min_stock THEN 1 ELSE 0 END) as low_stock
         FROM products 
         WHERE is_active = 1
-      `);
+      `
+      );
 
       // Try to get transactions, but don't fail if table doesn't exist
       let todayTransactions = 0;
       try {
-        const transactions = await query(`
+        const transactions = await query(
+          `
           SELECT COUNT(*) as today_transactions
           FROM stock_transactions 
           WHERE DATE(created_at) = CURDATE()
-        `);
-        todayTransactions = transactions[0]?.today_transactions || 0;
+        `
+        );
+        todayTransactions =
+          transactions[0]?.today_transactions || 0;
       } catch (err) {
-        console.log('No stock_transactions table yet, defaulting to 0');
+        console.log(
+          'No stock_transactions table yet, defaulting to 0'
+        );
       }
 
       console.log('Stats result:', stats?.[0]);
 
       return {
         ...stats[0],
-        today_transactions: todayTransactions
+        today_transactions: todayTransactions,
       };
     } catch (error) {
       console.error('Database error in getStats:', error);
@@ -192,6 +282,7 @@ class Product {
       throw error;
     }
   }
+
 }
 
 module.exports = Product;

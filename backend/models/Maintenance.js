@@ -1,23 +1,26 @@
-// backend/models/Maintenance.js - FIXED VERSION
+// backend/models/Maintenance.js 
 const db = require('../config/db');
 
 const Maintenance = {
   // =============== ASYNC METHODS (NEW) ===============
   createAsync: async (data) => {
     try {
-      const [result] = await db.promise().query(`
+      const [result] = await db.promise().query(
+        `
         INSERT INTO maintenance_schedules
         (field_id, maintenance_date, start_time, end_time, reason, description, type, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
-      `, [
-        data.field_id,
-        data.maintenance_date,
-        data.start_time || '00:00:00',
-        data.end_time || '23:59:59',
-        data.reason,
-        data.description || null,
-        data.type || 'regular'
-      ]);
+      `,
+        [
+          data.field_id,
+          data.maintenance_date,
+          data.start_time || '00:00:00',
+          data.end_time || '23:59:59',
+          data.reason,
+          data.description || null,
+          data.type || 'regular',
+        ]
+      );
       return result;
     } catch (error) {
       console.error('Error in Maintenance.createAsync:', error);
@@ -27,7 +30,8 @@ const Maintenance = {
 
   getByIdAsync: async (id) => {
     try {
-      const [results] = await db.promise().query(`
+      const [results] = await db.promise().query(
+        `
         SELECT 
           m.*,
           f.name as field_name,
@@ -41,7 +45,9 @@ const Maintenance = {
         FROM maintenance_schedules m
         LEFT JOIN fields f ON m.field_id = f.id
         WHERE m.id = ? AND m.is_active = 1
-      `, [id]);
+      `,
+        [id]
+      );
       return results[0] || null;
     } catch (error) {
       console.error('Error in Maintenance.getByIdAsync:', error);
@@ -51,21 +57,24 @@ const Maintenance = {
 
   updateAsync: async (id, updateData) => {
     try {
-      const [result] = await db.promise().query(`
+      const [result] = await db.promise().query(
+        `
         UPDATE maintenance_schedules 
         SET field_id = ?, maintenance_date = ?, start_time = ?, end_time = ?, 
             reason = ?, description = ?, type = ?, updated_at = NOW()
         WHERE id = ? AND is_active = 1
-      `, [
-        updateData.field_id,
-        updateData.maintenance_date,
-        updateData.start_time || '00:00:00',
-        updateData.end_time || '23:59:59',
-        updateData.reason,
-        updateData.description,
-        updateData.type || 'regular',
-        id
-      ]);
+      `,
+        [
+          updateData.field_id,
+          updateData.maintenance_date,
+          updateData.start_time || '00:00:00',
+          updateData.end_time || '23:59:59',
+          updateData.reason,
+          updateData.description,
+          updateData.type || 'regular',
+          id,
+        ]
+      );
       return result;
     } catch (error) {
       console.error('Error in Maintenance.updateAsync:', error);
@@ -75,10 +84,12 @@ const Maintenance = {
 
   softDeleteAsync: async (id) => {
     try {
-      const [result] = await db.promise().query(
-        'UPDATE maintenance_schedules SET is_active = 0, updated_at = NOW() WHERE id = ?',
-        [id]
-      );
+      const [result] = await db
+        .promise()
+        .query(
+          'UPDATE maintenance_schedules SET is_active = 0, updated_at = NOW() WHERE id = ?',
+          [id]
+        );
       return result;
     } catch (error) {
       console.error('Error in Maintenance.softDeleteAsync:', error);
@@ -88,16 +99,22 @@ const Maintenance = {
 
   getByFieldAndDateAsync: async (fieldId, date) => {
     try {
-      const [results] = await db.promise().query(`
+      const [results] = await db.promise().query(
+        `
         SELECT m.*, f.name as field_name, f.type as field_type
         FROM maintenance_schedules m
         LEFT JOIN fields f ON m.field_id = f.id
         WHERE m.field_id = ? AND m.maintenance_date = ? AND m.is_active = 1 
         ORDER BY m.start_time
-      `, [fieldId, date]);
+      `,
+        [fieldId, date]
+      );
       return results;
     } catch (error) {
-      console.error('Error in Maintenance.getByFieldAndDateAsync:', error);
+      console.error(
+        'Error in Maintenance.getByFieldAndDateAsync:',
+        error
+      );
       throw error;
     }
   },
@@ -122,76 +139,105 @@ const Maintenance = {
 
   getAllWithFiltersAsync: async (filters) => {
     try {
-      const { page, limit, search, field_id, status, type, date_filter } = filters;
+      const {
+        page,
+        limit,
+        search,
+        field_id,
+        status,
+        type,
+        date_filter,
+      } = filters;
       const offset = (page - 1) * limit;
-      
+
       let whereClause = 'WHERE m.is_active = 1';
       let params = [];
-      
+
       if (search) {
-        whereClause += ' AND (f.name LIKE ? OR m.reason LIKE ? OR m.description LIKE ?)';
+        whereClause +=
+          ' AND (f.name LIKE ? OR m.reason LIKE ? OR m.description LIKE ?)';
         const searchTerm = `%${search}%`;
         params.push(searchTerm, searchTerm, searchTerm);
       }
-      
+
       if (field_id && field_id !== 'all') {
         whereClause += ' AND m.field_id = ?';
         params.push(field_id);
       }
-      
+
       if (type && type !== 'all') {
         whereClause += ' AND m.type = ?';
         params.push(type);
       }
-      
+
       if (status && status !== 'all') {
         const now = new Date();
+        const nowStr = now
+          .toISOString()
+          .slice(0, 19)
+          .replace('T', ' ');
+
         switch (status) {
           case 'active':
-            whereClause += ' AND ? BETWEEN CONCAT(m.maintenance_date, " ", COALESCE(m.start_time, "00:00:00")) AND CONCAT(m.maintenance_date, " ", COALESCE(m.end_time, "23:59:59"))';
-            params.push(now.toISOString().slice(0, 19).replace('T', ' '));
+            whereClause +=
+              ' AND ? BETWEEN CONCAT(m.maintenance_date, " ", COALESCE(m.start_time, "00:00:00")) AND CONCAT(m.maintenance_date, " ", COALESCE(m.end_time, "23:59:59"))';
+            params.push(nowStr);
             break;
           case 'upcoming':
-            whereClause += ' AND CONCAT(m.maintenance_date, " ", COALESCE(m.start_time, "00:00:00")) > ?';
-            params.push(now.toISOString().slice(0, 19).replace('T', ' '));
+            whereClause +=
+              ' AND CONCAT(m.maintenance_date, " ", COALESCE(m.start_time, "00:00:00")) > ?';
+            params.push(nowStr);
             break;
           case 'completed':
-            whereClause += ' AND CONCAT(m.maintenance_date, " ", COALESCE(m.end_time, "23:59:59")) < ?';
-            params.push(now.toISOString().slice(0, 19).replace('T', ' '));
+            whereClause +=
+              ' AND CONCAT(m.maintenance_date, " ", COALESCE(m.end_time, "23:59:59")) < ?';
+            params.push(nowStr);
             break;
         }
       }
-      
+
       if (date_filter && date_filter !== 'all') {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        
+
         switch (date_filter) {
-          case 'today':
+          case 'today': {
             whereClause += ' AND m.maintenance_date = ?';
             params.push(today.toISOString().split('T')[0]);
             break;
-          case 'tomorrow':
+          }
+          case 'tomorrow': {
             const tomorrow = new Date(today);
             tomorrow.setDate(tomorrow.getDate() + 1);
             whereClause += ' AND m.maintenance_date = ?';
             params.push(tomorrow.toISOString().split('T')[0]);
             break;
-          case 'week':
+          }
+          case 'week': {
             const weekEnd = new Date(today);
             weekEnd.setDate(weekEnd.getDate() + 7);
-            whereClause += ' AND m.maintenance_date BETWEEN ? AND ?';
-            params.push(today.toISOString().split('T')[0], weekEnd.toISOString().split('T')[0]);
+            whereClause +=
+              ' AND m.maintenance_date BETWEEN ? AND ?';
+            params.push(
+              today.toISOString().split('T')[0],
+              weekEnd.toISOString().split('T')[0]
+            );
             break;
-          case 'month':
+          }
+          case 'month': {
             const monthEnd = new Date(today);
             monthEnd.setMonth(monthEnd.getMonth() + 1);
-            whereClause += ' AND m.maintenance_date BETWEEN ? AND ?';
-            params.push(today.toISOString().split('T')[0], monthEnd.toISOString().split('T')[0]);
+            whereClause +=
+              ' AND m.maintenance_date BETWEEN ? AND ?';
+            params.push(
+              today.toISOString().split('T')[0],
+              monthEnd.toISOString().split('T')[0]
+            );
             break;
+          }
         }
       }
-      
+
       const sql = `
         SELECT 
           m.*,
@@ -209,20 +255,24 @@ const Maintenance = {
         ORDER BY m.maintenance_date DESC, m.start_time DESC
         LIMIT ? OFFSET ?
       `;
-      
+
       const countSql = `
         SELECT COUNT(*) as total
         FROM maintenance_schedules m
         LEFT JOIN fields f ON m.field_id = f.id
         ${whereClause}
       `;
-      
-      const [results] = await db.promise().query(sql, [...params, limit, offset]);
-      const [countResult] = await db.promise().query(countSql, params);
-      
+
+      const [results] = await db
+        .promise()
+        .query(sql, [...params, limit, offset]);
+      const [countResult] = await db
+        .promise()
+        .query(countSql, params);
+
       const total = countResult[0].total;
       const totalPages = Math.ceil(total / limit);
-      
+
       return {
         data: results,
         pagination: {
@@ -231,11 +281,52 @@ const Maintenance = {
           total,
           totalPages,
           hasNext: page < totalPages,
-          hasPrev: page > 1
-        }
+          hasPrev: page > 1,
+        },
       };
     } catch (error) {
-      console.error('Error in Maintenance.getAllWithFiltersAsync:', error);
+      console.error(
+        'Error in Maintenance.getAllWithFiltersAsync:',
+        error
+      );
+      throw error;
+    }
+  },
+
+  /**
+   * Thống kê bảo trì (dùng cho controller)
+   */
+  getStatsAsync: async () => {
+    try {
+      const [results] = await db.promise().query(`
+        SELECT 
+          COUNT(*) as total,
+          SUM(
+            CASE 
+              WHEN NOW() BETWEEN CONCAT(maintenance_date, ' ', COALESCE(start_time, '00:00:00')) 
+                   AND CONCAT(maintenance_date, ' ', COALESCE(end_time, '23:59:59')) 
+              THEN 1 ELSE 0 
+            END
+          ) as active,
+          SUM(
+            CASE 
+              WHEN NOW() < CONCAT(maintenance_date, ' ', COALESCE(start_time, '00:00:00')) 
+              THEN 1 ELSE 0 
+            END
+          ) as upcoming,
+          SUM(
+            CASE 
+              WHEN NOW() > CONCAT(maintenance_date, ' ', COALESCE(end_time, '23:59:59')) 
+              THEN 1 ELSE 0 
+            END
+          ) as completed
+        FROM maintenance_schedules 
+        WHERE is_active = 1
+      `);
+
+      return results[0];
+    } catch (error) {
+      console.error('Error in Maintenance.getStatsAsync:', error);
       throw error;
     }
   },
@@ -255,12 +346,12 @@ const Maintenance = {
         data.end_time || '23:59:59',
         data.reason,
         data.description || null,
-        data.type || 'regular'
+        data.type || 'regular',
       ];
       db.query(sql, values, callback);
       return;
     }
-    
+
     // If no callback, use async version
     return Maintenance.createAsync(data);
   },
@@ -313,22 +404,29 @@ const Maintenance = {
         data.reason,
         data.description,
         data.type || 'regular',
-        id
+        id,
       ];
       db.query(sql, values, callback);
       return;
     }
-    
+
     // If no callback, use async version
     return Maintenance.updateAsync(id, data);
   },
 
   delete: (id, callback) => {
-    const sql = 'UPDATE maintenance_schedules SET is_active = 0 WHERE id = ?';
+    const sql =
+      'UPDATE maintenance_schedules SET is_active = 0 WHERE id = ?';
     db.query(sql, [id], callback);
   },
 
-  checkFieldMaintenance: (fieldId, date, startTime, endTime, callback) => {
+  checkFieldMaintenance: (
+    fieldId,
+    date,
+    startTime,
+    endTime,
+    callback
+  ) => {
     const sql = `
       SELECT COUNT(*) as count
       FROM maintenance_schedules 
@@ -341,7 +439,20 @@ const Maintenance = {
           (start_time >= ? AND end_time <= ?)
         )
     `;
-    db.query(sql, [fieldId, date, startTime, startTime, endTime, endTime, startTime, endTime], callback);
+    db.query(
+      sql,
+      [
+        fieldId,
+        date,
+        startTime,
+        startTime,
+        endTime,
+        endTime,
+        startTime,
+        endTime,
+      ],
+      callback
+    );
   },
 
   getActiveMaintenances: (callback) => {
@@ -355,7 +466,7 @@ const Maintenance = {
       ORDER BY m.maintenance_date DESC
     `;
     db.query(sql, callback);
-  }
+  },
 };
 
 module.exports = Maintenance;

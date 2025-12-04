@@ -1,6 +1,6 @@
 // backend/controllers/inventoryController.js - Inventory Management
-const Product = require('../models/Product'); // [NOTE] Cần models
-const StockTransaction = require('../models/StockTransaction'); // [NOTE] Cần models
+const Product = require('../models/Product'); 
+const StockTransaction = require('../models/StockTransaction'); 
 
 exports.getProducts = async (req, res) => {
   try {
