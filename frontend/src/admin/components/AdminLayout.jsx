@@ -6,7 +6,7 @@ import DarkModeToggle, { CompactDarkModeToggle } from './common/DarkModeToggle';
 import ConfirmModal from './ConfirmModal';
 import { useToast} from '../hooks/useToast';
 
-import adminlogo from '../assets/images/logoadmin.png';
+import logo from '../../assets/images/logo.png';
 
 const AdminLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -140,10 +140,10 @@ const AdminLayout = () => {
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className={`flex items-center space-x-3 transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : ''}`}>
             <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
-              <img src={adminlogo} alt="logo" className='w-full h-full object-cover' />
+              <img src={logo} alt="logo" className='w-full h-full object-cover' />
             </div>
             {!sidebarCollapsed && (
-              <span className="font-bold text-purple-600 dark:text-purple-700 text-lg">
+              <span className="text-base md:text-xl font-bold bg-gradient-to-r from-green-600 to-green-500 bg-clip-text text-transparent">
                 TaZiFootball
               </span>
             )}
@@ -246,12 +246,12 @@ const AdminLayout = () => {
             <div className="flex items-center space-x-2">
               <div className="w-6 h-6 rounded flex items-center justify-center overflow-hidden">
                 <img 
-                  src={adminlogo} 
+                  src={logo} 
                   alt="Logo" 
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="font-bold text-purple-600 dark:text-purple-700">
+              <span className="text-base md:text-xl font-bold bg-gradient-to-r from-green-600 to-green-500 bg-clip-text text-transparent">
                 TaZiFootball
               </span>
             </div>
@@ -282,12 +282,12 @@ const AdminLayout = () => {
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
                 <img 
-                  src={adminlogo} 
+                  src={logo} 
                   alt="Logo" 
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="font-bold  text-purple-600 dark:text-purple-700 text-lg">
+              <span className="text-base md:text-xl font-bold bg-gradient-to-r from-green-600 to-green-500 bg-clip-text text-transparent">
                 TaZiFootball
               </span>
             </div>
