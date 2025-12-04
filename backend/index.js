@@ -21,7 +21,7 @@ const app = express();
  *   - ADMIN_URL
  *   - CORS_ORIGINS (danh sách, ngăn cách bởi dấu phẩy)
  */
-const defaultOrigins = ['http://localhost:5173']; //nếu lỗi thử thêm phần này 'https://tzfootballfield.vercel.app'
+const defaultOrigins = ['http://localhost:5173, https://tzfootballfield.vercel.app']; //nếu lỗi thử thêm phần này 'https://tzfootballfield.vercel.app'
 
 if (process.env.CLIENT_URL) defaultOrigins.push(process.env.CLIENT_URL);
 if (process.env.ADMIN_URL) defaultOrigins.push(process.env.ADMIN_URL);
