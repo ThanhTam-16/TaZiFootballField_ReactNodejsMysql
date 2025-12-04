@@ -21,26 +21,49 @@ const app = express();
  *   - ADMIN_URL
  *   - CORS_ORIGINS (danh sách, ngăn cách bởi dấu phẩy)
  */
-const defaultOrigins = ['http://localhost:5173, https://tzfootballfield.vercel.app']; //nếu lỗi thử thêm phần này 'https://tzfootballfield.vercel.app'
 
+// Những origin mặc định cho dev + production
+const defaultOrigins = [
+  'http://localhost:5173', // VITE DEV SERVER
+  'https://tzfootballfield.vercel.app', // FRONTEND VERCEL CHÍNH THỨC
+];
+
+// Ưu tiên lấy từ biến môi trường nếu có
 if (process.env.CLIENT_URL) defaultOrigins.push(process.env.CLIENT_URL);
 if (process.env.ADMIN_URL) defaultOrigins.push(process.env.ADMIN_URL);
 
+// Cho phép thêm danh sách origin qua CORS_ORIGINS="https://a.com,https://b.com"
 const extraOrigins = (process.env.CORS_ORIGINS || '')
   .split(',')
-  .map(o => o.trim())
+  .map((o) => o.trim())
   .filter(Boolean);
 
+// Loại trùng
 const allowedOrigins = [...new Set([...defaultOrigins, ...extraOrigins])];
 
-app.use(
-  cors({
-    origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: true,
-  })
-);
+// Cấu hình CORS “đẹp” cho production
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Request không có origin (Postman, server-to-server, health check) → cho luôn
+    if (!origin) return callback(null, true);
 
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    console.log('❌ CORS blocked origin:', origin);
+    console.log('✅ Allowed origins:', allowedOrigins);
+    return callback(new Error('Not allowed by CORS'));
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  credentials: true,
+};
+
+// Bật CORS cho mọi request + preflight
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+// Body parser
 app.use(express.json());
 
 // Public API (client)
@@ -61,4 +84,7 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
+  console.log('✅ CORS allowed origins:', allowedOrigins);
 });
+
+module.exports = app;
