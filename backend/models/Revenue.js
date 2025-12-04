@@ -1,4 +1,4 @@
-// backend/models/Revenue.js - Revenue Report Queries
+// backend/models/Revenue.js 
 const db = require('../config/db');
 
 const Revenue = {

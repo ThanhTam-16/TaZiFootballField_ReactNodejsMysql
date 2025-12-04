@@ -1,4 +1,4 @@
-// backend/models/Admin.js - OPTIMIZED getDashboardStats
+// backend/models/Admin.js
 const db = require('../config/db');
 
 const Admin = {

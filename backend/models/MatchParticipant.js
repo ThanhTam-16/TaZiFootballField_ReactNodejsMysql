@@ -1,4 +1,4 @@
-// backend/models/MatchParticipant.js - NEW FILE
+// backend/models/MatchParticipant.js
 const db = require('../config/db');
 
 const MatchParticipant = {

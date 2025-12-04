@@ -1,4 +1,4 @@
-// backend/routes/dashboardRoutes.js - ENHANCED WITH CHART ENDPOINTS
+// backend/routes/dashboardRoutes.js
 const express = require('express');
 const router = express.Router();
 const dashboardController = require('../controllers/dashboardController');

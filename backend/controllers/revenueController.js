@@ -1,4 +1,4 @@
-// backend/controllers/revenueController.js - Revenue Reports
+// backend/controllers/revenueController.js
 const Revenue = require('../models/Revenue');
 
 // GET /api/admin/revenue?period=7&start_date=...&end_date=...

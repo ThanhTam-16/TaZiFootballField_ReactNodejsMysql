@@ -1,4 +1,4 @@
-// backend/controllers/inventoryController.js - Inventory Management
+// backend/controllers/inventoryController.js 
 const Product = require('../models/Product'); 
 const StockTransaction = require('../models/StockTransaction'); 
 

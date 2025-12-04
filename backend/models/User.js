@@ -1,4 +1,4 @@
-// backend/models/User.js - FIXED: Allow email-only registration
+// backend/models/User.js 
 const db = require('../config/db');
 
 const User = {

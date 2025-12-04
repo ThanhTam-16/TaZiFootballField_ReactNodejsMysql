@@ -1,4 +1,4 @@
-// backend/models/Otp.js - Model hoàn chỉnh
+// backend/models/Otp.js 
 const db = require('../config/db');
 
 const Otp = {

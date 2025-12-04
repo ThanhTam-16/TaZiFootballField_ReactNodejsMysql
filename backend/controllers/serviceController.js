@@ -1,4 +1,4 @@
-// backend/controllers/serviceController.js - Service Management
+// backend/controllers/serviceController.js 
 const Service = require('../models/Service'); // [NOTE] Cần models
 
 // =============== CUSTOMER SERVICE APIs ===============

@@ -1,3 +1,4 @@
+// backend/controllers/contactController.js
 const nodemailer = require('nodemailer');
 
 exports.sendContact = async (req, res) => {

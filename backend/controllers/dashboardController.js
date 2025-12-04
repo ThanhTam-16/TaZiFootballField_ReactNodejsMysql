@@ -1,6 +1,7 @@
-// backend/controllers/dashboardController.js - ENHANCED WITH CHART DATA
+// backend/controllers/dashboardController.js 
 const db = require('../config/db');
 const Admin = require('../models/Admin');
+const Booking = require('../models/Booking'); // thêm dòng này
 
 // ============== EXISTING METHODS ==============
 exports.getDashboard = async (req, res) => {
@@ -77,21 +78,13 @@ exports.getRecentBookings = async (req, res) => {
   try {
     console.log('Dashboard getRecentBookings called');
     const limit = parseInt(req.query.limit) || 10;
-    
-    const [results] = await Promise.race([
-      db.promise().query(`
-        SELECT 
-          b.id, b.booking_date, b.start_time, b.end_time, 
-          b.total_amount, b.status, b.payment_status, b.created_at,
-          u.name as customer_name, u.phone_number,
-          f.name as field_name, f.type as field_type
-        FROM bookings b
-        JOIN users u ON b.user_id = u.id
-        JOIN fields f ON b.field_id = f.id
-        ORDER BY b.created_at DESC
-        LIMIT ?
-      `, [limit]),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Query timeout')), 3000))
+
+    // dùng Booking model + vẫn giữ timeout giống trước
+    const results = await Promise.race([
+      Booking.getRecent(limit),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Query timeout')), 3000)
+      ),
     ]);
     
     console.log('Recent bookings found:', results.length);
@@ -152,9 +145,7 @@ exports.getQuickStats = async (req, res) => {
   }
 };
 
-// ============== NEW CHART DATA METHODS ==============
-
-// Revenue chart - Last 7 days
+// ============== NEW CHART DATA METHODS (giữ nguyên) ==============
 exports.getRevenueChart = async (req, res) => {
   try {
     const days = parseInt(req.query.days) || 7;
