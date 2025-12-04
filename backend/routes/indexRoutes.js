@@ -1,4 +1,5 @@
-// backend/routes/index.js - Đơn giản và an toàn
+// backend/routes/indexRoutes.js
+// Gom tất cả routes public (client) lại để index.js mount vào `/api`
 const express = require('express');
 const router = express.Router();
 
@@ -13,7 +14,7 @@ const maintenanceRoutes = require('./maintenanceRoutes');
 const contactRoutes = require('./contactRoutes');
 const userRoutes = require('./userRoutes');
 
-// Mount routes
+// Mount routes: path đầy đủ sẽ là `/api/...`
 router.use('/auth', authRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/fields', fieldRoutes);
@@ -26,10 +27,10 @@ router.use('/users', userRoutes);
 
 // Health check
 router.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     message: 'Football Field Management API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 

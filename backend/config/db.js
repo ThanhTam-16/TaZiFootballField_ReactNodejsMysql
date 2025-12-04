@@ -7,24 +7,26 @@ require('dotenv').config();
 const isProduction = process.env.NODE_ENV === 'production';
 const isAiven = process.env.DB_HOST && process.env.DB_HOST.includes('aivencloud.com');
 
-console.log(`🔍 Environment: ${process.env.NODE_ENV}`);
-console.log(`🔍 Database Host: ${process.env.DB_HOST}`);
-console.log(`🔍 Is Aiven: ${isAiven}`);
+// Một ít log để debug, tránh spam quá nhiều
+console.log(`🔍 DB Environment: ${process.env.NODE_ENV || 'development'}`);
+console.log(`🔍 DB Host: ${process.env.DB_HOST}`);
+console.log(`🔍 Using Aiven SSL: ${isAiven}`);
 
-// Cấu hình SSL chỉ cho Aiven
 let sslConfig = null;
+
+// Chỉ cấu hình SSL khi dùng Aiven
 if (isAiven) {
   try {
     const caCert = fs.readFileSync(path.join(__dirname, 'ca.pem'));
-    sslConfig = { 
+    sslConfig = {
       ca: caCert,
-      rejectUnauthorized: true
+      rejectUnauthorized: true,
     };
     console.log('✅ SSL certificate loaded for Aiven');
   } catch (error) {
-    console.error('❌ SSL certificate not found for Aiven:', error.message);
+    console.error('❌ Cannot load SSL certificate for Aiven:', error.message);
   }
-} else {
+} else if (!isProduction) {
   console.log('ℹ️ Local development - No SSL required');
 }
 
@@ -37,18 +39,17 @@ const poolConfig = {
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  timezone: '+07:00'
+  timezone: '+07:00',
 };
 
-// Chỉ thêm SSL config nếu là Aiven
 if (sslConfig) {
   poolConfig.ssl = sslConfig;
 }
 
-// Xóa option 'reconnect' vì không được hỗ trợ
+// Dùng pool với callback (giữ nguyên cách gọi hiện tại)
 const pool = mysql.createPool(poolConfig);
 
-// Test connection với error handling chi tiết
+// Test connection
 pool.getConnection((err, connection) => {
   if (err) {
     console.error('❌ Lỗi kết nối MySQL:', err.message);
@@ -57,13 +58,14 @@ pool.getConnection((err, connection) => {
       port: process.env.DB_PORT,
       database: process.env.DB_NAME,
       user: process.env.DB_USER,
-      isAiven: isAiven
+      isAiven,
     });
   } else {
-    console.log(`✅ Đã kết nối MySQL thành công! (${isAiven ? 'Aiven' : 'Local'})`);
+    console.log(
+      `✅ Đã kết nối MySQL thành công! (${isAiven ? 'Aiven' : 'Local'})`
+    );
     connection.release();
   }
 });
 
-// Export pool với promise support
 module.exports = pool;

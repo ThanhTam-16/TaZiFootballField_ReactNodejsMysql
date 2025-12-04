@@ -10,17 +10,28 @@ exports.requireAuth = (req, res, next) => {
   }
 
   Admin.findSession(sessionToken, (err, results) => {
-    if (err || results.length === 0) {
-      return res.status(401).json({ error: 'Token không hợp lệ hoặc đã hết hạn' });
+    if (err || !results || results.length === 0) {
+      return res
+        .status(401)
+        .json({ error: 'Token không hợp lệ hoặc đã hết hạn' });
     }
 
     const session = results[0];
+
+    let permissions = [];
+    try {
+      permissions = JSON.parse(session.permissions || '[]');
+    } catch (e) {
+      console.error('⚠️ Lỗi parse permissions JSON:', e.message);
+      permissions = [];
+    }
+
     req.admin = {
       id: session.admin_id,
       email: session.email,
       name: session.name,
       role: session.role,
-      permissions: JSON.parse(session.permissions || '[]')
+      permissions,
     };
 
     next();
@@ -30,8 +41,12 @@ exports.requireAuth = (req, res, next) => {
 // Middleware kiểm tra quyền
 exports.requirePermission = (permission) => {
   return (req, res, next) => {
-    const adminPermissions = req.admin.permissions;
-    
+    if (!req.admin) {
+      return res.status(401).json({ error: 'Chưa xác thực admin' });
+    }
+
+    const adminPermissions = req.admin.permissions || [];
+
     // Super admin có tất cả quyền
     if (adminPermissions.includes('all')) {
       return next();
@@ -39,8 +54,8 @@ exports.requirePermission = (permission) => {
 
     // Kiểm tra quyền cụ thể
     if (!adminPermissions.includes(permission)) {
-      return res.status(403).json({ 
-        error: `Bạn không có quyền ${permission}` 
+      return res.status(403).json({
+        error: `Bạn không có quyền ${permission}`,
       });
     }
 
@@ -50,9 +65,9 @@ exports.requirePermission = (permission) => {
 
 // Middleware chỉ cho super admin
 exports.requireSuperAdmin = (req, res, next) => {
-  if (req.admin.role !== 'super_admin') {
-    return res.status(403).json({ 
-      error: 'Chỉ Super Admin mới có quyền thực hiện thao tác này' 
+  if (!req.admin || req.admin.role !== 'super_admin') {
+    return res.status(403).json({
+      error: 'Chỉ Super Admin mới có quyền thực hiện thao tác này',
     });
   }
   next();

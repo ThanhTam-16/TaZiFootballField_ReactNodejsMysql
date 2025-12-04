@@ -1,16 +1,21 @@
 {
-  "name": "backend",
+  "name": "football-field-backend",
   "version": "1.0.0",
+  "description": "Football field booking & management backend API (Node.js + Express + MySQL)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "express",
+    "api",
+    "football-field",
+    "booking"
+  ],
+  "author": "Thanh Tam",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
