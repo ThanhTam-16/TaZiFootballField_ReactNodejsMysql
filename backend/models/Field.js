@@ -1,11 +1,14 @@
-// backend/models/Field.js - FIXED VERSION
+// backend/models/Field.js
 const db = require('../config/db');
 
 const Field = {
   // =============== MAIN METHODS ===============
+
   getAllAsync: async () => {
     try {
-      const [fields] = await db.promise().query('SELECT * FROM fields WHERE is_active = 1 ORDER BY name');
+      const [fields] = await db
+        .promise()
+        .query('SELECT * FROM fields WHERE is_active = 1 ORDER BY name');
       return fields;
     } catch (error) {
       console.error('Error in Field.getAllAsync:', error);
@@ -15,7 +18,9 @@ const Field = {
 
   findById: async (id) => {
     try {
-      const [results] = await db.promise().query('SELECT * FROM fields WHERE id = ? AND is_active = 1', [id]);
+      const [results] = await db
+        .promise()
+        .query('SELECT * FROM fields WHERE id = ? AND is_active = 1', [id]);
       return results[0] || null;
     } catch (error) {
       console.error('Error in Field.findById:', error);
@@ -25,16 +30,28 @@ const Field = {
 
   create: async (fieldData) => {
     try {
-      const [result] = await db.promise().query(`
-        INSERT INTO fields (name, type, price_per_hour, description, facilities, created_at)
-        VALUES (?, ?, ?, ?, ?, NOW())
-      `, [
-        fieldData.name,
-        fieldData.type,
-        fieldData.price_per_hour,
-        fieldData.description,
-        fieldData.facilities
-      ]);
+      const facilitiesJson = Array.isArray(fieldData.facilities)
+        ? JSON.stringify(fieldData.facilities)
+        : fieldData.facilities || '[]';
+
+      const isActive =
+        fieldData.is_active === undefined ? 1 : fieldData.is_active;
+
+      const [result] = await db.promise().query(
+        `
+        INSERT INTO fields 
+          (name, type, price_per_hour, description, facilities, is_active, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, NOW())
+      `,
+        [
+          fieldData.name,
+          fieldData.type,
+          fieldData.price_per_hour,
+          fieldData.description || '',
+          facilitiesJson,
+          isActive,
+        ]
+      );
       return result;
     } catch (error) {
       console.error('Error in Field.create:', error);
@@ -44,20 +61,30 @@ const Field = {
 
   update: async (fieldId, updateData) => {
     try {
-      const [result] = await db.promise().query(`
+      const facilitiesJson = Array.isArray(updateData.facilities)
+        ? JSON.stringify(updateData.facilities)
+        : updateData.facilities || '[]';
+
+      const isActive =
+        updateData.is_active === undefined ? 1 : updateData.is_active;
+
+      const [result] = await db.promise().query(
+        `
         UPDATE fields 
         SET name = ?, type = ?, price_per_hour = ?, description = ?, 
             facilities = ?, is_active = ?, updated_at = NOW()
         WHERE id = ?
-      `, [
-        updateData.name,
-        updateData.type,
-        updateData.price_per_hour,
-        updateData.description,
-        updateData.facilities,
-        updateData.is_active,
-        fieldId
-      ]);
+      `,
+        [
+          updateData.name,
+          updateData.type,
+          updateData.price_per_hour,
+          updateData.description || '',
+          facilitiesJson,
+          isActive,
+          fieldId,
+        ]
+      );
       return result;
     } catch (error) {
       console.error('Error in Field.update:', error);
@@ -67,10 +94,12 @@ const Field = {
 
   softDelete: async (fieldId) => {
     try {
-      const [result] = await db.promise().query(
-        `UPDATE fields SET is_active = 0, updated_at = NOW() WHERE id = ?`,
-        [fieldId]
-      );
+      const [result] = await db
+        .promise()
+        .query(
+          `UPDATE fields SET is_active = 0, updated_at = NOW() WHERE id = ?`,
+          [fieldId]
+        );
       return result;
     } catch (error) {
       console.error('Error in Field.softDelete:', error);
@@ -80,20 +109,24 @@ const Field = {
 
   getAvailableAsync: async (date, start, end, types) => {
     try {
-      console.log('Field.getAvailableAsync called with:', { date, start, end, types });
-      
+      console.log('Field.getAvailableAsync called with:', {
+        date,
+        start,
+        end,
+        types,
+      });
+
       if (!date || !start || !end || !types) {
         throw new Error('Missing required parameters');
       }
 
-      // Parse types if it's a string
       let typeArray = Array.isArray(types) ? types : types.split(',');
-      typeArray = typeArray.map(t => t.trim());
-      
+      typeArray = typeArray.map((t) => t.trim());
+
       console.log('Parsed typeArray:', typeArray);
 
       const placeholders = typeArray.map(() => '?').join(',');
-      
+
       const [fields] = await db.promise().query(
         `SELECT * FROM fields WHERE type IN (${placeholders}) AND is_active = 1`,
         typeArray
@@ -103,31 +136,40 @@ const Field = {
 
       const result = [];
       for (const field of fields) {
-        // Get existing bookings for this field on the date
         const [bookings] = await db.promise().query(
-          `SELECT start_time, end_time FROM bookings WHERE field_id = ? AND booking_date = ? AND status != 'cancelled'`,
+          `
+          SELECT start_time, end_time 
+          FROM bookings 
+          WHERE field_id = ? AND booking_date = ? AND status != 'cancelled'
+        `,
           [field.id, date]
         );
-        
-        console.log(`Field ${field.name} has ${bookings.length} existing bookings`);
-        
-        // Check for time conflicts
-        const isBooked = bookings.some(b =>
-          !(b.end_time <= start || b.start_time >= end)
+
+        console.log(
+          `Field ${field.name} has ${bookings.length} existing bookings`
         );
-        
+
+        const isBooked = bookings.some(
+          (b) => !(b.end_time <= start || b.start_time >= end)
+        );
+
         if (!isBooked) {
-          // Calculate total price for the time slot
-          const total = await Field.calculateSlotPrice(field.type, start, end);
-          
+          const total = await Field.calculateSlotPrice(
+            field.type,
+            start,
+            end
+          );
+
           result.push({
             ...field,
-            available_slots: [{
-              start_time: start,
-              end_time: end,
-              label: `${start} - ${end}`,
-              price: total,
-            }],
+            available_slots: [
+              {
+                start_time: start,
+                end_time: end,
+                label: `${start} - ${end}`,
+                price: total,
+              },
+            ],
           });
         }
       }
@@ -144,20 +186,24 @@ const Field = {
     try {
       let total = 0;
       let current = start;
-      
+
       while (current < end) {
-        const hour = parseInt(current.split(':')[0]);
+        const hour = parseInt(current.split(':')[0], 10);
         const [rows] = await db.promise().query(
-          `SELECT price_per_hour FROM pricing_rules WHERE field_type = ? AND start_hour <= ? AND end_hour > ? LIMIT 1`,
+          `
+          SELECT price_per_hour 
+          FROM pricing_rules 
+          WHERE field_type = ? AND start_hour <= ? AND end_hour > ? 
+          LIMIT 1
+        `,
           [fieldType, hour, hour]
         );
-        
-        const pricePerHour = rows.length > 0 ? Number(rows[0].price_per_hour) : 100000; // Default price
-        
-        // Calculate by 30-minute intervals
+
+        const pricePerHour =
+          rows.length > 0 ? Number(rows[0].price_per_hour) : 100000;
+
         const [h, m] = current.split(':').map(Number);
-        let nextTime = current;
-        
+        let nextTime;
         if (m === 0) {
           nextTime = `${h.toString().padStart(2, '0')}:30`;
           total += pricePerHour * 0.5;
@@ -165,11 +211,11 @@ const Field = {
           nextTime = `${(h + 1).toString().padStart(2, '0')}:00`;
           total += pricePerHour * 0.5;
         }
-        
+
         current = nextTime;
         if (current >= end) break;
       }
-      
+
       return total;
     } catch (error) {
       console.error('Error in Field.calculateSlotPrice:', error);
@@ -177,7 +223,7 @@ const Field = {
     }
   },
 
-  // Get fields with stats for admin
+  // Fields + stats cho admin
   getAllWithStats: async () => {
     try {
       const [results] = await db.promise().query(`
@@ -199,52 +245,93 @@ const Field = {
     }
   },
 
-  // Get available time slots for a specific field
+  // Dùng cho timeline: danh sách sân + booking theo ngày
+  getWithBookingsByDate: async (date) => {
+    try {
+      const [results] = await db.promise().query(
+        `
+        SELECT 
+          f.id, f.name, f.type, f.price_per_hour,
+          b.id as booking_id, b.start_time, b.end_time, 
+          b.status, u.name as customer_name, u.phone_number
+        FROM fields f
+        LEFT JOIN bookings b 
+          ON f.id = b.field_id 
+         AND b.booking_date = ? 
+         AND b.status != 'cancelled'
+        LEFT JOIN users u ON b.user_id = u.id
+        WHERE f.is_active = 1
+        ORDER BY f.name, b.start_time
+      `,
+        [date]
+      );
+      return results;
+    } catch (error) {
+      console.error('Error in Field.getWithBookingsByDate:', error);
+      throw error;
+    }
+  },
+
+  // Slot trống cho 1 sân cụ thể
   getAvailableTimeSlots: async (fieldId, date) => {
     try {
       const field = await Field.findById(fieldId);
       if (!field) return [];
 
-      // Get existing bookings for the date
       const [bookings] = await db.promise().query(
-        `SELECT start_time, end_time FROM bookings WHERE field_id = ? AND booking_date = ? AND status != 'cancelled'`,
+        `
+        SELECT start_time, end_time 
+        FROM bookings 
+        WHERE field_id = ? AND booking_date = ? AND status != 'cancelled'
+      `,
         [fieldId, date]
       );
 
-      // Generate available slots (6h-22h)
-      const openHour = 6, closeHour = 22;
+      const openHour = 6;
+      const closeHour = 22;
       const availableSlots = [];
 
       for (let hour = openHour; hour < closeHour; hour++) {
         for (let minute = 0; minute < 60; minute += 30) {
-          const start = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
-          const end = minute === 0 
-            ? `${hour.toString().padStart(2, '0')}:30:00`
-            : `${(hour + 1).toString().padStart(2, '0')}:00:00`;
+          const start = `${hour.toString().padStart(2, '0')}:${minute
+            .toString()
+            .padStart(2, '0')}:00`;
+          const end =
+            minute === 0
+              ? `${hour.toString().padStart(2, '0')}:30:00`
+              : `${(hour + 1).toString().padStart(2, '0')}:00:00`;
 
-          // Check for conflicts
-          const isBooked = bookings.some(b =>
-            !(b.end_time <= start || b.start_time >= end)
+          const isBooked = bookings.some(
+            (b) => !(b.end_time <= start || b.start_time >= end)
           );
-          
+
           if (!isBooked) {
-            // Get price from pricing rules
             const [rows] = await db.promise().query(
-              `SELECT price_per_hour FROM pricing_rules WHERE field_type = ? AND start_hour <= ? AND end_hour > ? LIMIT 1`,
+              `
+              SELECT price_per_hour 
+              FROM pricing_rules 
+              WHERE field_type = ? AND start_hour <= ? AND end_hour > ? 
+              LIMIT 1
+            `,
               [field.type, hour, hour]
             );
-            const price = rows.length > 0 ? Number(rows[0].price_per_hour) * 0.5 : 50000; // 30 minutes = 0.5 hour
-            
+            const price =
+              rows.length > 0
+                ? Number(rows[0].price_per_hour) * 0.5
+                : 50000;
+
             availableSlots.push({
               start_time: start,
               end_time: end,
-              label: `${hour}:${minute.toString().padStart(2, '0')} - ${end.substring(0, 5)}`,
+              label: `${hour}:${minute
+                .toString()
+                .padStart(2, '0')} - ${end.substring(0, 5)}`,
               price,
             });
           }
         }
       }
-      
+
       return availableSlots;
     } catch (error) {
       console.error('Error in Field.getAvailableTimeSlots:', error);
@@ -253,27 +340,26 @@ const Field = {
   },
 
   // =============== LEGACY CALLBACK METHODS ===============
+
   getAll: (callback) => {
     if (callback) {
       Field.getAllAsync()
-        .then(results => callback(null, results))
-        .catch(error => callback(error));
+        .then((results) => callback(null, results))
+        .catch((error) => callback(error));
       return;
     }
-    // If no callback, return promise
     return Field.getAllAsync();
   },
 
   getAvailable: (date, start, end, types, callback) => {
     if (callback) {
       Field.getAvailableAsync(date, start, end, types)
-        .then(results => callback(null, results))
-        .catch(error => callback(error));
+        .then((results) => callback(null, results))
+        .catch((error) => callback(error));
       return;
     }
-    // If no callback, return promise
     return Field.getAvailableAsync(date, start, end, types);
-  }
+  },
 };
 
 module.exports = Field;
