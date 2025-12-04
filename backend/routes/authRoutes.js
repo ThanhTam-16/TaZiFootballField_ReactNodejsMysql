@@ -12,6 +12,10 @@ router.post('/verify-otp', authController.verifyOtp);
 router.post('/admin/login', authController.adminLogin);
 router.post('/admin/logout', authController.adminLogout);
 router.get('/admin/verify', authController.verifyAdminSession);
-router.post('/admin/change-password', requireAuth, authController.changeAdminPassword);
+router.post(
+  '/admin/change-password',
+  requireAuth,
+  authController.changeAdminPassword
+);
 
 module.exports = router;

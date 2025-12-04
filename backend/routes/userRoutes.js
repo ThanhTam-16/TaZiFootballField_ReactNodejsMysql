@@ -1,12 +1,11 @@
-// backend/routes/userRoutes.js - User Management (Legacy - có thể deprecated)
+// backend/routes/userRoutes.js - User Profile
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const { requireAuth, requirePermission } = require('../middleware/adminAuth');
 
 // =============== USER PROFILE ROUTES ===============
+// Nếu sau này muốn chỉ admin mới được xem/sửa, có thể thêm requireAuth ở đây
 router.get('/:id', userController.getUserProfile);
 router.put('/:id', userController.updateUserProfile);
-
 
 module.exports = router;

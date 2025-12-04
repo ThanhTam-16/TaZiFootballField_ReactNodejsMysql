@@ -10,7 +10,6 @@ require('./config/db');
 const apiRoutes = require('./routes/indexRoutes');
 // Routes admin
 const adminRoutes = require('./routes/adminRoutes');
-const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 
@@ -49,7 +48,6 @@ app.use('/api', apiRoutes);
 
 // Admin API
 app.use('/api/admin', adminRoutes);
-app.use('/api/admin/dashboard', dashboardRoutes);
 
 // Health check root (tiện dùng trên Render)
 app.get('/', (req, res) => {

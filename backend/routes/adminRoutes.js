@@ -1,8 +1,8 @@
-// ====== backend/routes/adminRoutes.js (Fixed Main File) ======
+// backend/routes/adminRoutes.js
 const express = require('express');
 const router = express.Router();
-const adminAuthController = require('../controllers/adminAuthController');
 const { requireAuth, requireSuperAdmin } = require('../middleware/adminAuth');
+const Admin = require('../models/Admin');
 
 // Import các routes admin cần thiết
 const dashboardRoutes = require('./dashboardRoutes');
@@ -16,7 +16,7 @@ const maintenanceRoutes = require('./maintenanceRoutes');
 const inventoryRoutes = require('./inventoryRoutes');
 const revenueRoutes = require('./revenueRoutes');
 
-// Mount admin sub-routes với prefix
+// Mount admin sub-routes với prefix (/api/admin/...)
 router.use('/dashboard', dashboardRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/fields', fieldRoutes);
@@ -29,28 +29,42 @@ router.use('/inventory', inventoryRoutes);
 router.use('/revenue', revenueRoutes);
 
 // Legacy user management routes (keep for backward compatibility)
-router.get('/users', requireAuth, require('../controllers/customerController').getCustomers);
+router.get(
+  '/users',
+  requireAuth,
+  require('../controllers/customerController').getCustomers
+);
 
-// Admin management routes (chỉ super admin)
+// ========== ADMIN MANAGEMENT (chỉ super admin) ==========
+
+// Danh sách admin
 router.get('/admins', requireAuth, requireSuperAdmin, (req, res) => {
-  const Admin = require('../models/Admin');
   Admin.findAll((err, results) => {
-    if (err) return res.status(500).json({ error: 'Lỗi lấy danh sách admin' });
+    if (err) {
+      return res
+        .status(500)
+        .json({ error: 'Lỗi lấy danh sách admin' });
+    }
     res.json(results);
   });
 });
 
-router.post('/admins', requireAuth, requireSuperAdmin, (req, res) => {
-  const Admin = require('../models/Admin');
-  Admin.create(req.body, (err, result) => {
-    if (err) {
-      if (err.code === 'ER_DUP_ENTRY') {
-        return res.status(400).json({ error: 'Email đã tồn tại' });
-      }
-      return res.status(500).json({ error: 'Lỗi tạo admin' });
+// Tạo admin mới
+router.post('/admins', requireAuth, requireSuperAdmin, async (req, res) => {
+  try {
+    const adminId = await Admin.create(req.body);
+    res
+      .status(201)
+      .json({ message: 'Tạo admin thành công', adminId });
+  } catch (err) {
+    console.error('Create admin error:', err);
+
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ error: 'Email đã tồn tại' });
     }
-    res.status(201).json({ message: 'Tạo admin thành công', adminId: result.insertId });
-  });
+
+    res.status(500).json({ error: 'Lỗi tạo admin' });
+  }
 });
 
 module.exports = router;
