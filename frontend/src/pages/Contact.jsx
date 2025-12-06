@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import LoginModal from '../components/LoginModal';
-import axios from 'axios';
+import API from "../services/api";
 import { Helmet } from 'react-helmet';
 
 function Contact() {
@@ -30,7 +30,7 @@ function Contact() {
     setIsSubmitting(true);
     
     try {
-      await axios.post('/api/contact', form);
+      await API.post('/contact', form);
       setStatus({ type: 'success', message: 'Gửi liên hệ thành công! Chúng tôi sẽ phản hồi sớm nhất.' });
       setForm({ name: '', email: '', subject: 'booking', message: '' });
     } catch (err) {
