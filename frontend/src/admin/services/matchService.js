@@ -1,4 +1,4 @@
-// admin/services/matchService.js - Fixed Admin Service
+// admin/services/matchService.js 
 import API from '../../services/api';
 
 const getAuthHeaders = () => {

@@ -1,4 +1,4 @@
-// admin/services/maintenanceService.js - Fixed Admin Service
+// admin/services/maintenanceService.js 
 import API from '../../services/api';
 
 const getAuthHeaders = () => {

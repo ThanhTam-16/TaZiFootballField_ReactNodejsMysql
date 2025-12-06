@@ -1,4 +1,4 @@
-// frontend/src/admin/services/baseService.js - IMPROVED
+// frontend/src/admin/services/baseService.js
 import API from '../../services/api';
 
 class BaseService {

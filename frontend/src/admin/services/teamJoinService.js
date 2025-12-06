@@ -1,4 +1,4 @@
-// admin/services/teamJoinService.js - Fixed Admin Service
+// admin/services/teamJoinService.js 
 import API from '../../services/api';
 
 const getAuthHeaders = () => {

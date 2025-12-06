@@ -1,4 +1,4 @@
-// services/bookingService.jsx - Fixed Customer Service
+// services/bookingService.jsx 
 import API from './api';
 
 // Lấy danh sách sân trống theo điều kiện tìm kiếm

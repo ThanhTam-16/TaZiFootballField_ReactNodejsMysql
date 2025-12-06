@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import LoginModal from '../components/LoginModal';
-import API from "../services/api";
+import API from '../services/api';
 import { Helmet } from 'react-helmet';
 
 function Contact() {

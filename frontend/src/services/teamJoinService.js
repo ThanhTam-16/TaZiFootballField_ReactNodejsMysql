@@ -1,4 +1,4 @@
-// services/teamJoinService.jsx - Fixed Customer Service
+// services/teamJoinService.jsx 
 import API from './api';
 
 export const fetchTeamJoinPosts = async (filter = {}) => {

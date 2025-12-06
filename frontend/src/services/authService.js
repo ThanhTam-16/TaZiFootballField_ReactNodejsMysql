@@ -1,4 +1,4 @@
-// services/authService.jsx - Fixed Customer Service
+// services/authService.jsx 
 import API from './api';
 
 // Customer Auth
