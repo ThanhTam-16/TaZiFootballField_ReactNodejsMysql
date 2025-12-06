@@ -12,7 +12,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const db = require('./config/db');
 const app = express();
 
-// ✅ Cấu hình CORS
+// Cấu hình CORS
 app.use(cors({
   origin: ['http://localhost:5173', 'https://tzfootballfield.vercel.app'],
   methods: ['GET','POST','PUT','DELETE'],

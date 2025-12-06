@@ -1,40 +1,44 @@
-// backend/utils/sendOtp.js - FIXED VERSION
-const nodemailer = require('nodemailer');
+// backend/utils/sendOtp.js - VERSION dùng Resend
+const { Resend } = require('resend');
 
-// Create transporter function - FIX: Use correct method name
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.MAIL_USER || 'your-email@gmail.com',
-      pass: process.env.MAIL_PASS || 'your-app-password'
-    }
-  });
-};
+// Khởi tạo client Resend
+const resendApiKey = process.env.RESEND_API_KEY;
+let resend = null;
+
+if (resendApiKey) {
+  resend = new Resend(resendApiKey);
+} else {
+  console.warn(
+    '[sendOtp] RESEND_API_KEY chưa được cấu hình. OTP email sẽ chỉ được log (simulate).'
+  );
+}
 
 const sendOtp = {
-  // Send OTP via email
+  // Gửi OTP qua email dùng Resend
   sendEmail: async (email, otpCode) => {
     try {
       console.log('Attempting to send email OTP to:', email);
-      
-      if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
-        console.log('Email credentials not configured, simulating email send...');
+
+      // Nếu chưa cấu hình API key → simulate (cho dev/test)
+      if (!resend) {
         console.log('='.repeat(50));
-        console.log('📧 EMAIL OTP (Simulated)');
+        console.log('📧 SIMULATED EMAIL OTP (no RESEND_API_KEY)');
+        console.log('To:', email);
+        console.log('OTP:', otpCode);
+        console.log('Time:', new Date().toLocaleString());
         console.log('='.repeat(50));
-        console.log(`Email: ${email}`);
-        console.log(`OTP Code: ${otpCode}`);
-        console.log(`Time: ${new Date().toLocaleString()}`);
-        console.log('Subject: Mã xác thực OTP - TaZi FootballField');
-        console.log('='.repeat(50));
-        return { success: true, messageId: 'simulated-' + Date.now() };
+
+        return {
+          success: true,
+          simulated: true,
+        };
       }
 
-      const transporter = createTransporter();
-      
-      const mailOptions = {
-        from: process.env.MAIL_USER,
+      const fromEmail =
+        process.env.OTP_FROM_EMAIL || 'TaZiFootball <onboarding@resend.dev>';
+
+      const { data, error } = await resend.emails.send({
+        from: fromEmail,
         to: email,
         subject: 'Mã xác thực OTP - TaZiFootball',
         html: `
@@ -48,76 +52,83 @@ const sendOtp = {
                 Xin chào! Mã xác thực của bạn là:
               </p>
               <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
-                <span style="font-size: 32px; font-weight: bold; color: #10b981; letter-spacing: 5px;">
+                <span style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #111;">
                   ${otpCode}
                 </span>
               </div>
-              <p style="color: #999; font-size: 14px;">
-                Mã này có hiệu lực trong <strong>5 phút</strong>. Không chia sẻ mã này với bất kỳ ai.
-              </p>
-              <p style="color: #666; font-size: 12px; margin-top: 30px;">
-                Nếu bạn không yêu cầu mã này, vui lòng bỏ qua email này.
+              <p style="font-size: 14px; color: #999;">
+                Mã có hiệu lực trong 5 phút. Vui lòng không chia sẻ mã này với bất kỳ ai.
               </p>
             </div>
+            <div style="text-align: center; padding: 15px; font-size: 12px; color: #aaa;">
+              © ${new Date().getFullYear()} TaZiFootball. All rights reserved.
+            </div>
           </div>
-        `
+        `,
+      });
+
+      if (error) {
+        console.error('[sendOtp] Error from Resend:', error);
+        // fallback simulate, tránh làm hỏng flow người dùng
+        console.log('='.repeat(50));
+        console.log('📧 FALLBACK SIMULATED EMAIL OTP (Resend error)');
+        console.log('To:', email);
+        console.log('OTP:', otpCode);
+        console.log('Time:', new Date().toLocaleString());
+        console.log('='.repeat(50));
+
+        return {
+          success: true,
+          simulated: true,
+        };
+      }
+
+      console.log('[sendOtp] Email OTP sent via Resend. id =', data?.id);
+      return {
+        success: true,
+        id: data?.id || null,
       };
+    } catch (err) {
+      console.error('[sendOtp] Unexpected error when sending OTP email:', err);
 
-      const result = await transporter.sendMail(mailOptions);
-      console.log('Email OTP sent successfully:', result.messageId);
-      return result;
-    } catch (error) {
-      console.error('Error sending email OTP:', error);
-      
-      // Fallback to simulation if email fails
-      console.log('Falling back to simulated email...');
+      // fallback simulate
       console.log('='.repeat(50));
-      console.log('📧 EMAIL OTP (Fallback Simulation)');
+      console.log('📧 FALLBACK SIMULATED EMAIL OTP (exception)');
+      console.log('To:', email);
+      console.log('OTP:', otpCode);
+      console.log('Time:', new Date().toLocaleString());
       console.log('='.repeat(50));
-      console.log(`Email: ${email}`);
-      console.log(`OTP Code: ${otpCode}`);
-      console.log(`Time: ${new Date().toLocaleString()}`);
-      console.log(`Error: ${error.message}`);
-      console.log('='.repeat(50));
-      
-      // Don't throw error, just simulate
-      return { success: true, messageId: 'fallback-' + Date.now() };
+
+      return {
+        success: true,
+        simulated: true,
+      };
     }
   },
 
-  // Send OTP via SMS (simulated)
+  // Tạm thời chỉ simulate SMS, khi nào dùng Twilio/esms thì implement sau
   sendSMS: async (phone, otpCode) => {
-    try {
-      // Simulate SMS for development
-      console.log('='.repeat(50));
-      console.log('📱 SMS OTP (Simulated)');
-      console.log('='.repeat(50));
-      console.log(`Phone: ${phone}`);
-      console.log(`OTP Code: ${otpCode}`);
-      console.log(`Time: ${new Date().toLocaleString()}`);
-      console.log('Message: Mã xác thực TaZiFootball của bạn là: ' + otpCode + '. Có hiệu lực trong 5 phút.');
-      console.log('='.repeat(50));
+    console.log('='.repeat(50));
+    console.log('📱 SIMULATED SMS OTP');
+    console.log('Phone:', phone);
+    console.log('OTP:', otpCode);
+    console.log('Time:', new Date().toLocaleString());
+    console.log('='.repeat(50));
 
-      // TODO: Integrate with real SMS service like:
-      // - Twilio
-      // - AWS SNS
-      // - Vietnam SMS Gateway
-      // - Esms.vn
-      
-      return { success: true, phone, otpCode };
-    } catch (error) {
-      console.error('Error sending SMS OTP:', error);
-      throw new Error('Không thể gửi SMS OTP');
-    }
+    return {
+      success: true,
+      simulated: true,
+    };
   },
 
-  // Validate email format
+  // Validate email
   isValidEmail: (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex =
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
   },
 
-  // Validate phone format (Vietnam)
+  // Validate phone (VN)
   isValidPhone: (phone) => {
     const phoneRegex = /^(03|05|07|08|09)\d{8}$/;
     return phoneRegex.test(phone);
@@ -128,7 +139,7 @@ const sendOtp = {
     const min = Math.pow(10, length - 1);
     const max = Math.pow(10, length) - 1;
     return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
+  },
 };
 
 module.exports = sendOtp;
