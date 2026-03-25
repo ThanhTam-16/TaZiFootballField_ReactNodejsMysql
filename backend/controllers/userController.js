@@ -42,7 +42,7 @@ exports.updateUserProfile = async (req, res) => {
 
     // Validate phone if provided
     if (phone_number && !sendOtp.isValidPhone(phone_number)) {
-      return res.status(400).json({ error: 'Số điện thoại không hợp lệ' });
+      return res.status(400).json({ error: 'Số điện thoại chỉ được gồm đúng 10 chữ số' });
     }
 
     await User.updateInfo(id, { name: name.trim(), email, phone_number });

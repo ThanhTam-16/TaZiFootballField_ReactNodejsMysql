@@ -108,7 +108,7 @@ function UserProfile() {
         navigate('/booking', { state: { bookingInfo } });
       }
     } catch (err) {
-      showError('Lỗi khi cập nhật: ' + (err.response?.data?.message || err.message));
+      showError('Lỗi khi cập nhật: ' + (err.response?.data?.error || err.response?.data?.message || err.message));
     } finally {
       setUpdating(false);
     }

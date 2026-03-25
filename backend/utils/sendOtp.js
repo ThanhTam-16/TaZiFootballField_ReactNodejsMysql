@@ -129,9 +129,17 @@ const sendOtp = {
   },
 
   // Validate phone (VN)
+  // isValidPhone: (phone) => {
+  //   const phoneRegex = /^(03|05|07|08|09)\d{8}$/;
+  //   return phoneRegex.test(phone);
+  // },
+
+  // Validate phone
   isValidPhone: (phone) => {
-    const phoneRegex = /^(03|05|07|08|09)\d{8}$/;
-    return phoneRegex.test(phone);
+    if (!phone) return false;
+    const cleanedPhone = phone.trim();
+    const phoneRegex = /^\d{10}$/;   // CHỈ cần đủ 10 số
+    return phoneRegex.test(cleanedPhone);
   },
 
   // Generate OTP code
