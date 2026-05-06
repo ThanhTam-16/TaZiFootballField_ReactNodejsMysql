@@ -296,7 +296,7 @@ cd backend && npm start
 ---
 
 ### Deployment
-- **Database**: railway.com
+- **Database**: aiven.io
 - **Backend**: Render.com
 - **Frontend**: Vercel.com
 
@@ -356,7 +356,7 @@ mysqldump -u root -p football_field_management > backup_$(date +%Y%m%d).sql
 
 **Proprietary Software** - All rights reserved.
 
-**Bản quyền © 2024 Nguyễn Thành Tâm**
+**Bản quyền © 2025 Nguyễn Thành Tâm**
 
 Phần mềm này được phát triển cho mục đích thương mại. Nghiêm cấm sao chép, phân phối hoặc sử dụng mà không có sự cho phép bằng văn bản.
 
